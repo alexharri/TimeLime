@@ -14,7 +14,7 @@ interface Options {
   yBounds: YBounds;
 }
 
-export const createGlobalToNormalFunction = (options: Options) => {
+export const createGlobalToNormalFn = (options: Options) => {
   const { viewport, viewBounds = [0, 1], yBounds, length } = options;
 
   const [xMin, xMax] = viewBounds;
