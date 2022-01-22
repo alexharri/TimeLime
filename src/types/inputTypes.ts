@@ -1,21 +1,11 @@
-interface InputKeyframeControlPoint {
-  /** Number between 0-1 */
-  tx: number;
-  /** `value` is relative to the keyframe's value */
-  value: number;
-}
+import { Vec2 } from "~/core/utils/math/Vec2";
 
-interface InputKeyframe {
-  /** The 0-indexed frame of the keyframe */
-  frame: number;
-  /** The value (Y position) of the keyframe */
-  value: number;
-  controlPointLeft?: InputKeyframeControlPoint;
-  controlPointRight?: InputKeyframeControlPoint;
-}
+export type InputVec2 =
+  | Vec2
+  | [number, number]
+  | { x: number; y: number }
+  | { left: number; top: number };
 
-interface InputTimeline {
-  keyframes: InputKeyframe[];
-  /** Length of timeline in frames. */
-  length: number;
-}
+export type InputLine = [InputVec2, InputVec2];
+export type InputCubicBezier = [InputVec2, InputVec2, InputVec2, InputVec2];
+export type InputCurve = InputLine | InputCubicBezier;

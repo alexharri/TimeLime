@@ -1,12 +1,15 @@
 /* eslint-disable @typescript-eslint/ban-ts-comment, @typescript-eslint/no-misused-new */
 
+import { InputVec2 } from "~/types/inputTypes";
 import { getDistance, lerp, rotateVec2CCW } from "./math";
 
-type IVec2 = Vec2 | { x: number; y: number } | { left: number; top: number };
-
-const resolveVec2 = (data: IVec2): Vec2 => {
+const resolveVec2 = (data: InputVec2): Vec2 => {
   if (data instanceof Vec2) {
     return data;
+  }
+
+  if (Array.isArray(data)) {
+    return new Vec2(data[0], data[1]);
   }
 
   if (typeof (data as any).left === "number") {
@@ -17,9 +20,17 @@ const resolveVec2 = (data: IVec2): Vec2 => {
 };
 
 export class Vec2 {
-  public static new(vec: IVec2): Vec2;
+  public static new(vec: InputVec2): Vec2;
   public static new(x: number, y: number): Vec2;
-  public static new(vecOrX: number | IVec2, y?: number) {
+  public static new(vecOrX: number | InputVec2, y?: number) {
+    if (vecOrX instanceof Vec2) {
+      return vecOrX;
+    }
+
+    if (Array.isArray(vecOrX)) {
+      return new Vec2(vecOrX[0], vecOrX[1]);
+    }
+
     if (typeof vecOrX === "number") {
       return new Vec2(vecOrX, y!);
     }
@@ -69,7 +80,7 @@ export class Vec2 {
     return this._y;
   }
 
-  public add(vec: IVec2): Vec2 {
+  public add(vec: InputVec2): Vec2 {
     const v = resolveVec2(vec);
     if (v.atOrigin) {
       return this;
@@ -111,7 +122,7 @@ export class Vec2 {
     return new Vec2(this.x - x, this.y - y);
   }
 
-  public scale(scale: number, anchor: IVec2 = Vec2.ORIGIN): Vec2 {
+  public scale(scale: number, anchor: InputVec2 = Vec2.ORIGIN): Vec2 {
     if (scale === 1) {
       return this;
     }
@@ -120,7 +131,7 @@ export class Vec2 {
     return new Vec2(a.x + (this.x - a.x) * scale, a.y + (this.y - a.y) * scale);
   }
 
-  public scaleX(scale: number, anchor: IVec2 = Vec2.ORIGIN): Vec2 {
+  public scaleX(scale: number, anchor: InputVec2 = Vec2.ORIGIN): Vec2 {
     if (scale === 1) {
       return this;
     }
@@ -129,7 +140,7 @@ export class Vec2 {
     return new Vec2(a.x + (this.x - a.x) * scale, this.y);
   }
 
-  public scaleY(scale: number, anchor: IVec2 = Vec2.ORIGIN): Vec2 {
+  public scaleY(scale: number, anchor: InputVec2 = Vec2.ORIGIN): Vec2 {
     if (scale === 1) {
       return this;
     }
@@ -141,7 +152,7 @@ export class Vec2 {
   public scaleXY(
     scaleX: number,
     scaleY: number,
-    anchor: IVec2 = Vec2.ORIGIN
+    anchor: InputVec2 = Vec2.ORIGIN
   ): Vec2 {
     if (scaleX === 1 && scaleY === 1) {
       return this;
@@ -154,7 +165,7 @@ export class Vec2 {
     );
   }
 
-  public rotate(rad: number, anchor: IVec2 = Vec2.new(0, 0)): Vec2 {
+  public rotate(rad: number, anchor: InputVec2 = Vec2.new(0, 0)): Vec2 {
     const a = resolveVec2(anchor);
     return rotateVec2CCW(this, rad, a) as Vec2;
   }
@@ -168,7 +179,7 @@ export class Vec2 {
    *
    * A `t` value of `0` is this vector, 1 is `vec`
    */
-  public lerp(vec: IVec2, t: number): Vec2 {
+  public lerp(vec: InputVec2, t: number): Vec2 {
     const v = resolveVec2(vec);
     return new Vec2(lerp(this.x, v.x, t), lerp(this.y, v.y, t));
   }
@@ -177,7 +188,7 @@ export class Vec2 {
     return Vec2.new(Math.round(this.x), Math.round(this.y));
   }
 
-  public apply(fn: (vec: Vec2) => IVec2): Vec2 {
+  public apply(fn: (vec: Vec2) => InputVec2): Vec2 {
     return resolveVec2(fn(this));
   }
 
@@ -185,7 +196,7 @@ export class Vec2 {
     return getDistance(Vec2.ORIGIN, this);
   }
 
-  public eq(vec: IVec2): boolean {
+  public eq(vec: InputVec2): boolean {
     const v = resolveVec2(vec);
     return v.x === this.x && v.y === this.y;
   }

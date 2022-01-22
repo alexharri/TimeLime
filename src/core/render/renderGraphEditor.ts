@@ -13,7 +13,7 @@ import {
   createGraphEditorNormalViewportY,
 } from "~/core/render/viewport";
 import { getGraphEditorYBoundsFromPaths } from "~/core/render/yBounds";
-import { convertTimelineKeyframesToCurves } from "~/core/transform/curves";
+import { keyframesToCurves } from "~/core/transform/keyframesToCurves";
 import { transformRectWithVecTransformation } from "~/core/utils/math/math";
 import { Vec2 } from "~/core/utils/math/Vec2";
 import { generateGraphEditorYTicksFromBounds } from "~/core/utils/yTicks";
@@ -88,7 +88,7 @@ export function renderGraphEditor(options: RenderOptions) {
   }
 
   const timelineCurves = timelines.map((timeline) =>
-    convertTimelineKeyframesToCurves(timeline.keyframes)
+    keyframesToCurves(timeline.keyframes)
   );
 
   const toViewportY = createGraphEditorNormalViewportY(timelineCurves, {

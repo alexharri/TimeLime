@@ -4,7 +4,7 @@ import { Vec2 } from "~/core/utils/math/Vec2";
 import { Curve } from "~/types/commonTypes";
 import { TimelineKeyframe } from "~/types/timelineTypes";
 
-export const getControlPointAsVector = (
+const getControlPointAsVector = (
   whichControlPoint: "cp0" | "cp1",
   k0: TimelineKeyframe,
   k1: TimelineKeyframe
@@ -41,9 +41,7 @@ const getCurveBetweenKeyframes = (
   return [p0, p3];
 };
 
-export const convertTimelineKeyframesToCurves = (
-  keyframes: TimelineKeyframe[]
-): Curve[] => {
+export const keyframesToCurves = (keyframes: TimelineKeyframe[]): Curve[] => {
   const paths: Curve[] = [];
 
   for (let i = 0; i < keyframes.length - 1; i += 1) {
