@@ -101,5 +101,14 @@ describe("getActionToPerformOnMouseDown", () => {
       type: "alt_mousedown_keyframe",
       keyframe: keyframes[0],
     });
+
+    // Check behavior for click on empty space
+    const empty_action = getActionToPerformOnMouseDown({
+      e: mockMouseEvent(Vec2.new(getX(0.5), getY(0.5))),
+      length,
+      timelines,
+      viewport,
+    });
+    expect(empty_action).toEqual({ type: "mousedown_empty" });
   });
 });
