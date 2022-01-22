@@ -9,10 +9,10 @@ import {
   traceLine,
 } from "~/core/render/renderPrimitives";
 import {
-  createGraphEditorNormalToViewportX,
-  createGraphEditorNormalViewportY,
-} from "~/core/render/viewport";
-import { getGraphEditorYBoundsFromPaths } from "~/core/render/yBounds";
+  createNormalToViewportXFn,
+  createNormalToViewportYFn,
+} from "~/core/utils/coords/normalToViewport";
+import { getGraphEditorYBounds } from "~/core/render/yBounds";
 import { keyframesToCurves } from "~/core/transform/keyframesToCurves";
 import { transformRectWithVecTransformation } from "~/core/utils/math/math";
 import { Vec2 } from "~/core/utils/math/Vec2";
@@ -91,18 +91,26 @@ export function renderGraphEditor(options: RenderOptions) {
     keyframesToCurves(timeline.keyframes)
   );
 
-  const toViewportY = createGraphEditorNormalViewportY(timelineCurves, {
+  /** @todo - take viewport as argument */
+  const viewport: Rect = {
+    width,
     height,
+    left: 0,
+    top: 0,
+  };
+
+  const toViewportY = createNormalToViewportYFn({
+    viewport,
     length,
     timelines,
     viewBounds,
     yBounds,
     yPan: undefined,
   });
-  const toViewportX = createGraphEditorNormalToViewportX({
+  const toViewportX = createNormalToViewportXFn({
     length,
     viewBounds,
-    width,
+    viewport,
   });
   const toViewport = (vec: Vec2) =>
     Vec2.new(toViewportX(vec.x), toViewportY(vec.y));
@@ -138,11 +146,10 @@ export function renderGraphEditor(options: RenderOptions) {
 
   const [yUpper, yLower] =
     yBounds ||
-    getGraphEditorYBoundsFromPaths({
+    getGraphEditorYBounds({
       viewBounds,
       length,
       timelines,
-      timelineCurves,
     });
 
   const ticks = generateGraphEditorYTicksFromBounds([

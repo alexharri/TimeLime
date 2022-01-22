@@ -1,3 +1,4 @@
+import { MouseEvent } from "react";
 import { Vec2 } from "~/core/utils/math/Vec2";
 
 export interface Rect {
@@ -19,3 +20,11 @@ export type Curve = CubicBezier | Line;
 
 export type ViewBounds = [number, number];
 export type YBounds = [number, number];
+
+export interface MousePosition {
+  global: Vec2;
+  viewport: Vec2;
+  normal: Vec2;
+}
+
+export type SomeMouseEvent = Pick<MouseEvent, "altKey" | "clientX" | "clientY">;

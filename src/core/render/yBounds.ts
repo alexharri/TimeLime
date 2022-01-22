@@ -1,21 +1,20 @@
+import { keyframesToCurves } from "~/core/transform/keyframesToCurves";
 import { splitTimelineCurve } from "~/core/utils/math/splitTimelineCurve";
-import { Curve, ViewBounds, YBounds } from "~/types/commonTypes";
+import { ViewBounds, YBounds } from "~/types/commonTypes";
 import { Timeline } from "~/types/timelineTypes";
 
 interface Options {
   viewBounds: ViewBounds;
   length: number;
   timelines: Timeline[];
-  timelineCurves: Curve[][];
 }
 
-export const getGraphEditorYBoundsFromPaths = (options: Options): YBounds => {
-  const {
-    viewBounds,
-    length,
-    timelines,
-    timelineCurves: timelinePaths,
-  } = options;
+export const getGraphEditorYBounds = (options: Options): YBounds => {
+  const { viewBounds, length, timelines } = options;
+
+  const timelineCurves = timelines.map((timeline) =>
+    keyframesToCurves(timeline.keyframes)
+  );
 
   const timelineYBounds = timelines.map((timeline, i): [number, number] => {
     if (timeline.keyframes.length === 1) {
@@ -23,7 +22,7 @@ export const getGraphEditorYBoundsFromPaths = (options: Options): YBounds => {
       return [value, value];
     }
 
-    let paths = timelinePaths[i];
+    let paths = timelineCurves[i];
     const originalPaths = [...paths];
 
     const iStart = viewBounds[0] * (length - 1);

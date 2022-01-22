@@ -1,5 +1,6 @@
 /* eslint-disable @typescript-eslint/ban-ts-comment, @typescript-eslint/no-misused-new */
 
+import { SomeMouseEvent } from "~/types/commonTypes";
 import { InputVec2 } from "~/types/inputTypes";
 import { getDistance, lerp, rotateVec2CCW } from "./math";
 
@@ -42,7 +43,7 @@ export class Vec2 {
     return new Vec2((vecOrX as any).x, (vecOrX as any).y);
   }
 
-  public static fromEvent(e: MouseEvent): Vec2 {
+  public static fromEvent(e: SomeMouseEvent): Vec2 {
     return new Vec2(e.clientX, e.clientY);
   }
   public static ORIGIN = Vec2.new(0, 0);
