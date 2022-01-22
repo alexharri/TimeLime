@@ -41,9 +41,7 @@ const getCurveBetweenKeyframes = (
   return [p0, p3];
 };
 
-export const convertTimelineKeyframesToCurves = (
-  keyframes: TimelineKeyframe[]
-): Curve[] => {
+export const keyframesToCurves = (keyframes: TimelineKeyframe[]): Curve[] => {
   const paths: Curve[] = [];
 
   for (let i = 0; i < keyframes.length - 1; i += 1) {
