@@ -4,7 +4,7 @@ import { Vec2 } from "~/core/utils/math/Vec2";
 import { Curve } from "~/types/commonTypes";
 import { TimelineKeyframe } from "~/types/timelineTypes";
 
-export const getControlPointAsVector = (
+const getControlPointAsVector = (
   whichControlPoint: "cp0" | "cp1",
   k0: TimelineKeyframe,
   k1: TimelineKeyframe
