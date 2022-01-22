@@ -1,5 +1,7 @@
+import { parseCurves } from "~/core/parse/parseCurves";
 import { curvesToKeyframes } from "~/core/transform/curvesToKeyframes";
-import { ICurve } from "~/types/commonTypes";
+import { keyframesToCurves } from "~/core/transform/keyframesToCurves";
+import { ICurve, Curve } from "~/types/commonTypes";
 import { TimelineKeyframe } from "~/types/timelineTypes";
 
 const keyframeBase = {
@@ -176,5 +178,25 @@ describe("curvesToKeyframes", () => {
       },
     ];
     expect(curvesToKeyframes(curves)).toEqual(keyframes);
+  });
+
+  describe("converting to keyframes and back returns the same value", () => {
+    const curves: Curve[] = parseCurves([
+      [
+        [0, 0],
+        [40, 0],
+        [80, 16],
+        [100, 20],
+      ],
+      [
+        [100, 20],
+        [140, 28],
+        [180, 12],
+        [200, 10],
+      ],
+    ]);
+    expect(
+      JSON.stringify(keyframesToCurves(curvesToKeyframes(curves)))
+    ).toEqual(JSON.stringify(curves));
   });
 });
