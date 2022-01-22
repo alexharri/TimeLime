@@ -1,4 +1,3 @@
-import { lerp } from "~/core/utils/math/math";
 import { Vec2 } from "~/core/utils/math/Vec2";
 import { CubicBezier, PartialCubicBezier } from "~/types/commonTypes";
 

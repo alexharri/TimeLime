@@ -1,4 +1,4 @@
-import { IVec2, Vec2 } from "~/core/utils/math/Vec2";
+import { Vec2 } from "~/core/utils/math/Vec2";
 
 export interface Rect {
   top: number;
@@ -16,10 +16,6 @@ export type CubicBezier = [Vec2, Vec2, Vec2, Vec2];
 export type PartialCubicBezier = [Vec2, Vec2 | null, Vec2 | null, Vec2];
 export type Line = [Vec2, Vec2];
 export type Curve = CubicBezier | Line;
-
-export type ILine = [IVec2, IVec2];
-export type ICubicBezier = [IVec2, IVec2, IVec2, IVec2];
-export type ICurve = ILine | ICubicBezier;
 
 export type ViewBounds = [number, number];
 export type YBounds = [number, number];

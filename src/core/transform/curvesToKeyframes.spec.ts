@@ -1,7 +1,8 @@
 import { parseCurves } from "~/core/parse/parseCurves";
 import { curvesToKeyframes } from "~/core/transform/curvesToKeyframes";
 import { keyframesToCurves } from "~/core/transform/keyframesToCurves";
-import { ICurve, Curve } from "~/types/commonTypes";
+import { Curve } from "~/types/commonTypes";
+import { InputCurve } from "~/types/inputTypes";
 import { TimelineKeyframe } from "~/types/timelineTypes";
 
 const keyframeBase = {
@@ -12,7 +13,7 @@ const keyframeBase = {
 
 describe("curvesToKeyframes", () => {
   it("parses curves from objects with x, y properties", () => {
-    const curves: ICurve[] = [
+    const curves: InputCurve[] = [
       [
         { x: 0, y: 0 },
         { x: 10, y: 50 },
@@ -26,7 +27,7 @@ describe("curvesToKeyframes", () => {
   });
 
   it("parses curves from tuples ([x, y])", () => {
-    const curves: ICurve[] = [
+    const curves: InputCurve[] = [
       [
         { x: 0, y: 0 },
         { x: 10, y: 50 },
@@ -40,7 +41,7 @@ describe("curvesToKeyframes", () => {
   });
 
   it("parses a cubic bezier correctly", () => {
-    const curves: ICurve[] = [
+    const curves: InputCurve[] = [
       [
         [0, 0],
         [2.5, 5],
@@ -76,7 +77,7 @@ describe("curvesToKeyframes", () => {
   });
 
   it("parses a cubic bezier and line correctly", () => {
-    const curves: ICurve[] = [
+    const curves: InputCurve[] = [
       [
         [0, 0],
         [2.5, 5],
@@ -122,7 +123,7 @@ describe("curvesToKeyframes", () => {
   });
 
   it("correctly detects when control points should be reflected", () => {
-    const curves: ICurve[] = [
+    const curves: InputCurve[] = [
       [
         [0, 0],
         [40, 0],

@@ -5,7 +5,8 @@
     "build-storybook": "build-storybook",
     "test": "jest",
     "test:watch": "jest --watchAll",
-    "test:ci": "jest --ci --coverage"
+    "test:ci": "jest --ci --coverage",
+    "tscheck": "tsc --noEmit --skipLibCheck"
   },
   "devDependencies": {
     "@babel/core": "^7.16.7",

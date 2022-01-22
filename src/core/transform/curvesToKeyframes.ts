@@ -2,10 +2,12 @@ import { DEG_TO_RAD_FAC } from "~/core/constants";
 import { parseCurves } from "~/core/parse/parseCurves";
 import { getAngleRadians } from "~/core/utils/math/math";
 import { Vec2 } from "~/core/utils/math/Vec2";
-import { ICurve } from "~/types/commonTypes";
+import { InputCurve } from "~/types/inputTypes";
 import { TimelineKeyframe } from "~/types/timelineTypes";
 
-export function curvesToKeyframes(inputCurves: ICurve[]): TimelineKeyframe[] {
+export function curvesToKeyframes(
+  inputCurves: InputCurve[]
+): TimelineKeyframe[] {
   const curves = parseCurves(inputCurves);
 
   const keyframes: TimelineKeyframe[] = [];
