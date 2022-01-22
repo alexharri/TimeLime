@@ -12,17 +12,17 @@ const isFlatBezier = (bezier: CubicBezier) => {
   return true;
 };
 
-export const splitTimelinePath = <T extends Line | CubicBezier>(
-  path: T,
+export const splitTimelineCurve = <T extends Line | CubicBezier>(
+  curve: T,
   index: number
 ): [T, T] => {
-  if (path.length === 2) {
-    const t = (index - path[0].x) / (path[1].x - path[0].x);
-    const mid = path[0].lerp(path[1], t);
-    return [[path[0], mid] as T, [mid, path[1]] as T];
+  if (curve.length === 2) {
+    const t = (index - curve[0].x) / (curve[1].x - curve[0].x);
+    const mid = curve[0].lerp(curve[1], t);
+    return [[curve[0], mid] as T, [mid, curve[1]] as T];
   }
 
-  const bezier = path as CubicBezier;
+  const bezier = curve as CubicBezier;
 
   if (isFlatBezier(bezier)) {
     return splitCubicBezier(bezier, 0.5) as [T, T];

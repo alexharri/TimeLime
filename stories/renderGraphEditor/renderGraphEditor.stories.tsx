@@ -7,7 +7,7 @@ export default {
   title: "API/renderGraphEditor",
 } as ComponentMeta<React.ComponentType>;
 
-export const RenderGraphEditor = () => {
+export const BasicExample = () => {
   const ref = useRef<HTMLCanvasElement>(null);
 
   useEffect(() => {
@@ -28,7 +28,7 @@ export const RenderGraphEditor = () => {
           value: 50,
         },
         {
-          id: "0",
+          id: "1",
           controlPointLeft: { tx: 0.5, relativeToDistance: 40, value: -15 },
           controlPointRight: null,
           index: 50,
@@ -42,6 +42,56 @@ export const RenderGraphEditor = () => {
       ctx,
       length: 100,
       timelines: [timeline],
+    });
+  }, []);
+
+  return <canvas ref={ref} width={800} height={400} />;
+};
+
+export const Overlap = () => {
+  const ref = useRef<HTMLCanvasElement>(null);
+
+  useEffect(() => {
+    const ctx = ref.current?.getContext("2d");
+    if (!ctx) {
+      return;
+    }
+
+    const timeline: Timeline = {
+      id: "test",
+      keyframes: [
+        {
+          id: "0",
+          controlPointLeft: null,
+          controlPointRight: {
+            relativeToDistance: 100,
+            tx: 0.2,
+            value: 0,
+          },
+          index: 0,
+          reflectControlPoints: false,
+          value: 0,
+        },
+        {
+          id: "1",
+          controlPointLeft: {
+            relativeToDistance: 100,
+            tx: 0.8,
+            value: 10,
+          },
+          controlPointRight: null,
+          index: 100,
+          reflectControlPoints: false,
+          value: 100,
+        },
+      ],
+    };
+
+    renderGraphEditor({
+      ctx,
+      length: 100,
+      timelines: [timeline],
+      viewBounds: [0.3, 0.7],
     });
   }, []);
 

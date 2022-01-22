@@ -1,4 +1,4 @@
-import { splitTimelinePath } from "~/core/utils/math/splitTimelinePath";
+import { splitTimelineCurve } from "~/core/utils/math/splitTimelineCurve";
 import { Curve, ViewBounds, YBounds } from "~/types/commonTypes";
 import { Timeline } from "~/types/timelineTypes";
 
@@ -39,36 +39,61 @@ export const getGraphEditorYBoundsFromPaths = (options: Options): YBounds => {
 
     const controlPointYsToConsider: number[] = [];
 
-    // Split paths that intersect the viewbounds
+    // Find control point Ys to consider
     if (paths.length > 0) {
-      const pathAtStart = paths[0];
+      const curveAtStart = paths[0];
+      const curveAtEnd = paths[paths.length - 1];
 
-      if (pathAtStart[0].x < iStart) {
-        const [, newPathAtStart] = splitTimelinePath(pathAtStart, iStart);
-        paths[0] = newPathAtStart;
-
-        if (pathAtStart.length === 4) {
-          for (let j = 1; j < 3; j += 1) {
-            if (pathAtStart[j].x > iStart) {
-              controlPointYsToConsider.push(pathAtStart[j].y);
-            }
+      if (curveAtStart.length === 4 && curveAtStart[0].x <= iStart) {
+        // The first curve is a cubic bezier where `p0` is left of `viewBounds[0]`.
+        //
+        // If the `p1` or `p2` control points land inside of the view bounds then we want
+        // to adjust the yBounds to ALWAYS include them.
+        for (let j = 1; j < 3; j += 1) {
+          if (curveAtStart[j].x >= iStart && curveAtStart[j].x <= iEnd) {
+            controlPointYsToConsider.push(curveAtStart[j].y);
           }
         }
       }
 
-      const pathAtEnd = paths[paths.length - 1];
-
-      if (pathAtEnd[pathAtEnd.length - 1].x > iEnd) {
-        const [newPathAtEnd] = splitTimelinePath(pathAtEnd, iEnd);
-        paths[paths.length - 1] = newPathAtEnd;
-
-        if (pathAtEnd.length === 4) {
-          for (let j = 1; j < 3; j += 1) {
-            if (pathAtEnd[j].x < iEnd) {
-              controlPointYsToConsider.push(pathAtEnd[j].y);
-            }
+      if (
+        paths.length > 1 &&
+        curveAtEnd.length === 4 &&
+        curveAtEnd[3].x >= iEnd
+      ) {
+        // Reverse case for start curve.
+        for (let j = 1; j < 3; j += 1) {
+          if (curveAtEnd[j].x >= iStart && curveAtEnd[j].x <= iEnd) {
+            controlPointYsToConsider.push(curveAtEnd[j].y);
           }
         }
+      }
+
+      // All points of curves where `0 < i < curves.length - 1` are considered automatically.
+    }
+
+    // Split paths that intersect the viewbounds
+    if (paths.length > 0) {
+      const curveAtStart = paths[0];
+
+      if (curveAtStart[0].x < iStart) {
+        // The start of the first curve is not fully within the view bounds.
+        //
+        // Split the curve where it intersects with the view bounds and include
+        // the part of the curve inside of the view bounds.
+        const [, newPathAtStart] = splitTimelineCurve(curveAtStart, iStart);
+        paths[0] = newPathAtStart;
+      }
+
+      const curveAtEnd = paths[paths.length - 1];
+
+      if (curveAtEnd[curveAtEnd.length - 1].x > iEnd) {
+        // The end of the last curve is not fully within the view bounds.
+        //
+        // Split the curve where it intersects with the view bounds and include
+        // the part of the curve inside of the view bounds.
+        const [newPathAtEnd] = splitTimelineCurve(curveAtEnd, iEnd);
+        paths[paths.length - 1] = newPathAtEnd;
       }
     } else {
       const startIndex = originalPaths[0][0].x;
