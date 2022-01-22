@@ -1,7 +1,7 @@
 import { getGraphEditorYBounds } from "~/core/render/yBounds";
 import { createGlobalToNormalFn as createGlobalToNormalFn } from "~/core/utils/coords/globalToNormal";
 import { createNormalToViewportFn } from "~/core/utils/coords/normalToViewport";
-import { getGraphEditorTimelineTargetObject } from "~/core/utils/getGraphEditorTargetObject";
+import { getGraphEditorTargetObject } from "~/core/utils/getGraphEditorTargetObject";
 import { Vec2 } from "~/core/utils/math/Vec2";
 import {
   MousePosition,
@@ -74,7 +74,7 @@ export const getActionToPerformOnMouseDown = (
   };
 
   for (const timeline of timelines) {
-    const target = getGraphEditorTimelineTargetObject(
+    const target = getGraphEditorTargetObject(
       timeline,
       mousePosition.viewport,
       normalToViewport

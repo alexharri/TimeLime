@@ -21,7 +21,7 @@ type GraphEditorTargetObject =
       type: "none";
     };
 
-export const getGraphEditorTimelineTargetObject = (
+export const getGraphEditorTargetObject = (
   timeline: Timeline,
   viewportMousePosition: Vec2,
   normalToViewport: (vec: Vec2) => Vec2
