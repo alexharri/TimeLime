@@ -1,21 +1,24 @@
+import {
+  CANVAS_NO_DIFF_UPPER_LOWER_BUFFER,
+  CANVAS_UPPER_LOWER_BUFFER_FACTOR,
+} from "~/core/constants";
+import { keyframesToCurves } from "~/core/transform/keyframesToCurves";
 import { splitTimelineCurve } from "~/core/utils/math/splitTimelineCurve";
-import { Curve, ViewBounds, YBounds } from "~/types/commonTypes";
+import { ViewBounds, YBounds } from "~/types/commonTypes";
 import { Timeline } from "~/types/timelineTypes";
 
 interface Options {
   viewBounds: ViewBounds;
   length: number;
   timelines: Timeline[];
-  timelineCurves: Curve[][];
 }
 
-export const getGraphEditorYBoundsFromPaths = (options: Options): YBounds => {
-  const {
-    viewBounds,
-    length,
-    timelines,
-    timelineCurves: timelinePaths,
-  } = options;
+export const getGraphEditorYBounds = (options: Options): YBounds => {
+  const { viewBounds, length, timelines } = options;
+
+  const timelineCurves = timelines.map((timeline) =>
+    keyframesToCurves(timeline.keyframes)
+  );
 
   const timelineYBounds = timelines.map((timeline, i): [number, number] => {
     if (timeline.keyframes.length === 1) {
@@ -23,7 +26,7 @@ export const getGraphEditorYBoundsFromPaths = (options: Options): YBounds => {
       return [value, value];
     }
 
-    let paths = timelinePaths[i];
+    let paths = timelineCurves[i];
     const originalPaths = [...paths];
 
     const iStart = viewBounds[0] * (length - 1);
@@ -148,9 +151,12 @@ export const getGraphEditorYBoundsFromPaths = (options: Options): YBounds => {
   const diff = yUpper - yLower;
 
   if (diff === 0) {
-    return [yUpper + 10, yUpper - 10];
+    const buffer = CANVAS_NO_DIFF_UPPER_LOWER_BUFFER;
+    return [yUpper + buffer, yUpper - buffer];
   }
 
   // Add .1 of the diff on each side for padding.
-  return [yUpper + diff * 0.1, yLower - diff * 0.1];
+  const buffer = diff * CANVAS_UPPER_LOWER_BUFFER_FACTOR;
+
+  return [yUpper + buffer, yLower - buffer];
 };
