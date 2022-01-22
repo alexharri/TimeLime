@@ -1,5 +1,5 @@
 import { colors } from "~/core/colors";
-import { TIMELINE_CANVAS_END_START_BUFFER } from "~/core/constants";
+import { CANVAS_END_START_BUFFER } from "~/core/constants";
 import {
   renderCircle,
   renderDiamond,
@@ -122,8 +122,8 @@ export function renderGraphEditor(options: RenderOptions) {
     renderRect(
       ctx,
       {
-        left: atZero - TIMELINE_CANVAS_END_START_BUFFER - 1,
-        width: TIMELINE_CANVAS_END_START_BUFFER,
+        left: atZero - CANVAS_END_START_BUFFER - 1,
+        width: CANVAS_END_START_BUFFER,
         top: 0,
         height,
       },

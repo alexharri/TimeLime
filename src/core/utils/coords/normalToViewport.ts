@@ -1,4 +1,4 @@
-import { TIMELINE_CANVAS_END_START_BUFFER } from "~/core/constants";
+import { CANVAS_END_START_BUFFER } from "~/core/constants";
 import { getGraphEditorYBounds } from "~/core/render/yBounds";
 import { lerp, lerpInCanvasRange } from "~/core/utils/math/math";
 import { Vec2 } from "~/core/utils/math/Vec2";
@@ -14,7 +14,7 @@ export const createNormalToViewportXFn = (options: {
 
   const realWidth = viewport.width;
   const renderWidth = realWidth;
-  const canvasWidth = realWidth - TIMELINE_CANVAS_END_START_BUFFER * 2;
+  const canvasWidth = realWidth - CANVAS_END_START_BUFFER * 2;
 
   const [tMin, tMax] = viewBounds;
 
@@ -26,7 +26,7 @@ export const createNormalToViewportXFn = (options: {
         tMin * renderWidth,
         tMax * renderWidth,
         canvasWidth
-      ) + TIMELINE_CANVAS_END_START_BUFFER
+      ) + CANVAS_END_START_BUFFER
     );
   };
 };

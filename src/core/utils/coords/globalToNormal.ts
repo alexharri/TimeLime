@@ -1,4 +1,4 @@
-import { TIMELINE_CANVAS_END_START_BUFFER } from "~/core/constants";
+import { CANVAS_END_START_BUFFER } from "~/core/constants";
 import { lerp } from "~/core/utils/math/math";
 import { Vec2 } from "~/core/utils/math/Vec2";
 import { Rect, ViewBounds, YBounds } from "~/types/commonTypes";
@@ -19,8 +19,8 @@ export const createGlobalToNormalFunction = (options: Options) => {
 
   const [xMin, xMax] = viewBounds;
 
-  const canvasWidth = viewport.width - TIMELINE_CANVAS_END_START_BUFFER * 2;
-  const canvasLeft = viewport.left + TIMELINE_CANVAS_END_START_BUFFER;
+  const canvasWidth = viewport.width - CANVAS_END_START_BUFFER * 2;
+  const canvasLeft = viewport.left + CANVAS_END_START_BUFFER;
 
   const globalToNormal = (vec: Vec2): Vec2 => {
     const pos = vec.subY(viewport.top).subX(canvasLeft);
