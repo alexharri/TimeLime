@@ -58,6 +58,7 @@ export const getActionToPerformOnMouseDown = (
     viewBounds,
     viewport,
   });
+
   const normalToViewport = createNormalToViewportFn({
     yBounds,
     viewBounds,
