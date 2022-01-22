@@ -1,6 +1,7 @@
 import { ComponentMeta } from "@storybook/react";
 import React, { useEffect, useRef } from "react";
 import { renderGraphEditor } from "~/core/render/renderGraphEditor";
+import { curvesToKeyframes } from "~/core/transform/curvesToKeyframes";
 import { Timeline } from "~/types/timelineTypes";
 
 export default {
@@ -93,6 +94,39 @@ export const Overlap = () => {
       timelines: [timeline],
       viewBounds: [0.3, 0.7],
     });
+  }, []);
+
+  return <canvas ref={ref} width={800} height={400} />;
+};
+
+export const ParseCurves = () => {
+  const ref = useRef<HTMLCanvasElement>(null);
+
+  useEffect(() => {
+    const ctx = ref.current?.getContext("2d");
+    if (!ctx) {
+      return;
+    }
+
+    const timeline: Timeline = {
+      id: "test",
+      keyframes: curvesToKeyframes([
+        [
+          [0, 0],
+          [20, 10],
+          [80, 90],
+          [100, 100],
+        ],
+        [
+          [100, 100],
+          [140, 121],
+          [180, 30],
+          [200, 100],
+        ],
+      ]),
+    };
+
+    renderGraphEditor({ ctx, length: 200, timelines: [timeline] });
   }, []);
 
   return <canvas ref={ref} width={800} height={400} />;

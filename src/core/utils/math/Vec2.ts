@@ -2,11 +2,19 @@
 
 import { getDistance, lerp, rotateVec2CCW } from "./math";
 
-type IVec2 = Vec2 | { x: number; y: number } | { left: number; top: number };
+export type IVec2 =
+  | Vec2
+  | [number, number]
+  | { x: number; y: number }
+  | { left: number; top: number };
 
 const resolveVec2 = (data: IVec2): Vec2 => {
   if (data instanceof Vec2) {
     return data;
+  }
+
+  if (Array.isArray(data)) {
+    return new Vec2(data[0], data[1]);
   }
 
   if (typeof (data as any).left === "number") {
@@ -20,6 +28,14 @@ export class Vec2 {
   public static new(vec: IVec2): Vec2;
   public static new(x: number, y: number): Vec2;
   public static new(vecOrX: number | IVec2, y?: number) {
+    if (vecOrX instanceof Vec2) {
+      return vecOrX;
+    }
+
+    if (Array.isArray(vecOrX)) {
+      return new Vec2(vecOrX[0], vecOrX[1]);
+    }
+
     if (typeof vecOrX === "number") {
       return new Vec2(vecOrX, y!);
     }

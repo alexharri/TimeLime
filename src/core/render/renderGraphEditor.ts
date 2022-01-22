@@ -13,7 +13,7 @@ import {
   createGraphEditorNormalViewportY,
 } from "~/core/render/viewport";
 import { getGraphEditorYBoundsFromPaths } from "~/core/render/yBounds";
-import { convertTimelineKeyframesToCurves } from "~/core/transform/curves";
+import { convertTimelineKeyframesToCurves } from "~/core/transform/timelineKeyframesToCurves";
 import { transformRectWithVecTransformation } from "~/core/utils/math/math";
 import { Vec2 } from "~/core/utils/math/Vec2";
 import { generateGraphEditorYTicksFromBounds } from "~/core/utils/yTicks";

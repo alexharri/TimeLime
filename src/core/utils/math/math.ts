@@ -6,6 +6,12 @@ import { Rect } from "~/types/commonTypes";
  */
 export const lerp = (a: number, b: number, t: number) => a * (1 - t) + b * t;
 
+export function getAngleRadians(from: Vec2, to: Vec2): number {
+  const vec = to.sub(from);
+  const angle = Math.atan2(vec.y, vec.x);
+  return angle;
+}
+
 /**
  * @param vec - Vec2 to rotate
  * @param rad - Angle to rotate CCW in radians
