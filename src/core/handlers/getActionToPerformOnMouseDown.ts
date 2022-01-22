@@ -11,7 +11,7 @@ import {
 } from "~/types/commonTypes";
 import { Timeline, TimelineKeyframe } from "~/types/timelineTypes";
 
-type MouseDownResult =
+type ActionToPerform =
   | {
       type: "alt_mousedown_keyframe";
       keyframe: TimelineKeyframe;
@@ -41,7 +41,7 @@ interface ActionToPerformOptions {
 
 export const getActionToPerformOnMouseDown = (
   options: ActionToPerformOptions
-): MouseDownResult => {
+): ActionToPerform => {
   const { e, viewport, timelines, viewBounds = [0, 1], length } = options;
 
   const globalMousePosition = Vec2.fromEvent(e);
