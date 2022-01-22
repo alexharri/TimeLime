@@ -1,5 +1,5 @@
 import { getGraphEditorYBounds } from "~/core/render/yBounds";
-import { createGlobalToNormalFunction as createGlobalToNormalFn } from "~/core/utils/coords/createGlobalToNormalFunction";
+import { createGlobalToNormalFunction as createGlobalToNormalFn } from "~/core/utils/coords/globalToNormal";
 import { createNormalToViewportFn } from "~/core/utils/coords/normalToViewport";
 import { getGraphEditorTimelineTargetObject } from "~/core/utils/getGraphEditorTargetObject";
 import { Vec2 } from "~/core/utils/math/Vec2";
