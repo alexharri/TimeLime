@@ -31,3 +31,5 @@ export type SomeMouseEvent = Pick<
   MouseEvent,
   "altKey" | "clientX" | "clientY" | "shiftKey" | "metaKey"
 >;
+
+export type Action = { type: string };
