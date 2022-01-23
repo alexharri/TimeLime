@@ -50,7 +50,7 @@ export class Vec2 {
 
   private _x: number;
   private _y: number;
-  private atOrigin: boolean;
+  public atOrigin: boolean;
 
   constructor(vec: { x: number; y: number });
   constructor(x: number, y: number);

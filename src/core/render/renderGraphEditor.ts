@@ -44,7 +44,7 @@ interface RenderOptions {
   colors?: Partial<{ [timelineId: string]: string }>;
 
   /** @default {} */
-  timelineSelectionMap?: TimelineSelectionMap;
+  timelineSelectionState?: TimelineSelectionMap;
 
   yBounds?: YBounds;
 
@@ -71,7 +71,7 @@ export function renderGraphEditor(options: RenderOptions) {
     length,
     yBounds,
     yPan = 0,
-    timelineSelectionMap = {},
+    timelineSelectionState = {},
   } = options;
   const { width, height } = getDimensions(options);
 
@@ -256,7 +256,7 @@ export function renderGraphEditor(options: RenderOptions) {
      */
     keyframes.forEach((k) => {
       const vec = toViewport(Vec2.new(k.index, k.value));
-      const timelineSelection = timelineSelectionMap[timeline.id];
+      const timelineSelection = timelineSelectionState[timeline.id];
       const selected = timelineSelection && timelineSelection.keyframes[k.id];
       renderDiamond(ctx, vec, {
         fillColor: selected ? "#2f9eff" : "#333",

@@ -14,15 +14,24 @@ import { Action } from "~/types/commonTypes";
 type ActionState<T, S, TK extends string, SK extends string> = Record<TK, T> &
   Record<SK, S>;
 
-interface Options<T, S, TK extends string, SK extends string> {
+interface Options<
+  T,
+  S,
+  AT extends Action,
+  AS extends Action,
+  TK extends string,
+  SK extends string
+> {
   stateKey: TK;
   selectionStateKey: SK;
 
   initialState: T;
   initialSelectionState: S;
 
-  reducer: (state: T, action: Action) => T;
-  selectionReducer: (state: S, action: Action) => S;
+  reducer: (state: T, action: AT) => T;
+  selectionReducer: (state: S, action: AS) => S;
+
+  onStateChangeCallback?: (state: ActionState<T, S, TK, SK>) => void;
 }
 
 export type ShouldAddToStackFn = (
@@ -42,6 +51,7 @@ export interface RequestActionParams {
   addListener: typeof _addListener;
   removeListener: typeof _removeListener;
   done: () => boolean;
+  execOnComplete: (callback: () => void) => void;
 }
 
 export interface RequestActionCallback {
@@ -53,12 +63,21 @@ interface RequestActionOptions {
   beforeSubmit?: (params: RequestActionParams) => void;
 }
 
-export class StateManager<T, S, TK extends string, SK extends string> {
+export class StateManager<
+  T,
+  S,
+  AT extends Action,
+  AS extends Action,
+  TK extends string,
+  SK extends string
+> {
   private stateKey: TK;
   private selectionStateKey: SK;
 
   private state: HistoryState<T>;
   private selectionState: HistoryState<S>;
+
+  private onStateChangeCallback?: (state: ActionState<T, S, TK, SK>) => void;
 
   private reducer: (
     state: HistoryState<T>,
@@ -71,7 +90,7 @@ export class StateManager<T, S, TK extends string, SK extends string> {
 
   private _n = 0;
 
-  constructor(options: Options<T, S, TK, SK>) {
+  constructor(options: Options<T, S, AT, AS, TK, SK>) {
     this.state = createInitialHistoryState(options.initialState, "normal");
     this.selectionState = createInitialHistoryState(
       options.initialSelectionState,
@@ -83,6 +102,12 @@ export class StateManager<T, S, TK extends string, SK extends string> {
 
     this.stateKey = options.stateKey;
     this.selectionStateKey = options.selectionStateKey;
+
+    this.onStateChangeCallback = options.onStateChangeCallback;
+  }
+
+  private onStateChange() {
+    this.onStateChangeCallback?.(this.getActionState());
   }
 
   private getActionId(): string | undefined {
@@ -226,6 +251,10 @@ export class StateManager<T, S, TK extends string, SK extends string> {
       addListener,
 
       removeListener,
+
+      execOnComplete: (cb) => {
+        onCompleteCallback = cb;
+      },
     };
 
     callback(params);
@@ -305,6 +334,7 @@ export class StateManager<T, S, TK extends string, SK extends string> {
   private dispatchHistoryAction(action: HistoryAction) {
     this.state = this.reducer(this.state, action);
     this.selectionState = this.selectionReducer(this.selectionState, action);
+    this.onStateChange();
   }
 
   public redo() {

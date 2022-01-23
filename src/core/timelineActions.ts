@@ -1,12 +1,6 @@
 import { TimelineKeyframe } from "~/types/timelineTypes";
 import { Rect } from "~/types/commonTypes";
 
-export enum TimelineActionType {
-  SetKeyframe,
-  RemoveKeyframes,
-  SetDragSelectRect,
-}
-
 type TimelineActions = typeof timelineActions;
 type TimelineActionReturnTypes = {
   [K in keyof TimelineActions]: ReturnType<TimelineActions[K]>;
