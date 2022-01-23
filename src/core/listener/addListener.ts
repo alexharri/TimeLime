@@ -1,5 +1,4 @@
-import { keys } from "~/core/constants";
-import { isKeyCodeOf, isKeyDown } from "~/core/listener/keyboard";
+import { isKeyCodeOf, isKeyDown, keys } from "~/core/listener/keyboard";
 import { elementHasKeyboardFocus } from "~/core/utils/focus";
 
 type Key = keyof typeof keys;
