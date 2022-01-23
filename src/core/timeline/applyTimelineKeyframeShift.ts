@@ -8,23 +8,23 @@ import {
 interface Options {
   timeline: Timeline;
   timelineSelection?: TimelineSelection;
-  shift: Vec2;
+  keyframeShift: Vec2;
 }
 
-export const applyIndexAndValueShift = (options: Options): Timeline => {
-  const { timeline, timelineSelection, shift } = options;
+export const applyTimelineKeyframeShift = (options: Options): Timeline => {
+  const { timeline, timelineSelection, keyframeShift } = options;
 
-  if (shift.atOrigin || !timelineSelection) {
+  if (keyframeShift.atOrigin || !timelineSelection) {
     return timeline;
   }
 
   const removeKeyframesAtIndex = new Set<number>();
 
-  if (shift.x !== 0) {
+  if (keyframeShift.x !== 0) {
     for (let i = 0; i < timeline.keyframes.length; i += 1) {
       const keyframe = timeline.keyframes[i];
       if (timelineSelection.keyframes[keyframe.id]) {
-        removeKeyframesAtIndex.add(keyframe.index + shift.x);
+        removeKeyframesAtIndex.add(keyframe.index + keyframeShift.x);
       }
     }
   }
@@ -38,12 +38,11 @@ export const applyIndexAndValueShift = (options: Options): Timeline => {
       return !removeKeyframesAtIndex.has(keyframe.index);
     })
     .map<TimelineKeyframe>((keyframe) => {
-      console.log(keyframe, timelineSelection.keyframes[keyframe.id]);
       if (timelineSelection.keyframes[keyframe.id]) {
         return {
           ...keyframe,
-          index: keyframe.index + shift.x,
-          value: keyframe.value + shift.y,
+          index: keyframe.index + keyframeShift.x,
+          value: keyframe.value + keyframeShift.y,
         };
       }
 

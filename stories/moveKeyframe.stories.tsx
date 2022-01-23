@@ -5,13 +5,19 @@ import { getActionToPerformOnMouseDown } from "~/core/handlers/getActionToPerfor
 import { renderGraphEditor } from "~/core/render/renderGraphEditor";
 import { getGraphEditorYBounds } from "~/core/render/yBounds";
 import { StateManager } from "~/core/state/StateManager";
-import { applyIndexAndValueShift } from "~/core/timeline/applyIndexAndValueShift";
+import { applyTimelineKeyframeShift } from "~/core/timeline/applyTimelineKeyframeShift";
+import {
+  GraphEditorEphState,
+  GraphEditorEphStateManager,
+} from "~/core/timeline/GraphEditorEphState";
+import { timelineActions } from "~/core/timelineActions";
 import { timelineReducer, TimelineState } from "~/core/timelineReducer";
 import { timelineSelectionActions } from "~/core/timelineSelectionActions";
 import { timelineSelectionReducer } from "~/core/timelineSelectionReducer";
 import { curvesToKeyframes } from "~/core/transform/curvesToKeyframes";
 import { createGlobalToNormalFn } from "~/core/utils/coords/globalToNormal";
 import { Vec2 } from "~/core/utils/math/Vec2";
+import { ViewBounds } from "~/types/commonTypes";
 import { Timeline } from "~/types/timelineTypes";
 
 export default {
@@ -22,7 +28,11 @@ export const Test = () => {
   const ref = useRef<HTMLCanvasElement>(null);
 
   const length = 200;
-  const timeline = useMemo(() => {
+  const viewBounds: ViewBounds = [0, 1];
+
+  const [n, setN] = useState(0);
+
+  const stateManager = useMemo(() => {
     const timeline: Timeline = {
       id: "test",
       keyframes: curvesToKeyframes([
@@ -40,12 +50,6 @@ export const Test = () => {
         ],
       ]),
     };
-    return timeline;
-  }, []);
-
-  const [n, setN] = useState(0);
-
-  const stateManager = useMemo(() => {
     const timelineState: TimelineState = {
       timelines: {
         [timeline.id]: timeline,
@@ -66,8 +70,11 @@ export const Test = () => {
     });
   }, []);
 
-  const [indexAndValueShift, setIndexAndValueShift] =
-    useState<Vec2 | null>(null);
+  const [ephState, setEphState] = useState<GraphEditorEphState>({});
+
+  const ephStateManager = useMemo(() => {
+    return new GraphEditorEphStateManager({ onChange: setEphState });
+  }, []);
 
   const onMouseDown = (e: React.MouseEvent) => {
     const viewport = ref.current?.getBoundingClientRect();
@@ -79,16 +86,21 @@ export const Test = () => {
     const actionToPerform = getActionToPerformOnMouseDown({
       e,
       length,
-      timelines: { [timeline.id]: timeline },
+      timelines: stateManager.getActionState().timelineState.timelines,
       viewport,
     });
+
+    console.log(actionToPerform);
 
     if (actionToPerform.type !== "mousedown_keyframe") {
       return;
     }
 
+    const { timelineState } = stateManager.getActionState();
+    const timeline = timelineState.timelines[actionToPerform.timelineId];
+
     stateManager.requestAction((params) => {
-      params.execOnComplete(() => setIndexAndValueShift(null));
+      params.execOnComplete(() => ephStateManager.reset());
 
       params.dispatch(timelineSelectionActions.clear(timeline.id));
       params.dispatch(
@@ -97,31 +109,49 @@ export const Test = () => {
           actionToPerform.keyframe.id
         )
       );
-
       const { timelines } = stateManager.getActionState().timelineState;
+
+      ephStateManager.yBounds = getGraphEditorYBounds({
+        length,
+        timelines,
+        viewBounds,
+      });
 
       const globalToNormal = createGlobalToNormalFn({
         length,
         viewport,
-        yBounds: getGraphEditorYBounds({
-          length,
-          timelines,
-          viewBounds: [0, 1],
-        }),
+        viewBounds,
+        timelines,
       });
 
       const initialMousePosition = Vec2.fromEvent(e).apply(globalToNormal);
+
+      let keyframeShift: Vec2 | undefined;
 
       params.addListener.repeated("mousemove", (e) => {
         const mousePosition = Vec2.fromEvent(e).apply(globalToNormal);
 
         const moveVector = mousePosition.sub(initialMousePosition);
 
-        setIndexAndValueShift(Vec2.new(Math.round(moveVector.x), moveVector.y));
+        keyframeShift = Vec2.new(Math.round(moveVector.x), moveVector.y);
+        ephStateManager.keyframeShift = keyframeShift;
       });
 
       params.addListener.once("mouseup", () => {
-        params.cancelAction();
+        if (!keyframeShift) {
+          params.cancelAction();
+          return;
+        }
+
+        const nextTimeline = applyTimelineKeyframeShift({
+          keyframeShift,
+          timeline,
+          timelineSelection:
+            stateManager.getActionState().timelineSelectionState[timeline.id],
+        });
+
+        params.dispatch(timelineActions.setTimeline(nextTimeline));
+        params.submitAction();
       });
     });
   };
@@ -135,18 +165,26 @@ export const Test = () => {
       stateManager.getActionState();
     let { timelines } = timelineState;
 
-    if (indexAndValueShift) {
+    const { keyframeShift, yBounds } = ephState;
+
+    if (keyframeShift) {
       timelines = mapMap(timelines, (timeline) =>
-        applyIndexAndValueShift({
+        applyTimelineKeyframeShift({
           timeline,
           timelineSelection: timelineSelectionState[timeline.id],
-          shift: indexAndValueShift,
+          keyframeShift,
         })
       );
     }
 
-    renderGraphEditor({ ctx, length, timelines, timelineSelectionState });
-  }, [indexAndValueShift, n]);
+    renderGraphEditor({
+      ctx,
+      length,
+      timelines,
+      timelineSelectionState,
+      yBounds,
+    });
+  }, [ephState, n]);
 
   return (
     <canvas ref={ref} width={800} height={400} onMouseDown={onMouseDown} />

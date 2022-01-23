@@ -16,7 +16,7 @@ export function timelineReducer(
   action: TimelineAction
 ): TimelineState {
   switch (action.type) {
-    case "set-keyframe": {
+    case "tl/set-keyframe": {
       const { keyframe, timelineId } = action;
 
       const timeline = state.timelines[timelineId];
@@ -49,7 +49,7 @@ export function timelineReducer(
       };
     }
 
-    case "remove-keyframe": {
+    case "tl/remove-keyframe": {
       const { timelineId, keyframeIds } = action;
       const set = new Set(keyframeIds);
       return {
@@ -57,6 +57,14 @@ export function timelineReducer(
         timelines: mergeInMap(state.timelines, timelineId, {
           keyframes: (keyframes) => keyframes.filter((k) => !set.has(k.id)),
         }),
+      };
+    }
+
+    case "tl/set-timeline": {
+      const { timeline } = action;
+      return {
+        ...state,
+        timelines: { ...state.timelines, [timeline.id]: timeline },
       };
     }
 

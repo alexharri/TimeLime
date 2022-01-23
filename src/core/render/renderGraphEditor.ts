@@ -75,6 +75,8 @@ export function renderGraphEditor(options: RenderOptions) {
   } = options;
   const { width, height } = getDimensions(options);
 
+  console.log(yBounds);
+
   ctx.clearRect(0, 0, width, height);
 
   ctx.beginPath();
