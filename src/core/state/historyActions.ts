@@ -7,6 +7,10 @@ export type HistoryAction =
   HistoryActionReturnTypes[keyof HistoryActionReturnTypes];
 
 export const historyActions = {
+  restorePreferredRedo: () => ({
+    type: <const>"history/restore-preferred-redo",
+  }),
+
   setHistoryIndex: (index: number) => ({
     type: <const>"history/set-index",
     index,
@@ -32,14 +36,16 @@ export const historyActions = {
     actionId: string,
     name: string,
     modifiesHistory: boolean,
-    modifiedKeys: string[],
+    modifiedState: boolean,
+    modifiedSelectionState: boolean,
     allowIndexShift: boolean
   ) => ({
     type: <const>"history/submit",
     actionId,
     name,
     modifiesHistory,
-    modifiedKeys,
+    modifiedState,
+    modifiedSelectionState,
     allowIndexShift,
   }),
 

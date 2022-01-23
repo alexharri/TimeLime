@@ -16,36 +16,62 @@ export const createInitialHistoryState = <S>(
   index: 0,
   indexDirection: 1,
   action: null,
+  preferredRedo: null,
 });
+
+interface StateEntry<S> {
+  state: S;
+  name: string;
+  modifiedRelated: boolean;
+  allowIndexShift: boolean;
+}
 
 export interface HistoryState<S> {
   type: "normal" | "selection";
-  list: Array<{
-    state: S;
-    name: string;
-    modifiedRelated: boolean;
-    allowIndexShift: boolean;
-  }>;
+  list: StateEntry<S>[];
   index: number;
   indexDirection: -1 | 1;
   action: null | {
     id: string;
     state: S;
   };
-}
-
-interface Options {
-  selectionForKey?: string;
+  preferredRedo: null | {
+    list: StateEntry<S>[];
+    index: number;
+  };
 }
 
 export function createReducerWithHistory<S>(
-  reducer: (state: S, action: any) => S,
-  options: Options = {}
+  reducer: (state: S, action: any) => S
 ) {
-  const { selectionForKey = "" } = options;
-
   return (state: HistoryState<S>, action: HistoryAction): HistoryState<S> => {
     switch (action.type) {
+      case "history/restore-preferred-redo": {
+        if (state.action) {
+          console.warn(
+            "Attempted to move history list index with an action in process."
+          );
+          return state;
+        }
+
+        const { preferredRedo } = state;
+
+        if (!preferredRedo) {
+          console.warn(
+            "Attempted to restore a preferred redo history that does not exist."
+          );
+          return state;
+        }
+
+        return {
+          ...state,
+          list: preferredRedo.list,
+          index: preferredRedo.index,
+          indexDirection: 1,
+          preferredRedo: null,
+        };
+      }
+
       case "history/set-index": {
         if (state.action) {
           console.warn(
@@ -128,8 +154,9 @@ export function createReducerWithHistory<S>(
           actionId,
           name,
           modifiesHistory,
-          modifiedKeys,
           allowIndexShift,
+          modifiedState,
+          modifiedSelectionState,
         } = action;
 
         if (!modifiesHistory) {
@@ -149,6 +176,22 @@ export function createReducerWithHistory<S>(
           return state;
         }
 
+        let preferredRedo: HistoryState<S>["preferredRedo"] = null;
+
+        if (modifiedState) {
+          preferredRedo = null;
+        } else if (modifiedSelectionState) {
+          preferredRedo = state.preferredRedo;
+
+          // If there are actions to redo, set them as the preferred redo
+          if (state.index < state.list.length - 1 && !preferredRedo) {
+            preferredRedo = {
+              list: state.list,
+              index: state.index + 1,
+            };
+          }
+        }
+
         return {
           ...state,
           list: [
@@ -156,13 +199,14 @@ export function createReducerWithHistory<S>(
             {
               state: state.action.state,
               name,
-              modifiedRelated: modifiedKeys.indexOf(selectionForKey) !== -1,
+              modifiedRelated: state.type === "selection" && modifiedState,
               allowIndexShift,
             },
           ],
           index: state.index + 1,
           indexDirection: 1,
           action: null,
+          preferredRedo,
         };
       }
 

@@ -79,9 +79,7 @@ export class StateManager<T, S, TK extends string, SK extends string> {
     );
 
     this.reducer = createReducerWithHistory(options.reducer);
-    this.selectionReducer = createReducerWithHistory(options.selectionReducer, {
-      selectionForKey: "timelines",
-    });
+    this.selectionReducer = createReducerWithHistory(options.selectionReducer);
 
     this.stateKey = options.stateKey;
     this.selectionStateKey = options.selectionStateKey;
@@ -128,26 +126,24 @@ export class StateManager<T, S, TK extends string, SK extends string> {
       }
     };
 
-    const dispatchHistoryAction = (action: HistoryAction) => {
-      this.state = this.reducer(this.state, action);
-      this.selectionState = this.selectionReducer(this.selectionState, action);
-    };
-
     const dispatch: RequestActionParams["dispatch"] = (action) => {
-      dispatchHistoryAction(
+      this.dispatchHistoryAction(
         historyActions.dispatchToAction(actionId, action, true)
       );
     };
 
     const cancelAction = () => {
-      dispatchHistoryAction(historyActions.cancelAction(actionId));
+      this.dispatchHistoryAction(historyActions.cancelAction(actionId));
       onComplete();
     };
 
-    dispatchHistoryAction(historyActions.startAction(actionId));
+    this.dispatchHistoryAction(historyActions.startAction(actionId));
 
-    const escToken = addListener.keyboardOnce("Esc", "keydown", cancelAction);
-    cancelTokens.push(escToken);
+    if (typeof window !== "undefined") {
+      // Likely running inside of Jest
+      const escToken = addListener.keyboardOnce("Esc", "keydown", cancelAction);
+      cancelTokens.push(escToken);
+    }
 
     const params: RequestActionParams = {
       done,
@@ -188,7 +184,7 @@ export class StateManager<T, S, TK extends string, SK extends string> {
         }
 
         if (!addToStack) {
-          dispatchHistoryAction(historyActions.cancelAction(actionId));
+          this.dispatchHistoryAction(historyActions.cancelAction(actionId));
           onComplete();
           return;
         }
@@ -206,12 +202,19 @@ export class StateManager<T, S, TK extends string, SK extends string> {
           }
         }
 
-        dispatchHistoryAction(
+        const modifiedState =
+          this.state.action!.state !== this.state.list[this.state.index].state;
+        const modifiedSelectionState =
+          this.selectionState.action!.state !==
+          this.selectionState.list[this.selectionState.index].state;
+
+        this.dispatchHistoryAction(
           historyActions.submitAction(
             actionId,
             name,
             true,
-            modifiedKeys,
+            modifiedState,
+            modifiedSelectionState,
             allowIndexShift
           )
         );
@@ -228,18 +231,34 @@ export class StateManager<T, S, TK extends string, SK extends string> {
     callback(params);
   }
 
+  public requestAction(callback: RequestActionCallback): void;
   public requestAction(
     options: RequestActionOptions,
     callback: RequestActionCallback
-  ) {
+  ): void;
+  public requestAction(
+    optionsOrCallback: RequestActionOptions | RequestActionCallback,
+    callback?: RequestActionCallback
+  ): void {
+    let options: RequestActionOptions;
+    let cb: RequestActionCallback;
+
+    if (typeof optionsOrCallback === "function") {
+      options = {};
+      cb = optionsOrCallback;
+    } else {
+      options = optionsOrCallback;
+      cb = callback!;
+    }
+
     if (!this.getActionId()) {
-      this.performRequestedAction(options, callback);
+      this.performRequestedAction(options, cb);
       return;
     }
 
     requestAnimationFrame(() => {
       if (!this.getActionId()) {
-        this.performRequestedAction(options, callback);
+        this.performRequestedAction(options, cb);
         return;
       }
     });
@@ -281,5 +300,38 @@ export class StateManager<T, S, TK extends string, SK extends string> {
     ].state as AS[SK];
 
     return out;
+  }
+
+  private dispatchHistoryAction(action: HistoryAction) {
+    this.state = this.reducer(this.state, action);
+    this.selectionState = this.selectionReducer(this.selectionState, action);
+  }
+
+  public redo() {
+    const state = this.state;
+
+    if (state.preferredRedo) {
+      this.dispatchHistoryAction(historyActions.restorePreferredRedo());
+      return;
+    }
+
+    if (state.index === state.list.length - 1) {
+      // Nothing to redo.
+      return;
+    }
+
+    const nextIndex = state.index + 1;
+    this.dispatchHistoryAction(historyActions.setHistoryIndex(nextIndex));
+  }
+
+  public undo() {
+    const state = this.state;
+    if (state.index === 0) {
+      // Nothing to undo.
+      return;
+    }
+
+    const nextIndex = state.index - 1;
+    this.dispatchHistoryAction(historyActions.setHistoryIndex(nextIndex));
   }
 }

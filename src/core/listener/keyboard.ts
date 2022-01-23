@@ -22,33 +22,35 @@ export const isKeyDown = (key: Key): boolean => {
 
 const _listeners: { [key: string]: Array<(isKeyDown: boolean) => void> } = {};
 
-window.addEventListener("keydown", (e: KeyboardEvent) => {
-  if (elementHasKeyboardFocus()) {
-    return;
-  }
+if (typeof window !== "undefined") {
+  window.addEventListener("keydown", (e: KeyboardEvent) => {
+    if (elementHasKeyboardFocus()) {
+      return;
+    }
 
-  keyPressMap[e.keyCode] = true;
-  const key = getKeyFromKeyCode(e.keyCode);
-  _listeners[key!] && _listeners[key!].forEach((fn) => fn(true));
-});
-window.addEventListener("keyup", (e: KeyboardEvent) => {
-  if (elementHasKeyboardFocus()) {
-    return;
-  }
+    keyPressMap[e.keyCode] = true;
+    const key = getKeyFromKeyCode(e.keyCode);
+    _listeners[key!] && _listeners[key!].forEach((fn) => fn(true));
+  });
+  window.addEventListener("keyup", (e: KeyboardEvent) => {
+    if (elementHasKeyboardFocus()) {
+      return;
+    }
 
-  const key = keyCodes[e.keyCode];
-  if (key === "Command" || key === "Alt" || key === "Control") {
-    keyPressMap = {};
-    Object.keys(_listeners).forEach((listenerKey) => {
-      _listeners[listenerKey].forEach((fn) => fn(false));
-    });
-  } else {
-    keyPressMap[e.keyCode] = false;
-    Object.keys(_listeners).forEach((listenerKey) => {
-      _listeners[listenerKey].forEach((fn) => fn(false));
-    });
-  }
-});
+    const key = keyCodes[e.keyCode];
+    if (key === "Command" || key === "Alt" || key === "Control") {
+      keyPressMap = {};
+      Object.keys(_listeners).forEach((listenerKey) => {
+        _listeners[listenerKey].forEach((fn) => fn(false));
+      });
+    } else {
+      keyPressMap[e.keyCode] = false;
+      Object.keys(_listeners).forEach((listenerKey) => {
+        _listeners[listenerKey].forEach((fn) => fn(false));
+      });
+    }
+  });
+}
 
 export const isKeyCodeOf = (key: Key, keyCode: number): boolean =>
   keys[key] === keyCode;
