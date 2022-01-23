@@ -9,7 +9,7 @@ import {
   SomeMouseEvent,
   ViewBounds,
 } from "~/types/commonTypes";
-import { Timeline, TimelineKeyframe } from "~/types/timelineTypes";
+import { TimelineKeyframe, TimelineMap } from "~/types/timelineTypes";
 
 type ActionToPerform =
   | {
@@ -31,7 +31,7 @@ type ActionToPerform =
 
 interface ActionToPerformOptions {
   e: SomeMouseEvent;
-  timelines: Timeline[];
+  timelines: TimelineMap;
   viewport: Rect;
   length: number;
 
@@ -73,7 +73,9 @@ export const getActionToPerformOnMouseDown = (
     normal: globalToNormal(globalMousePosition),
   };
 
-  for (const timeline of timelines) {
+  const timelineList = Object.values(timelines);
+
+  for (const timeline of timelineList) {
     const target = getGraphEditorTargetObject(
       timeline,
       mousePosition.viewport,

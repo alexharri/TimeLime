@@ -23,7 +23,7 @@ describe("getActionToPerformOnMouseDown", () => {
       id: "test",
       keyframes,
     };
-    const timelines = [timeline];
+    const timelines = { [timeline.id]: timeline };
 
     const viewport: Rect = {
       left: 0,

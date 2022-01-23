@@ -18,11 +18,11 @@ import { transformRectWithVecTransformation } from "~/core/utils/math/math";
 import { Vec2 } from "~/core/utils/math/Vec2";
 import { generateGraphEditorYTicksFromBounds } from "~/core/utils/yTicks";
 import { Curve, Line, Rect, YBounds } from "~/types/commonTypes";
-import { Timeline, TimelineSelectionMap } from "~/types/timelineTypes";
+import { TimelineMap, TimelineSelectionMap } from "~/types/timelineTypes";
 
 interface RenderOptions {
   ctx: CanvasRenderingContext2D;
-  timelines: Timeline[];
+  timelines: TimelineMap;
   length: number;
 
   /** @default canvas.width */
@@ -82,12 +82,14 @@ export function renderGraphEditor(options: RenderOptions) {
   ctx.fillStyle = colors.gray600;
   ctx.fill();
 
-  if (timelines.length === 0) {
+  const timelineList = Object.values(timelines);
+
+  if (timelineList.length === 0) {
     // No work to be done.
     return;
   }
 
-  const timelineCurves = timelines.map((timeline) =>
+  const timelineCurves = timelineList.map((timeline) =>
     keyframesToCurves(timeline.keyframes)
   );
 
@@ -145,12 +147,7 @@ export function renderGraphEditor(options: RenderOptions) {
   }
 
   const [yUpper, yLower] =
-    yBounds ||
-    getGraphEditorYBounds({
-      viewBounds,
-      length,
-      timelines,
-    });
+    yBounds || getGraphEditorYBounds({ viewBounds, length, timelines });
 
   const ticks = generateGraphEditorYTicksFromBounds([
     yUpper + yPan,
@@ -169,7 +166,7 @@ export function renderGraphEditor(options: RenderOptions) {
     ctx.fillText(ticks[i].toString(), 8, y - 2);
   }
 
-  timelines.forEach((timeline, i) => {
+  timelineList.forEach((timeline, i) => {
     const { keyframes } = timeline;
     const curves = timelineCurves[i];
 

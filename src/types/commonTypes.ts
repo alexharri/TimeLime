@@ -27,4 +27,7 @@ export interface MousePosition {
   normal: Vec2;
 }
 
-export type SomeMouseEvent = Pick<MouseEvent, "altKey" | "clientX" | "clientY">;
+export type SomeMouseEvent = Pick<
+  MouseEvent,
+  "altKey" | "clientX" | "clientY" | "shiftKey" | "metaKey"
+>;

@@ -3,7 +3,7 @@ import { getGraphEditorYBounds } from "~/core/render/yBounds";
 import { lerp, lerpInCanvasRange } from "~/core/utils/math/math";
 import { Vec2 } from "~/core/utils/math/Vec2";
 import { Rect, ViewBounds, YBounds } from "~/types/commonTypes";
-import { Timeline } from "~/types/timelineTypes";
+import { TimelineMap } from "~/types/timelineTypes";
 
 export const createNormalToViewportXFn = (options: {
   length: number;
@@ -34,7 +34,7 @@ export const createNormalToViewportXFn = (options: {
 export const createNormalToViewportYFn = (options: {
   viewBounds: ViewBounds;
   length: number;
-  timelines: Timeline[];
+  timelines: TimelineMap;
   viewport: Rect;
   yBounds?: YBounds;
   yPan?: number;
@@ -61,7 +61,7 @@ export const createNormalToViewportYFn = (options: {
 export const createNormalToViewportFn = (options: {
   viewBounds: ViewBounds;
   length: number;
-  timelines: Timeline[];
+  timelines: TimelineMap;
   viewport: Rect;
   yBounds?: YBounds;
   yPan?: number;
