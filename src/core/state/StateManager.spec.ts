@@ -112,7 +112,7 @@ describe("StateManager", () => {
       expect(state.getCurrentState().state.value).toEqual(1);
       expect(state.getActionState().state.value).toEqual(2);
 
-      params.submitAction();
+      params.submitAction({ name: "Action" });
     });
 
     expect(state.getCurrentState()).toEqual({
@@ -127,7 +127,7 @@ describe("StateManager", () => {
     state.requestAction((params) => {
       params.dispatch(actions.setValue(2));
       params.dispatch(actions.setSelection("b"));
-      params.submitAction();
+      params.submitAction({ name: "Action" });
     });
 
     expect(state.getCurrentState().state.value).toEqual(2);
@@ -135,7 +135,7 @@ describe("StateManager", () => {
     state.requestAction((params) => {
       params.dispatch(actions.setValue(3));
       params.dispatch(actions.setSelection("c"));
-      params.submitAction();
+      params.submitAction({ name: "Action" });
     });
 
     expect(state.getCurrentState()).toEqual({
@@ -174,7 +174,7 @@ describe("StateManager", () => {
 
     state.requestAction((params) => {
       params.dispatch(actions.setValue(2));
-      params.submitAction();
+      params.submitAction({ name: "Action" });
     });
 
     expect(state.getCurrentState()).toEqual({
@@ -191,12 +191,12 @@ describe("StateManager", () => {
 
     state.requestAction((params) => {
       params.dispatch(actions.setSelection("b"));
-      params.submitAction();
+      params.submitAction({ name: "Action" });
     });
 
     state.requestAction((params) => {
       params.dispatch(actions.setSelection("c"));
-      params.submitAction();
+      params.submitAction({ name: "Action" });
     });
 
     state.redo();
