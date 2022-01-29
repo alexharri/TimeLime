@@ -13,8 +13,8 @@ import {
 } from "~/core/state/stateTypes";
 import { viewActions } from "~/core/state/view/viewActions";
 import { viewReducer } from "~/core/state/view/viewReducer";
-import { timelineActions } from "~/core/timelineActions";
-import { timelineReducer } from "~/core/timelineReducer";
+import { timelineActions } from "~/core/state/timeline/timelineActions";
+import { timelineReducer } from "~/core/state/timeline/timelineReducer";
 import { timelineSelectionActions } from "~/core/timelineSelectionActions";
 import { timelineSelectionReducer } from "~/core/timelineSelectionReducer";
 import { ActionCollection, ActionsReturnType } from "~/types/commonTypes";
@@ -25,7 +25,8 @@ export type ShouldAddToStackFn = (
 ) => boolean;
 
 interface SubmitOptions {
-  allowIndexShift: boolean;
+  name: string;
+  allowSelectionShift?: boolean;
   shouldAddToStack?: ShouldAddToStackFn;
 }
 
@@ -42,7 +43,7 @@ export interface RequestActionParams {
   ephemeral: SomeState<EphemeralState, typeof ephemeralActions>;
 
   cancel: () => void;
-  submit: (name?: string, options?: Partial<SubmitOptions>) => void;
+  submit: (options: SubmitOptions) => void;
   addListener: typeof _addListener;
   removeListener: typeof _removeListener;
   done: () => boolean;
@@ -143,6 +144,7 @@ const performRequestedAction = (
     reducer: timelineReducer,
     onChange: (state) => {
       options.performOptions.onPrimaryStateChange(state);
+      render();
     },
   });
   const selection = createStateManager({
@@ -151,6 +153,7 @@ const performRequestedAction = (
     reducer: timelineSelectionReducer,
     onChange: (state) => {
       options.performOptions.onSelectionStateChange(state);
+      render();
     },
   });
   const view = createStateManager({
@@ -159,6 +162,7 @@ const performRequestedAction = (
     reducer: viewReducer,
     onChange: (state) => {
       options.performOptions.onViewStateChange(state);
+      render();
     },
   });
   const ephemeral = createStateManager({
@@ -166,9 +170,19 @@ const performRequestedAction = (
     actions: ephemeralActions,
     reducer: ephemeralReducer,
     onChange: (state) => {
-      options.performOptions.onEphemeralStateChange(state);
+      options.performOptions.onEphemeralStateChange?.(state);
+      render();
     },
   });
+
+  function render() {
+    performOptions.render({
+      primary: primary.state,
+      selection: selection.state,
+      view: view.state,
+      ephemeral: ephemeral.state,
+    });
+  }
 
   const cancel = () => {
     for (const state of [primary, selection, view, ephemeral]) state.reset();
@@ -191,7 +205,9 @@ const performRequestedAction = (
 
     cancel,
 
-    submit: (_name = "Unknown action", options = {}) => {
+    submit: (options) => {
+      const { name, allowSelectionShift = false } = options;
+
       if (!getActionId()) {
         console.warn("Attempted to submit an action that does not exist.");
         return;
@@ -235,7 +251,7 @@ const performRequestedAction = (
       }
 
       onComplete();
-      performOptions.onSubmit();
+      performOptions.onSubmit({ name, allowSelectionShift });
     },
 
     addListener,

@@ -26,7 +26,7 @@ export function timelineSelectionReducer(
       };
     }
 
-    case "tl-sel/set-all": {
+    case "tl-sel/set-state": {
       return action.state;
     }
 

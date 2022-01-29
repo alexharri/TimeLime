@@ -40,17 +40,18 @@ export type ShouldAddToStackFn = (
 ) => boolean;
 
 interface SubmitOptions {
-  allowIndexShift: boolean;
+  name: string;
+  allowSelectionShift?: boolean;
   shouldAddToStack?: ShouldAddToStackFn;
 }
 
 export interface RequestActionParams {
   dispatch: (action: Action) => void;
   cancelAction: () => void;
-  submitAction: (name?: string, options?: Partial<SubmitOptions>) => void;
+  submitAction: (options: SubmitOptions) => void;
   addListener: typeof _addListener;
   removeListener: typeof _removeListener;
-  done: () => boolean;
+  done: boolean;
   execOnComplete: (callback: () => void) => void;
 }
 
@@ -171,12 +172,14 @@ export class StateManager<
     }
 
     const params: RequestActionParams = {
-      done,
+      get done() {
+        return done();
+      },
 
       dispatch,
 
-      submitAction: (name = "Unknown action", options = {}) => {
-        const { allowIndexShift = false } = options;
+      submitAction: (options) => {
+        const { name, allowSelectionShift = false } = options;
 
         if (!this.getActionId()) {
           console.warn("Attempted to submit an action that does not exist.");
@@ -240,7 +243,7 @@ export class StateManager<
             true,
             modifiedState,
             modifiedSelectionState,
-            allowIndexShift
+            allowSelectionShift
           )
         );
         onComplete();

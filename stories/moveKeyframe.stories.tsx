@@ -13,18 +13,16 @@ import { getActionToPerformOnMouseDown } from "~/core/handlers/getActionToPerfor
 import { onMousedownKeyframe } from "~/core/handlers/mousedownKeyframe";
 import { renderGraphEditor } from "~/core/render/renderGraphEditor";
 import { StateManager } from "~/core/state/StateManager";
-import {
-  EphemeralState,
-  RenderState,
-  ViewState,
-} from "~/core/state/stateTypes";
+import { RenderState, ViewState } from "~/core/state/stateTypes";
 import { applyTimelineKeyframeShift } from "~/core/timeline/applyTimelineKeyframeShift";
-import { timelineReducer, TimelineState } from "~/core/timelineReducer";
+import {
+  timelineReducer,
+  TimelineState,
+} from "~/core/state/timeline/timelineReducer";
 import { timelineSelectionReducer } from "~/core/timelineSelectionReducer";
 import { curvesToKeyframes } from "~/core/transform/curvesToKeyframes";
-import { ViewBounds } from "~/types/commonTypes";
 import { Timeline } from "~/types/timelineTypes";
-import { timelineActions } from "~/core/timelineActions";
+import { timelineActions } from "~/core/state/timeline/timelineActions";
 import { timelineSelectionActions } from "~/core/timelineSelectionActions";
 import { isKeyCodeOf } from "~/core/listener/keyboard";
 
@@ -36,7 +34,6 @@ export const Test = () => {
   const ref = useRef<HTMLCanvasElement>(null);
 
   const length = 200;
-  const viewBounds: ViewBounds = [0, 1];
 
   const [n, setN] = useState(0);
 
@@ -78,16 +75,10 @@ export const Test = () => {
     });
   }, []);
 
-  const [ephState, setEphState] = useState<EphemeralState>({});
   const [viewState, setViewState] = useState<ViewState>({
     length,
     viewBounds: [0, 1],
-    viewport: {
-      top: 0,
-      left: 0,
-      width: 800,
-      height: 400,
-    },
+    viewport: { top: 0, left: 0, width: 800, height: 400 },
   });
 
   // const ephStateManager = useMemo(() => {
@@ -157,26 +148,30 @@ export const Test = () => {
 
       const initialViewState = viewState;
 
+      function ifNotDone<F extends (...args: any[]) => void>(callback: F) {
+        return ((...args: any[]) => {
+          if (params.done) {
+            return;
+          }
+          return callback(...args);
+        }) as F;
+      }
+
       onMousedownKeyframe(
         {
           onCancel: () => {
-            setEphState({});
             setViewState(initialViewState);
             params.cancelAction();
           },
-          onEphemeralStateChange: setEphState,
-          onViewStateChange: setViewState,
-          onPrimaryStateChange: (primaryState) => {
-            const { timelines } = primaryState;
-
-            for (const timeline of Object.values(timelines)) {
-              params.dispatch(timelineActions.setTimeline(timeline));
-            }
-          },
-          onSelectionStateChange: (selectionState) => {
-            params.dispatch(timelineSelectionActions.setAll(selectionState));
-          },
-          onSubmit: () => params.submitAction("Move keyframe"),
+          onViewStateChange: ifNotDone(setViewState),
+          onPrimaryStateChange: ifNotDone((primaryState) => {
+            console.log(primaryState);
+            params.dispatch(timelineActions.setState(primaryState));
+          }),
+          onSelectionStateChange: ifNotDone((selectionState) => {
+            params.dispatch(timelineSelectionActions.setState(selectionState));
+          }),
+          onSubmit: (options) => params.submitAction(options),
           primary: actionState.timelineState,
           selection: actionState.timelineSelectionState,
           view: initialViewState,
@@ -196,26 +191,13 @@ export const Test = () => {
       stateManager.getActionState();
     let { timelines } = timelineState;
 
-    const { keyframeShift, yBounds } = ephState;
-
-    if (keyframeShift) {
-      timelines = mapMap(timelines, (timeline) =>
-        applyTimelineKeyframeShift({
-          timeline,
-          timelineSelection: timelineSelectionState[timeline.id],
-          keyframeShift,
-        })
-      );
-    }
-
     renderGraphEditor({
       ctx,
       length,
       timelines,
       timelineSelectionState,
-      yBounds,
     });
-  }, [ephState, n]);
+  }, [n]);
 
   useEffect(() => {
     const listener = (e: KeyboardEvent) => {

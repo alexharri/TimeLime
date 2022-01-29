@@ -1,4 +1,4 @@
-import { TimelineState } from "~/core/timelineReducer";
+import { TimelineState } from "~/core/state/timeline/timelineReducer";
 import { TimelineSelectionState } from "~/core/timelineSelectionReducer";
 import { Vec2 } from "~/core/utils/math/Vec2";
 import { Rect, ViewBounds, YBounds } from "~/types/commonTypes";
@@ -26,6 +26,11 @@ export interface RenderState {
   ephemeral: EphemeralState;
 }
 
+interface SubmitActionOptions {
+  name: string;
+  allowSelectionShift: boolean;
+}
+
 export interface PerformActionOptions {
   primary: PrimaryState;
   selection: SelectionState;
@@ -34,10 +39,10 @@ export interface PerformActionOptions {
   onPrimaryStateChange: (primaryState: PrimaryState) => void;
   onSelectionStateChange: (selectionState: SelectionState) => void;
   onViewStateChange: (viewState: ViewState) => void;
-  onEphemeralStateChange: (ephemeralState: EphemeralState) => void;
+  onEphemeralStateChange?: (ephemeralState: EphemeralState) => void;
 
   render: (renderState: RenderState) => void;
 
   onCancel: () => void;
-  onSubmit: () => void;
+  onSubmit: (options: SubmitActionOptions) => void;
 }

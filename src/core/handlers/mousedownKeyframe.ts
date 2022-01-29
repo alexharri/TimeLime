@@ -69,7 +69,7 @@ export function onMousedownKeyframe(
       });
 
       primary.dispatch((actions) => actions.setTimeline(nextTimeline));
-      params.submit();
+      params.submit({ name: "Move keyframe", allowSelectionShift: true });
     });
   });
 }

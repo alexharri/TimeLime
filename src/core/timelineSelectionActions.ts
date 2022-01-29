@@ -19,8 +19,8 @@ export const timelineSelectionActions = {
     timelineId,
   }),
 
-  setAll: (state: TimelineSelectionState) => ({
-    type: <const>"tl-sel/set-all",
+  setState: (state: TimelineSelectionState) => ({
+    type: <const>"tl-sel/set-state",
     state,
   }),
 

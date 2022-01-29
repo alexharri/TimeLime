@@ -1,6 +1,9 @@
 import { StateManager } from "~/core/state/StateManager";
-import { TimelineAction } from "~/core/timelineActions";
-import { timelineReducer, TimelineState } from "~/core/timelineReducer";
+import { TimelineAction } from "~/core/state/timeline/timelineActions";
+import {
+  timelineReducer,
+  TimelineState,
+} from "~/core/state/timeline/timelineReducer";
 import { TimelineSelectionAction } from "~/core/timelineSelectionActions";
 import {
   timelineSelectionReducer,
