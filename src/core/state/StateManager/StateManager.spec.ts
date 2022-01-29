@@ -1,4 +1,4 @@
-import { StateManager } from "~/core/state/StateManager";
+import { StateManager } from "~/core/state/StateManager/StateManager";
 
 interface State {
   value: number;

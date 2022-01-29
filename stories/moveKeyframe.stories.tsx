@@ -12,7 +12,7 @@ import React, {
 import { getActionToPerformOnMouseDown } from "~/core/handlers/getActionToPerformOnMouseDown";
 import { onMousedownKeyframe } from "~/core/handlers/mousedownKeyframe";
 import { renderGraphEditor } from "~/core/render/renderGraphEditor";
-import { StateManager } from "~/core/state/StateManager";
+import { StateManager } from "~/core/state/StateManager/StateManager";
 import { RenderState, ViewState } from "~/core/state/stateTypes";
 import { applyTimelineKeyframeShift } from "~/core/timeline/applyTimelineKeyframeShift";
 import {
