@@ -38,10 +38,15 @@ export function timelineSelectionReducer(
     case "tl-sel/toggle-keyframe": {
       const { timelineId, keyframeId } = action;
 
+      if (!state[timelineId]) {
+        return {
+          ...state,
+          [timelineId]: { keyframes: { [keyframeId]: true } },
+        };
+      }
+
       return modifyInMap(state, timelineId, (selection) => {
-        if (!selection) {
-          return { keyframes: { [keyframeId]: true } };
-        }
+        if (!selection) return { keyframes: { [keyframeId]: true } };
 
         if (selection.keyframes[keyframeId]) {
           return {

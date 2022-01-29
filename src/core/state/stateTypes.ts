@@ -19,6 +19,12 @@ export interface EphemeralState {
   keyframeShift?: Vec2;
 }
 
+export interface TrackedState {
+  primary: PrimaryState;
+  selection: SelectionState;
+  view: ViewState;
+}
+
 export interface RenderState {
   primary: PrimaryState;
   selection: SelectionState;

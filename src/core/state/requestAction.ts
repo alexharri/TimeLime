@@ -9,6 +9,7 @@ import {
   PerformActionOptions,
   PrimaryState,
   SelectionState,
+  TrackedState,
   ViewState,
 } from "~/core/state/stateTypes";
 import { viewActions } from "~/core/state/view/viewActions";
@@ -20,8 +21,8 @@ import { timelineSelectionReducer } from "~/core/timelineSelectionReducer";
 import { ActionCollection, ActionsReturnType } from "~/types/commonTypes";
 
 export type ShouldAddToStackFn = (
-  prevState: unknown,
-  nextState: unknown
+  prevState: TrackedState,
+  nextState: TrackedState
 ) => boolean;
 
 interface SubmitOptions {
@@ -185,7 +186,10 @@ const performRequestedAction = (
   }
 
   const cancel = () => {
-    for (const state of [primary, selection, view, ephemeral]) state.reset();
+    for (const state of [primary, selection, view, ephemeral]) {
+      state.reset();
+    }
+    performOptions.onCancel();
     onComplete();
   };
 
@@ -232,11 +236,21 @@ const performRequestedAction = (
 
       let addToStack = shouldAddToStackFns.length === 0;
 
-      for (const _shouldAddToStack of shouldAddToStackFns) {
-        throw new Error(`shouldAddToStack has not been implemented.`);
-        // if (shouldAddToStack(this.getCurrentState(), this.getActionState())) {
-        //   addToStack = true;
-        // }
+      const prev: TrackedState = {
+        primary: initialPrimaryState,
+        selection: initialSelectionState,
+        view: initialViewState,
+      };
+      const next: TrackedState = {
+        primary: primary.state,
+        selection: selection.state,
+        view: view.state,
+      };
+
+      for (const shouldAddToStack of shouldAddToStackFns) {
+        if (shouldAddToStack(prev, next)) {
+          addToStack = true;
+        }
       }
 
       if (!addToStack) {
