@@ -86,10 +86,8 @@ export function onMousedownKeyframe(
         // The mouse did not move. The selection may have been modified.
         params.submit({
           name: "Modify selection",
-          shouldAddToStack: (prev, next) => {
-            console.log(prev, next);
-            return !areMapsShallowEqual(prev.selection, next.selection);
-          },
+          shouldAddToStack: (prev, next) =>
+            !areMapsShallowEqual(prev.selection, next.selection),
         });
         return;
       }
