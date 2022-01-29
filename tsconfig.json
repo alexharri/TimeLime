@@ -30,7 +30,7 @@
       ]
     },
     "types": [
-      "jest",
+      "jest"
     ]
   },
   "exclude": [

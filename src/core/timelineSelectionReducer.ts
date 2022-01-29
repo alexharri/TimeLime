@@ -26,6 +26,11 @@ export function timelineSelectionReducer(
       };
     }
 
+    case "tl-sel/set-timeline": {
+      const { timelineId, selection } = action;
+      return { ...state, [timelineId]: selection };
+    }
+
     case "tl-sel/toggle-keyframe": {
       const { timelineId, keyframeId } = action;
 

@@ -1,3 +1,5 @@
+import { TimelineSelection } from "~/core/timelineSelectionReducer";
+
 type TimelineSelectionActions = typeof timelineSelectionActions;
 type TimelineSelectionActionReturnTypes = {
   [K in keyof TimelineSelectionActions]: ReturnType<
@@ -12,6 +14,12 @@ export const timelineSelectionActions = {
   clear: (timelineId: string) => ({
     type: <const>"tl-sel/clear",
     timelineId,
+  }),
+
+  setTimelineSelection: (timelineId: string, selection: TimelineSelection) => ({
+    type: <const>"tl-sel/set-timeline",
+    timelineId,
+    selection,
   }),
 
   toggleKeyframe: (timelineId: string, keyframeId: string) => ({

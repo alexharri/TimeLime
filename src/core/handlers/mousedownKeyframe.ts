@@ -1,120 +1,117 @@
+import { addListener, removeListener } from "~/core/listener/addListener";
 import { getGraphEditorYBounds } from "~/core/render/yBounds";
-import { SomeMouseEvent, ViewBounds } from "~/types/commonTypes";
-import { TimelineKeyframe, TimelineMap } from "~/types/timelineTypes";
+import {
+  EphemeralState,
+  PerformActionOptions,
+  PrimaryState,
+  ViewState,
+} from "~/core/state/stateTypes";
+import { applyTimelineKeyframeShift } from "~/core/timeline/applyTimelineKeyframeShift";
+import { timelineActions } from "~/core/timelineActions";
+import { timelineReducer } from "~/core/timelineReducer";
+import { timelineSelectionActions } from "~/core/timelineSelectionActions";
+import { timelineSelectionReducer } from "~/core/timelineSelectionReducer";
+import { createGlobalToNormalFn } from "~/core/utils/coords/globalToNormal";
+import { Vec2 } from "~/core/utils/math/Vec2";
+import { SomeMouseEvent } from "~/types/commonTypes";
+import { TimelineKeyframe } from "~/types/timelineTypes";
 
 interface Options {
   e: SomeMouseEvent;
-  timelines: TimelineMap;
   timelineId: string;
   keyframe: TimelineKeyframe;
-  length: number;
-  viewBounds: ViewBounds;
 }
 
-export function onMousedownKeyframe(options: Options) {
-  const { e, timelines, timelineId, viewBounds } = options;
+export function onMousedownKeyframe(
+  performOptions: PerformActionOptions,
+  options: Options
+) {
+  const { e, timelineId, keyframe } = options;
 
-  const yBounds = getGraphEditorYBounds({ timelines, length, viewBounds });
-  console.log({ yBounds, timelineId, e });
+  let primaryState: PrimaryState = { ...performOptions.primary };
+  let viewState: ViewState = { ...performOptions.view };
+  let ephemeralState: EphemeralState = {};
 
-  // const selection = getTimelineSelection(timelineId);
-  // const additiveSelection = e.shiftKey || e.metaKey;
+  const { timelineState } = primaryState;
 
-  // const boundsDiff = Math.abs(yBounds[0] - yBounds[1]);
-  // let yPan = 0;
+  const timeline = timelineState.timelines[timelineId];
 
-  // mouseDownMoveAction(ctx.mousePosition.global, {
-  //   keys: ["Shift"],
-  //   translate: (vec) => ctx.globalToNormal(vec).addY(yPan),
-  //   beforeMove: (params) => {
-  //     if (additiveSelection) {
-  //       params.dispatch(
-  //         timelineSelectionActions.toggleKeyframe(timeline.id, keyframe.id)
-  //       );
-  //     } else if (!selection.keyframes[keyframe.id]) {
-  //       // If the current node is not selected, we clear the selections of all timelines
-  //       // we are operating on.
-  //       params.dispatch(
-  //         timelines.map(({ id }) => timelineSelectionActions.clear(id))
-  //       );
-  //       params.dispatch(
-  //         timelineSelectionActions.toggleKeyframe(timeline.id, keyframe.id)
-  //       );
-  //     }
-  //   },
-  //   tickShouldUpdate: ({ mousePosition }) => {
-  //     const [yUpper, yLower] = getYUpperLower(
-  //       ctx.viewport,
-  //       mousePosition.global
-  //     );
-  //     return !!(yUpper || yLower);
-  //   },
-  //   mouseMove: (
-  //     params,
-  //     { moveVector: _moveVector, mousePosition, keyDown, firstMove }
-  //   ) => {
-  //     if (firstMove) {
-  //       params.dispatch(
-  //         timelines.map((t) => timelineActions.setYBounds(t.id, yBounds))
-  //       );
-  //       params.dispatch(timelines.map((t) => timelineActions.setYPan(t.id, 0)));
-  //     }
+  primaryState.timelineSelectionState = timelineSelectionReducer(
+    primaryState.timelineSelectionState,
+    timelineSelectionActions.clear(timelineId)
+  );
+  primaryState.timelineSelectionState = timelineSelectionReducer(
+    primaryState.timelineSelectionState,
+    timelineSelectionActions.toggleKeyframe(timeline.id, keyframe.id)
+  );
+  performOptions.onPrimaryStateChange(primaryState);
 
-  //     const [yUpper, yLower] = getYUpperLower(
-  //       ctx.viewport,
-  //       mousePosition.global
-  //     );
+  const { timelines } = primaryState.timelineState;
+  const { length } = viewState;
 
-  //     if (yLower) {
-  //       yPan -= yLower * boundsDiff * PAN_FAC;
-  //     } else if (yUpper) {
-  //       yPan += yUpper * boundsDiff * PAN_FAC;
-  //     }
+  ephemeralState.yBounds = getGraphEditorYBounds({
+    length,
+    timelines,
+    viewBounds: viewState.viewBounds,
+  });
 
-  //     if (yLower || yUpper) {
-  //       params.dispatch(
-  //         timelines.map((t) => timelineActions.setYPan(t.id, yPan))
-  //       );
-  //     }
+  const globalToNormal = createGlobalToNormalFn({
+    length,
+    viewport: viewState.viewport,
+    viewBounds: viewState.viewBounds,
+    timelines,
+  });
 
-  //     const moveVector = _moveVector.normal.copy();
+  const initialMousePosition = Vec2.fromEvent(e).apply(globalToNormal);
 
-  //     if (keyDown.Shift) {
-  //       if (Math.abs(moveVector.x * yFac) > Math.abs(moveVector.y)) {
-  //         moveVector.y = 0;
-  //       } else {
-  //         moveVector.x = 0;
-  //       }
-  //     }
+  let keyframeShift: Vec2 | undefined;
 
-  //     params.dispatch(
-  //       timelines.map((t) =>
-  //         timelineActions.setIndexAndValueShift(
-  //           t.id,
-  //           Math.round(moveVector.x),
-  //           moveVector.y
-  //         )
-  //       )
-  //     );
-  //   },
-  //   mouseUp: (params, hasMoved) => {
-  //     if (!hasMoved) {
-  //       params.submitAction("Select keyframe");
-  //       return;
-  //     }
+  const render = () => {
+    performOptions.render({
+      primary: primaryState,
+      view: viewState,
+      ephemeral: ephemeralState,
+    });
+  };
 
-  //     const toDispatch: any[] = [];
+  render();
 
-  //     for (const { id } of timelines) {
-  //       toDispatch.push(
-  //         timelineActions.setYBounds(id, null),
-  //         timelineActions.setYPan(id, 0),
-  //         timelineActions.submitIndexAndValueShift(id, getTimelineSelection(id))
-  //       );
-  //     }
+  const moveToken = addListener.repeated("mousemove", (e) => {
+    const mousePosition = Vec2.fromEvent(e).apply(globalToNormal);
 
-  //     params.dispatch(toDispatch);
-  //     params.submitAction("Move selected keyframes", { allowIndexShift: true });
-  //   },
-  // });
+    const moveVector = mousePosition.sub(initialMousePosition);
+
+    keyframeShift = Vec2.new(Math.round(moveVector.x), moveVector.y);
+    ephemeralState = { ...ephemeralState, keyframeShift };
+    performOptions.onEphemeralStateChange(ephemeralState);
+
+    render();
+  });
+
+  addListener.once("mouseup", () => {
+    removeListener(moveToken);
+
+    if (!keyframeShift) {
+      performOptions.onCancel();
+      return;
+    }
+
+    const nextTimeline = applyTimelineKeyframeShift({
+      keyframeShift,
+      timeline,
+      timelineSelection: primaryState.timelineSelectionState[timeline.id],
+    });
+
+    primaryState.timelineState = timelineReducer(
+      primaryState.timelineState,
+      timelineActions.setTimeline(nextTimeline)
+    );
+    ephemeralState = {};
+
+    render();
+
+    performOptions.onPrimaryStateChange(primaryState);
+    performOptions.onViewStateChange(viewState);
+    performOptions.onSubmit();
+  });
 }
