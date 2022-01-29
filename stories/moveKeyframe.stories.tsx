@@ -135,8 +135,6 @@ export const Test = () => {
       viewport,
     });
 
-    console.log(actionToPerform);
-
     if (actionToPerform.type !== "mousedown_keyframe") {
       return;
     }
