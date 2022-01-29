@@ -165,7 +165,6 @@ export const Test = () => {
           },
           onViewStateChange: ifNotDone(setViewState),
           onPrimaryStateChange: ifNotDone((primaryState) => {
-            console.log(primaryState);
             params.dispatch(timelineActions.setState(primaryState));
           }),
           onSelectionStateChange: ifNotDone((selectionState) => {
