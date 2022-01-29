@@ -1,17 +1,7 @@
-import { addListener, removeListener } from "~/core/listener/addListener";
 import { getGraphEditorYBounds } from "~/core/render/yBounds";
-import {
-  EphemeralState,
-  PerformActionOptions,
-  PrimaryState,
-  SelectionState,
-  ViewState,
-} from "~/core/state/stateTypes";
+import { requestAction } from "~/core/state/requestAction";
+import { PerformActionOptions } from "~/core/state/stateTypes";
 import { applyTimelineKeyframeShift } from "~/core/timeline/applyTimelineKeyframeShift";
-import { timelineActions } from "~/core/timelineActions";
-import { timelineReducer } from "~/core/timelineReducer";
-import { timelineSelectionActions } from "~/core/timelineSelectionActions";
-import { timelineSelectionReducer } from "~/core/timelineSelectionReducer";
 import { createGlobalToNormalFn } from "~/core/utils/coords/globalToNormal";
 import { Vec2 } from "~/core/utils/math/Vec2";
 import { SomeMouseEvent } from "~/types/commonTypes";
@@ -29,93 +19,58 @@ export function onMousedownKeyframe(
 ) {
   const { e, timelineId, keyframe } = options;
 
-  let primaryState: PrimaryState = performOptions.primary;
-  let selectionState: SelectionState = performOptions.selection;
-  let viewState: ViewState = performOptions.view;
-  let ephemeralState: EphemeralState = {};
-
-  const timeline = primaryState.timelines[timelineId];
-
-  selectionState = timelineSelectionReducer(
-    selectionState,
-    timelineSelectionActions.clear(timelineId)
-  );
-  selectionState = timelineSelectionReducer(
-    selectionState,
-    timelineSelectionActions.toggleKeyframe(timelineId, keyframe.id)
-  );
-  performOptions.onPrimaryStateChange(primaryState);
-
-  const { timelines } = primaryState;
-  const { length } = viewState;
-
-  ephemeralState.yBounds = getGraphEditorYBounds({
-    length,
-    timelines,
-    viewBounds: viewState.viewBounds,
-  });
-
-  const globalToNormal = createGlobalToNormalFn({
-    length,
-    viewport: viewState.viewport,
-    viewBounds: viewState.viewBounds,
-    timelines,
-  });
-
-  const initialMousePosition = Vec2.fromEvent(e).apply(globalToNormal);
-
-  let keyframeShift: Vec2 | undefined;
-
-  const render = () => {
-    performOptions.render({
-      primary: primaryState,
-      selection: selectionState,
-      view: viewState,
-      ephemeral: ephemeralState,
-    });
-  };
-
-  render();
-
-  const moveToken = addListener.repeated("mousemove", (e) => {
-    const mousePosition = Vec2.fromEvent(e).apply(globalToNormal);
-
-    const moveVector = mousePosition.sub(initialMousePosition);
-
-    keyframeShift = Vec2.new(Math.round(moveVector.x), moveVector.y);
-    ephemeralState = { ...ephemeralState, keyframeShift };
-    performOptions.onEphemeralStateChange(ephemeralState);
-
-    render();
-  });
-
-  addListener.once("mouseup", () => {
-    removeListener(moveToken);
-
-    if (!keyframeShift) {
-      performOptions.onCancel();
-      return;
-    }
-
-    const nextTimeline = applyTimelineKeyframeShift({
-      keyframeShift,
-      timeline,
-      timelineSelection: selectionState[timelineId],
+  requestAction({ performOptions }, (params) => {
+    const globalToNormal = createGlobalToNormalFn({
+      length: params.view.state.length,
+      viewport: params.view.state.viewport,
+      viewBounds: params.view.state.viewBounds,
+      timelines: params.primary.state.timelines,
     });
 
-    primaryState = timelineReducer(
-      primaryState,
-      timelineActions.setTimeline(nextTimeline)
+    const initialMousePosition = Vec2.fromEvent(e).apply(globalToNormal);
+
+    const yBounds = getGraphEditorYBounds({
+      length: params.view.state.length,
+      timelines: params.primary.state.timelines,
+      viewBounds: params.view.state.viewBounds,
+    });
+    params.ephemeral.dispatch((actions) => actions.setFields({ yBounds }));
+
+    params.selection.dispatch((actions) => actions.clear(timelineId));
+    params.selection.dispatch((actions) =>
+      actions.toggleKeyframe(timelineId, keyframe.id)
     );
-    ephemeralState = {};
 
-    performOptions.onEphemeralStateChange(ephemeralState);
-    performOptions.onPrimaryStateChange(primaryState);
-    performOptions.onSelectionStateChange(selectionState);
-    performOptions.onViewStateChange(viewState);
+    params.addListener.repeated("mousemove", (e) => {
+      const mousePosition = Vec2.fromEvent(e).apply(globalToNormal);
+      const moveVector = mousePosition.sub(initialMousePosition);
 
-    render();
+      const keyframeShift = Vec2.new(Math.round(moveVector.x), moveVector.y);
+      params.ephemeral.dispatch((actions) =>
+        actions.setFields({ keyframeShift })
+      );
+    });
 
-    performOptions.onSubmit();
+    params.addListener.once("mouseup", () => {
+      const { keyframeShift } = params.ephemeral.state;
+
+      if (!keyframeShift) {
+        // The mouse did not move
+        params.cancel();
+        return;
+      }
+
+      const timeline = params.primary.state.timelines[timelineId];
+
+      const timelineSelection = params.selection.state[timelineId];
+      const nextTimeline = applyTimelineKeyframeShift({
+        keyframeShift,
+        timeline,
+        timelineSelection,
+      });
+
+      params.primary.dispatch((actions) => actions.setTimeline(nextTimeline));
+      params.submit();
+    });
   });
 }

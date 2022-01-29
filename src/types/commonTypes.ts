@@ -33,3 +33,13 @@ export type SomeMouseEvent = Pick<
 >;
 
 export type Action = { type: string };
+
+export interface ActionCollection {
+  [key: string]: (...args: any[]) => { type: string };
+}
+
+type ValuesInObject<T> = T[keyof T];
+
+export type ActionsReturnType<A extends ActionCollection> = ValuesInObject<
+  { [K in keyof A]: ReturnType<A[K]> }
+>;

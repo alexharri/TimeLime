@@ -1,6 +1,23 @@
-import { addListener as _addListener, removeListener as _removeListener } from "~/core/listener/addListener";
-import { PerformActionOptions } from "~/core/state/stateTypes";
-import { Action } from "~/types/commonTypes";
+import {
+  addListener as _addListener,
+  removeListener as _removeListener,
+} from "~/core/listener/addListener";
+import { ephemeralActions } from "~/core/state/ephemeral/ephemeralActions";
+import { ephemeralReducer } from "~/core/state/ephemeral/ephemeralReducer";
+import {
+  EphemeralState,
+  PerformActionOptions,
+  PrimaryState,
+  SelectionState,
+  ViewState,
+} from "~/core/state/stateTypes";
+import { viewActions } from "~/core/state/view/viewActions";
+import { viewReducer } from "~/core/state/view/viewReducer";
+import { timelineActions } from "~/core/timelineActions";
+import { timelineReducer } from "~/core/timelineReducer";
+import { timelineSelectionActions } from "~/core/timelineSelectionActions";
+import { timelineSelectionReducer } from "~/core/timelineSelectionReducer";
+import { ActionCollection, ActionsReturnType } from "~/types/commonTypes";
 
 export type ShouldAddToStackFn = (
   prevState: unknown,
@@ -12,10 +29,20 @@ interface SubmitOptions {
   shouldAddToStack?: ShouldAddToStackFn;
 }
 
+type SomeState<T, A extends ActionCollection> = {
+  state: T;
+  dispatch: (callback: (actions: A) => ActionsReturnType<A>) => void;
+  reset: () => void;
+};
+
 export interface RequestActionParams {
-  dispatch: (action: Action) => void;
-  cancelAction: () => void;
-  submitAction: (name?: string, options?: Partial<SubmitOptions>) => void;
+  primary: SomeState<PrimaryState, typeof timelineActions>;
+  selection: SomeState<SelectionState, typeof timelineSelectionActions>;
+  view: SomeState<ViewState, typeof viewActions>;
+  ephemeral: SomeState<EphemeralState, typeof ephemeralActions>;
+
+  cancel: () => void;
+  submit: (name?: string, options?: Partial<SubmitOptions>) => void;
   addListener: typeof _addListener;
   removeListener: typeof _removeListener;
   done: () => boolean;
@@ -41,11 +68,11 @@ const performRequestedAction = (
   options: RequestActionOptions,
   callback: RequestActionCallback
 ) => {
-  const { shouldAddToStack, beforeSubmit } = options;
+  const { shouldAddToStack, beforeSubmit, performOptions } = options;
 
   const actionId = (++_n).toString();
   _actionId = actionId;
-  
+
   const cancelTokens: string[] = [];
 
   const done = () => actionId !== getActionId();
@@ -74,35 +101,97 @@ const performRequestedAction = (
     if (onCompleteCallback) {
       onCompleteCallback();
     }
+
+    _actionId = null;
   };
 
-  const dispatch: RequestActionParams["dispatch"] = (action) => {
-    this.dispatchHistoryAction(
-      historyActions.dispatchToAction(actionId, action, true)
-    );
+  interface CreateStateManagerOptions<T, A extends ActionCollection> {
+    initialState: T;
+    reducer: (state: T, action: ActionsReturnType<A>) => T;
+    actions: A;
+    onChange: (state: T) => void;
+  }
+
+  const createStateManager = <T, A extends ActionCollection>(
+    options: CreateStateManagerOptions<T, A>
+  ): SomeState<T, A> => {
+    const obj: SomeState<T, A> = {
+      state: options.initialState,
+      dispatch: (callback) => {
+        const nextState = options.reducer(obj.state, callback(options.actions));
+        onStateChange(nextState);
+      },
+      reset: () => onStateChange(options.initialState),
+    };
+
+    function onStateChange(state: T) {
+      obj.state = state;
+      options.onChange(state);
+    }
+
+    return obj;
   };
 
-  const cancelAction = () => {
-    this.dispatchHistoryAction(historyActions.cancelAction(actionId));
+  const initialPrimaryState = options.performOptions.primary;
+  const initialSelectionState = options.performOptions.selection;
+  const initialViewState = options.performOptions.view;
+  const initialEphemeralState = {};
+
+  const primary = createStateManager({
+    initialState: initialPrimaryState,
+    actions: timelineActions,
+    reducer: timelineReducer,
+    onChange: (state) => {
+      options.performOptions.onPrimaryStateChange(state);
+    },
+  });
+  const selection = createStateManager({
+    initialState: initialSelectionState,
+    actions: timelineSelectionActions,
+    reducer: timelineSelectionReducer,
+    onChange: (state) => {
+      options.performOptions.onSelectionStateChange(state);
+    },
+  });
+  const view = createStateManager({
+    initialState: initialViewState,
+    actions: viewActions,
+    reducer: viewReducer,
+    onChange: (state) => {
+      options.performOptions.onViewStateChange(state);
+    },
+  });
+  const ephemeral = createStateManager({
+    initialState: initialEphemeralState,
+    actions: ephemeralActions,
+    reducer: ephemeralReducer,
+    onChange: (state) => {
+      options.performOptions.onEphemeralStateChange(state);
+    },
+  });
+
+  const cancel = () => {
+    for (const state of [primary, selection, view, ephemeral]) state.reset();
     onComplete();
   };
 
-  this.dispatchHistoryAction(historyActions.startAction(actionId));
-
   if (typeof window !== "undefined") {
     // Likely running inside of Jest
-    const escToken = addListener.keyboardOnce("Esc", "keydown", cancelAction);
+    const escToken = addListener.keyboardOnce("Esc", "keydown", cancel);
     cancelTokens.push(escToken);
   }
 
   const params: RequestActionParams = {
     done,
 
-    dispatch,
+    primary,
+    selection,
+    view,
+    ephemeral,
 
-    submitAction: (name = "Unknown action", options = {}) => {
-      const { allowIndexShift = false } = options;
+    cancel,
 
+    submit: (_name = "Unknown action", options = {}) => {
       if (!getActionId()) {
         console.warn("Attempted to submit an action that does not exist.");
         return;
@@ -127,15 +216,15 @@ const performRequestedAction = (
 
       let addToStack = shouldAddToStackFns.length === 0;
 
-      for (const shouldAddToStack of shouldAddToStackFns) {
-        if (shouldAddToStack(this.getCurrentState(), this.getActionState())) {
-          addToStack = true;
-        }
+      for (const _shouldAddToStack of shouldAddToStackFns) {
+        throw new Error(`shouldAddToStack has not been implemented.`);
+        // if (shouldAddToStack(this.getCurrentState(), this.getActionState())) {
+        //   addToStack = true;
+        // }
       }
 
       if (!addToStack) {
-        this.dispatchHistoryAction(historyActions.cancelAction(actionId));
-        onComplete();
+        cancel();
         return;
       }
 
@@ -143,35 +232,9 @@ const performRequestedAction = (
         beforeSubmit(params);
       }
 
-      const modifiedKeys: Array<TK | SK> = [];
-      {
-        if (
-          this.state.action!.state !== this.state.list[this.state.index].state
-        ) {
-          modifiedKeys.push(this.stateKey);
-        }
-      }
-
-      const modifiedState =
-        this.state.action!.state !== this.state.list[this.state.index].state;
-      const modifiedSelectionState =
-        this.selectionState.action!.state !==
-        this.selectionState.list[this.selectionState.index].state;
-
-      this.dispatchHistoryAction(
-        historyActions.submitAction(
-          actionId,
-          name,
-          true,
-          modifiedState,
-          modifiedSelectionState,
-          allowIndexShift
-        )
-      );
       onComplete();
+      performOptions.onSubmit();
     },
-
-    cancelAction,
 
     addListener,
 
@@ -183,37 +246,21 @@ const performRequestedAction = (
   };
 
   callback(params);
-}
+};
 
-public requestAction(callback: RequestActionCallback): void;
-public requestAction(
+export const requestAction = (
   options: RequestActionOptions,
   callback: RequestActionCallback
-): void;
-public requestAction(
-  optionsOrCallback: RequestActionOptions | RequestActionCallback,
-  callback?: RequestActionCallback
-): void {
-  let options: RequestActionOptions;
-  let cb: RequestActionCallback;
-
-  if (typeof optionsOrCallback === "function") {
-    options = {};
-    cb = optionsOrCallback;
-  } else {
-    options = optionsOrCallback;
-    cb = callback!;
-  }
-
+): void => {
   if (!getActionId()) {
-    this.performRequestedAction(options, cb);
+    performRequestedAction(options, callback);
     return;
   }
 
   requestAnimationFrame(() => {
     if (!getActionId()) {
-      this.performRequestedAction(options, cb);
+      performRequestedAction(options, callback);
       return;
     }
   });
-}
+};

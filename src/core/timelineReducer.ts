@@ -1,6 +1,7 @@
 import { mergeInMap } from "map-fns";
-import { TimelineAction } from "~/core/timelineActions";
+import { timelineActions } from "~/core/timelineActions";
 import { getInsertionIndex } from "~/core/utils/getInsertionIndex";
+import { ActionsReturnType } from "~/types/commonTypes";
 import { Timeline } from "~/types/timelineTypes";
 
 export interface TimelineState {
@@ -13,7 +14,7 @@ export const initialTimelineState: TimelineState = {
 
 export function timelineReducer(
   state: TimelineState,
-  action: TimelineAction
+  action: ActionsReturnType<typeof timelineActions>
 ): TimelineState {
   switch (action.type) {
     case "tl/set-keyframe": {
