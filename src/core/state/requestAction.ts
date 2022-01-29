@@ -1,4 +1,5 @@
 import { addListener as _addListener, removeListener as _removeListener } from "~/core/listener/addListener";
+import { PerformActionOptions } from "~/core/state/stateTypes";
 import { Action } from "~/types/commonTypes";
 
 export type ShouldAddToStackFn = (
@@ -26,6 +27,7 @@ export interface RequestActionCallback {
 }
 
 interface RequestActionOptions {
+  performOptions: PerformActionOptions;
   shouldAddToStack?: ShouldAddToStackFn | ShouldAddToStackFn[];
   beforeSubmit?: (params: RequestActionParams) => void;
 }

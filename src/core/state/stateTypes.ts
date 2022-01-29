@@ -3,10 +3,9 @@ import { TimelineSelectionState } from "~/core/timelineSelectionReducer";
 import { Vec2 } from "~/core/utils/math/Vec2";
 import { Rect, ViewBounds, YBounds } from "~/types/commonTypes";
 
-export interface PrimaryState {
-  timelineState: TimelineState;
-  timelineSelectionState: TimelineSelectionState;
-}
+export type PrimaryState = TimelineState;
+
+export type SelectionState = TimelineSelectionState;
 
 export interface ViewState {
   viewBounds: ViewBounds;
@@ -22,15 +21,18 @@ export interface EphemeralState {
 
 export interface RenderState {
   primary: PrimaryState;
+  selection: SelectionState;
   view: ViewState;
   ephemeral: EphemeralState;
 }
 
 export interface PerformActionOptions {
   primary: PrimaryState;
+  selection: SelectionState;
   view: ViewState;
 
   onPrimaryStateChange: (primaryState: PrimaryState) => void;
+  onSelectionStateChange: (selectionState: SelectionState) => void;
   onViewStateChange: (viewState: ViewState) => void;
   onEphemeralStateChange: (ephemeralState: EphemeralState) => void;
 

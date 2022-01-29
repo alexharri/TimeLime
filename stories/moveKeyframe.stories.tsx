@@ -99,17 +99,17 @@ export const Test = () => {
     if (!ctx) {
       return;
     }
-    const { timelineState, timelineSelectionState } = renderState.primary;
+    const timelineSelectionState = renderState.selection;
     const { length, viewport, viewBounds } = renderState.view;
     const { keyframeShift, yBounds, yPan } = renderState.ephemeral;
 
-    let { timelines } = timelineState;
+    let { timelines } = renderState.primary;
 
     if (keyframeShift) {
       timelines = mapMap(timelines, (timeline) =>
         applyTimelineKeyframeShift({
           timeline,
-          timelineSelection: timelineSelectionState[timeline.id],
+          timelineSelection: renderState.selection[timeline.id],
           keyframeShift,
         })
       );
@@ -167,29 +167,18 @@ export const Test = () => {
           onEphemeralStateChange: setEphState,
           onViewStateChange: setViewState,
           onPrimaryStateChange: (primaryState) => {
-            const { timelineState, timelineSelectionState } = primaryState;
+            const { timelines } = primaryState;
 
-            for (const timeline of Object.values(timelineState.timelines)) {
+            for (const timeline of Object.values(timelines)) {
               params.dispatch(timelineActions.setTimeline(timeline));
-
-              const timelineSelection = timelineSelectionState[timeline.id];
-              if (timelineSelection) {
-                params.dispatch(
-                  timelineSelectionActions.setTimelineSelection(
-                    timeline.id,
-                    timelineSelection
-                  )
-                );
-              } else {
-                params.dispatch(timelineSelectionActions.clear(timeline.id));
-              }
             }
           },
-          onSubmit: () => params.submitAction("Move keyframe"),
-          primary: {
-            timelineState: actionState.timelineState,
-            timelineSelectionState: actionState.timelineSelectionState,
+          onSelectionStateChange: (selectionState) => {
+            params.dispatch(timelineSelectionActions.setAll(selectionState));
           },
+          onSubmit: () => params.submitAction("Move keyframe"),
+          primary: actionState.timelineState,
+          selection: actionState.timelineSelectionState,
           view: initialViewState,
           render,
         },

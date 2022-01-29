@@ -26,6 +26,10 @@ export function timelineSelectionReducer(
       };
     }
 
+    case "tl-sel/set-all": {
+      return action.state;
+    }
+
     case "tl-sel/set-timeline": {
       const { timelineId, selection } = action;
       return { ...state, [timelineId]: selection };

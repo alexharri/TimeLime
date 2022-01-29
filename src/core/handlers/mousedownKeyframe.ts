@@ -4,6 +4,7 @@ import {
   EphemeralState,
   PerformActionOptions,
   PrimaryState,
+  SelectionState,
   ViewState,
 } from "~/core/state/stateTypes";
 import { applyTimelineKeyframeShift } from "~/core/timeline/applyTimelineKeyframeShift";
@@ -28,25 +29,24 @@ export function onMousedownKeyframe(
 ) {
   const { e, timelineId, keyframe } = options;
 
-  let primaryState: PrimaryState = { ...performOptions.primary };
-  let viewState: ViewState = { ...performOptions.view };
+  let primaryState: PrimaryState = performOptions.primary;
+  let selectionState: SelectionState = performOptions.selection;
+  let viewState: ViewState = performOptions.view;
   let ephemeralState: EphemeralState = {};
 
-  const { timelineState } = primaryState;
+  const timeline = primaryState.timelines[timelineId];
 
-  const timeline = timelineState.timelines[timelineId];
-
-  primaryState.timelineSelectionState = timelineSelectionReducer(
-    primaryState.timelineSelectionState,
+  selectionState = timelineSelectionReducer(
+    selectionState,
     timelineSelectionActions.clear(timelineId)
   );
-  primaryState.timelineSelectionState = timelineSelectionReducer(
-    primaryState.timelineSelectionState,
-    timelineSelectionActions.toggleKeyframe(timeline.id, keyframe.id)
+  selectionState = timelineSelectionReducer(
+    selectionState,
+    timelineSelectionActions.toggleKeyframe(timelineId, keyframe.id)
   );
   performOptions.onPrimaryStateChange(primaryState);
 
-  const { timelines } = primaryState.timelineState;
+  const { timelines } = primaryState;
   const { length } = viewState;
 
   ephemeralState.yBounds = getGraphEditorYBounds({
@@ -69,6 +69,7 @@ export function onMousedownKeyframe(
   const render = () => {
     performOptions.render({
       primary: primaryState,
+      selection: selectionState,
       view: viewState,
       ephemeral: ephemeralState,
     });
@@ -99,19 +100,22 @@ export function onMousedownKeyframe(
     const nextTimeline = applyTimelineKeyframeShift({
       keyframeShift,
       timeline,
-      timelineSelection: primaryState.timelineSelectionState[timeline.id],
+      timelineSelection: selectionState[timelineId],
     });
 
-    primaryState.timelineState = timelineReducer(
-      primaryState.timelineState,
+    primaryState = timelineReducer(
+      primaryState,
       timelineActions.setTimeline(nextTimeline)
     );
     ephemeralState = {};
 
+    performOptions.onEphemeralStateChange(ephemeralState);
+    performOptions.onPrimaryStateChange(primaryState);
+    performOptions.onSelectionStateChange(selectionState);
+    performOptions.onViewStateChange(viewState);
+
     render();
 
-    performOptions.onPrimaryStateChange(primaryState);
-    performOptions.onViewStateChange(viewState);
     performOptions.onSubmit();
   });
 }
