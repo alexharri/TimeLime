@@ -228,6 +228,8 @@ const performRequestedAction = (
         return;
       }
 
+      ephemeral.reset();
+
       if (beforeSubmit) {
         beforeSubmit(params);
       }

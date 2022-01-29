@@ -20,24 +20,25 @@ export function onMousedownKeyframe(
   const { e, timelineId, keyframe } = options;
 
   requestAction({ performOptions }, (params) => {
+    const { primary, selection, view, ephemeral } = params;
+
+    const { timelines } = primary.state;
+    const { length, viewBounds, viewport } = view.state;
+
     const globalToNormal = createGlobalToNormalFn({
-      length: params.view.state.length,
-      viewport: params.view.state.viewport,
-      viewBounds: params.view.state.viewBounds,
-      timelines: params.primary.state.timelines,
+      length,
+      viewport,
+      viewBounds,
+      timelines,
     });
 
     const initialMousePosition = Vec2.fromEvent(e).apply(globalToNormal);
 
-    const yBounds = getGraphEditorYBounds({
-      length: params.view.state.length,
-      timelines: params.primary.state.timelines,
-      viewBounds: params.view.state.viewBounds,
-    });
-    params.ephemeral.dispatch((actions) => actions.setFields({ yBounds }));
+    const yBounds = getGraphEditorYBounds({ length, timelines, viewBounds });
+    ephemeral.dispatch((actions) => actions.setFields({ yBounds }));
 
-    params.selection.dispatch((actions) => actions.clear(timelineId));
-    params.selection.dispatch((actions) =>
+    selection.dispatch((actions) => actions.clear(timelineId));
+    selection.dispatch((actions) =>
       actions.toggleKeyframe(timelineId, keyframe.id)
     );
 
@@ -46,13 +47,11 @@ export function onMousedownKeyframe(
       const moveVector = mousePosition.sub(initialMousePosition);
 
       const keyframeShift = Vec2.new(Math.round(moveVector.x), moveVector.y);
-      params.ephemeral.dispatch((actions) =>
-        actions.setFields({ keyframeShift })
-      );
+      ephemeral.dispatch((actions) => actions.setFields({ keyframeShift }));
     });
 
     params.addListener.once("mouseup", () => {
-      const { keyframeShift } = params.ephemeral.state;
+      const { keyframeShift } = ephemeral.state;
 
       if (!keyframeShift) {
         // The mouse did not move
@@ -60,16 +59,16 @@ export function onMousedownKeyframe(
         return;
       }
 
-      const timeline = params.primary.state.timelines[timelineId];
+      const timeline = timelines[timelineId];
+      const timelineSelection = selection.state[timelineId];
 
-      const timelineSelection = params.selection.state[timelineId];
       const nextTimeline = applyTimelineKeyframeShift({
         keyframeShift,
         timeline,
         timelineSelection,
       });
 
-      params.primary.dispatch((actions) => actions.setTimeline(nextTimeline));
+      primary.dispatch((actions) => actions.setTimeline(nextTimeline));
       params.submit();
     });
   });
