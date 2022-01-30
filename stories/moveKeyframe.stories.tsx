@@ -172,7 +172,7 @@ export const Test = () => {
         return;
       }
 
-      const renderState = renderStateRef.current || getRenderState();
+      const renderState = renderStateRef.current;
       const cursor = getGraphEditorCursor(lastPost, renderState);
       canvas.style.cursor = cursor;
     };
