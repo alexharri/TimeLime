@@ -94,16 +94,16 @@ const removeListenerExecuted = (cancelToken: string) => {
 /**
  * @returns cancelToken
  */
-function addListenerExecuteOnce<T extends keyof T2E, E = T2E[T]>(
+function once<T extends keyof T2E, E = T2E[T]>(
   type: T,
   listenerFn: Listener<E>
 ): string;
-function addListenerExecuteOnce<T extends keyof T2E, E = T2E[T]>(
+function once<T extends keyof T2E, E = T2E[T]>(
   type: T,
   options: Options,
   listenerFn: Listener<E>
 ): string;
-function addListenerExecuteOnce<T extends keyof T2E, E = T2E[T]>(
+function once<T extends keyof T2E, E = T2E[T]>(
   type: T,
   optsOrListener: Options | Listener<E>,
   listenerFn?: Listener<E>
@@ -125,16 +125,16 @@ function addListenerExecuteOnce<T extends keyof T2E, E = T2E[T]>(
 /**
  * @returns cancelToken
  */
-function addListenerExecutedRepeated<T extends keyof T2E, E = T2E[T]>(
+function repeated<T extends keyof T2E, E = T2E[T]>(
   type: T,
   listenerFn: Listener<E>
 ): string;
-function addListenerExecutedRepeated<T extends keyof T2E, E = T2E[T]>(
+function repeated<T extends keyof T2E, E = T2E[T]>(
   type: T,
   options: Options,
   listenerFn: Listener<E>
 ): string;
-function addListenerExecutedRepeated<T extends keyof T2E, E = T2E[T]>(
+function repeated<T extends keyof T2E, E = T2E[T]>(
   type: T,
   optsOrListener: Options | Listener<E>,
   listenerFn?: Listener<E>
@@ -150,16 +150,13 @@ function addListenerExecutedRepeated<T extends keyof T2E, E = T2E[T]>(
 /**
  * @returns cancelToken
  */
-function addKeydownListenerLongPress(
-  key: Key,
-  listenerFn: Listener<KeyboardEvent>
-): string;
-function addKeydownListenerLongPress(
+function keydownLong(key: Key, listenerFn: Listener<KeyboardEvent>): string;
+function keydownLong(
   key: Key,
   options: Options,
   listenerFn: Listener<KeyboardEvent>
 ): string;
-function addKeydownListenerLongPress(
+function keydownLong(
   key: Key,
   optsOrListener: Options | Listener<KeyboardEvent>,
   listenerFn?: Listener<KeyboardEvent>
@@ -183,7 +180,7 @@ function addKeydownListenerLongPress(
     isListenerKeyDown = true;
 
     // This can be optimized
-    addKeyboardListenerExecuteOnce(key, "keyup", () => {
+    keyboardOnce(key, "keyup", () => {
       isListenerKeyDown = false;
     });
 
@@ -197,18 +194,18 @@ function addKeydownListenerLongPress(
 /**
  * @returns cancelToken
  */
-function addKeyboardListenerExecuteOnce<T extends keyof KT2E>(
+function keyboardOnce<T extends keyof KT2E>(
   key: Key,
   type: T,
   listenerFn: Listener<KeyboardEvent>
 ): string;
-function addKeyboardListenerExecuteOnce<T extends keyof KT2E>(
+function keyboardOnce<T extends keyof KT2E>(
   key: Key,
   type: T,
   options: Options,
   listenerFn: Listener<KeyboardEvent>
 ): string;
-function addKeyboardListenerExecuteOnce<T extends keyof KT2E>(
+function keyboardOnce<T extends keyof KT2E>(
   key: Key,
   type: T,
   optsOrListener: Options | Listener<KeyboardEvent>,
@@ -233,10 +230,10 @@ function addKeyboardListenerExecuteOnce<T extends keyof KT2E>(
 }
 
 export const addListener = {
-  once: addListenerExecuteOnce,
-  repeated: addListenerExecutedRepeated,
-  keyboardOnce: addKeyboardListenerExecuteOnce,
-  keydownLong: addKeydownListenerLongPress,
+  once,
+  repeated,
+  keyboardOnce,
+  keydownLong,
 };
 
 export const removeListener = removeListenerExecuted;
