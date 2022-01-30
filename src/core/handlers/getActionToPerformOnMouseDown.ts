@@ -60,6 +60,7 @@ export const getActionToPerformOnMouseDown = (
     length,
     viewBounds,
     viewport,
+    timelines,
   });
 
   const normalToViewport = createNormalToViewportFn({
