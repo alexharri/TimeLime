@@ -60,7 +60,7 @@ export function onMousedownKeyframe(
     userActionOptions: actionOptions,
     e,
     keys: ["Shift"],
-    translate: globalToNormal,
+    globalToNormal,
     beforeMove: (params) => {
       const { selection, ephemeral } = params;
 

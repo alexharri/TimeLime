@@ -28,8 +28,8 @@ interface MouseDownMoveActionOptions<K extends Key> {
   e?: SomeMouseEvent;
   initialMousePosition?: Vec2;
   params?: RequestActionParams;
-  keys: K[];
-  beforeMove: (
+  keys?: K[];
+  beforeMove?: (
     params: RequestActionParams,
     options: { mousePosition: MousePosition }
   ) => void;
@@ -39,9 +39,9 @@ interface MouseDownMoveActionOptions<K extends Key> {
   ) => void;
   mouseUp?: MouseMoveActionEndFn;
   mouseDown?: MouseMoveActionEndFn;
-  translate?: (vec: Vec2) => Vec2;
-  translateX?: (value: number) => number;
-  translateY?: (value: number) => number;
+  globalToNormal?: (vec: Vec2) => Vec2;
+  globalToNormalX?: (value: number) => number;
+  globalToNormalY?: (value: number) => number;
   moveTreshold?: number;
   shouldAddToStack?: ShouldAddToStackFn | ShouldAddToStackFn[];
   tickShouldUpdate?: (
@@ -54,14 +54,16 @@ interface MouseDownMoveActionOptions<K extends Key> {
 export const mouseDownMoveAction = <K extends Key>(
   options: MouseDownMoveActionOptions<K>
 ): void => {
+  const { keys = [] } = options;
+
   let translate: (vec: Vec2) => Vec2;
 
-  if (options.translate) {
-    translate = options.translate;
-  } else if (options.translateX || options.translateY) {
+  if (options.globalToNormal) {
+    translate = options.globalToNormal;
+  } else if (options.globalToNormalX || options.globalToNormalY) {
     translate = (vec) => {
-      const x = (options.translateX || ((value) => value))(vec.x);
-      const y = (options.translateY || ((value) => value))(vec.y);
+      const x = (options.globalToNormalX || ((value) => value))(vec.x);
+      const y = (options.globalToNormalY || ((value) => value))(vec.y);
       return Vec2.new(x, y);
     };
   } else {
@@ -91,7 +93,7 @@ export const mouseDownMoveAction = <K extends Key>(
   };
 
   const fn: RequestActionCallback = (params) => {
-    options.beforeMove(params, { mousePosition: initialMousePosition });
+    options.beforeMove?.(params, { mousePosition: initialMousePosition });
 
     if (params.done) {
       // If user submitted/cancelled in `beforeMove`
@@ -118,18 +120,19 @@ export const mouseDownMoveAction = <K extends Key>(
 
       let shouldUpdate = false;
 
-      const keyDownMap = (lastKeyDownMap = options.keys.reduce<
-        Record<K, boolean>
-      >((acc, key) => {
-        const keyDown = isKeyDown(key);
+      const keyDownMap = (lastKeyDownMap = keys.reduce<Record<K, boolean>>(
+        (acc, key) => {
+          const keyDown = isKeyDown(key);
 
-        if (lastKeyDownMap[key] !== keyDown) {
-          shouldUpdate = true;
-        }
+          if (lastKeyDownMap[key] !== keyDown) {
+            shouldUpdate = true;
+          }
 
-        acc[key] = keyDown;
-        return acc;
-      }, {} as Record<K, boolean>));
+          acc[key] = keyDown;
+          return acc;
+        },
+        {} as Record<K, boolean>
+      ));
 
       let _options!: MouseMoveOptions<Record<K, boolean>>;
       const getOptions = () => {
