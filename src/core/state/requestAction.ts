@@ -106,15 +106,15 @@ const performRequestedAction = (
     _actionId = null;
   };
 
-  interface CreateStateManagerOptions<T, A extends ActionCollection> {
+  interface CreateStateStoreOptions<T, A extends ActionCollection> {
     initialState: T;
     reducer: (state: T, action: ActionsReturnType<A>) => T;
     actions: A;
     onChange: (state: T) => void;
   }
 
-  const createStateManager = <T, A extends ActionCollection>(
-    options: CreateStateManagerOptions<T, A>
+  const createStateStore = <T, A extends ActionCollection>(
+    options: CreateStateStoreOptions<T, A>
   ): StateStore<T, A> => {
     const obj: StateStore<T, A> = {
       state: options.initialState,
@@ -139,7 +139,7 @@ const performRequestedAction = (
   const initialViewState = options.userActionOptions.initialState.view;
   const initialEphemeralState = {};
 
-  const primary = createStateManager({
+  const primary = createStateStore({
     initialState: initialPrimaryState,
     actions: timelineActions,
     reducer: timelineReducer,
@@ -148,7 +148,7 @@ const performRequestedAction = (
       render();
     },
   });
-  const selection = createStateManager({
+  const selection = createStateStore({
     initialState: initialSelectionState,
     actions: timelineSelectionActions,
     reducer: timelineSelectionReducer,
@@ -157,7 +157,7 @@ const performRequestedAction = (
       render();
     },
   });
-  const view = createStateManager({
+  const view = createStateStore({
     initialState: initialViewState,
     actions: viewActions,
     reducer: viewReducer,
@@ -166,7 +166,7 @@ const performRequestedAction = (
       render();
     },
   });
-  const ephemeral = createStateManager({
+  const ephemeral = createStateStore({
     initialState: initialEphemeralState,
     actions: ephemeralActions,
     reducer: ephemeralReducer,
