@@ -1,5 +1,6 @@
 import { CANVAS_END_START_BUFFER } from "~/core/constants";
 import { getGraphEditorYBounds } from "~/core/render/yBounds";
+import { ActionOptions } from "~/core/state/stateTypes";
 import { lerp } from "~/core/utils/math/math";
 import { Vec2 } from "~/core/utils/math/Vec2";
 import { Rect, ViewBounds, YBounds } from "~/types/commonTypes";
@@ -44,4 +45,15 @@ export const createGlobalToNormalFn = (options: Options) => {
   };
 
   return globalToNormal;
+};
+
+export const createGlobalToNormalFnFromActionOptions = (
+  options: ActionOptions
+) => {
+  const { initialState } = options;
+
+  const { timelines } = initialState.primary;
+  const { viewport, viewBounds, length } = initialState.view;
+
+  return createGlobalToNormalFn({ viewport, viewBounds, timelines, length });
 };

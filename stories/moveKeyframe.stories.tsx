@@ -1,7 +1,7 @@
 import "./preventGlobals";
 
 import { ComponentMeta } from "@storybook/react";
-import React, { useLayoutEffect, useRef, useState } from "react";
+import React, { useEffect, useLayoutEffect, useRef, useState } from "react";
 import { getActionToPerformOnMouseDown } from "~/core/handlers/getActionToPerformOnMouseDown";
 import { onMousedownKeyframe } from "~/core/handlers/mousedownKeyframe";
 import { renderGraphEditorWithRenderState } from "~/core/render/renderGraphEditor";
@@ -60,6 +60,13 @@ export const Test = () => {
     viewBounds: [0, 1],
     viewport: { top: 0, left: 0, width: 800, height: 400 },
   });
+
+  useEffect(() => {
+    setViewState((state) => ({
+      ...state,
+      viewport: ref.current?.getBoundingClientRect()!,
+    }));
+  }, []);
 
   const render = (renderState: RenderState) => {
     const ctx = ref.current?.getContext("2d");

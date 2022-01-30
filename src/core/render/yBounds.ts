@@ -2,9 +2,10 @@ import {
   CANVAS_NO_DIFF_UPPER_LOWER_BUFFER,
   CANVAS_UPPER_LOWER_BUFFER_FACTOR,
 } from "~/core/constants";
+import { ActionOptions } from "~/core/state/stateTypes";
 import { keyframesToCurves } from "~/core/transform/keyframesToCurves";
 import { splitTimelineCurve } from "~/core/utils/math/splitTimelineCurve";
-import { ViewBounds, YBounds } from "~/types/commonTypes";
+import { Action, ViewBounds, YBounds } from "~/types/commonTypes";
 import { TimelineMap } from "~/types/timelineTypes";
 
 interface Options {
@@ -161,4 +162,13 @@ export const getGraphEditorYBounds = (options: Options): YBounds => {
   const buffer = diff * CANVAS_UPPER_LOWER_BUFFER_FACTOR;
 
   return [yUpper + buffer, yLower - buffer];
+};
+
+export const getGraphEditorYBoundsFromActionOptions = (
+  actionOptions: ActionOptions
+) => {
+  const { timelines } = actionOptions.initialState.primary;
+  const { viewBounds, length } = actionOptions.initialState.view;
+
+  return getGraphEditorYBounds({ length, timelines, viewBounds });
 };
