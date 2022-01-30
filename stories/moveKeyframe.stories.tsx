@@ -16,7 +16,7 @@ import { timelineActions } from "~/core/state/timeline/timelineActions";
 import { timelineSelectionActions } from "~/core/state/timelineSelection/timelineSelectionActions";
 import { useStateManager } from "~/core/state/StateManager/useStateManager";
 import { Vec2 } from "~/core/utils/math/Vec2";
-import { getGraphEditorCursorFromRenderState } from "~/core/render/cursor/graphEditorCursor";
+import { getGraphEditorCursor } from "~/core/render/cursor/graphEditorCursor";
 import { isKeyCodeOf } from "~/core/listener/keyboard";
 
 const initialTimelineState: TimelineState = {
@@ -173,7 +173,7 @@ export const Test = () => {
       }
 
       const renderState = renderStateRef.current || getRenderState();
-      const cursor = getGraphEditorCursorFromRenderState(lastPost, renderState);
+      const cursor = getGraphEditorCursor(lastPost, renderState);
       canvas.style.cursor = cursor;
     };
 

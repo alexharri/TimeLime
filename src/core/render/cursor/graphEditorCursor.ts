@@ -19,7 +19,7 @@ interface Options {
   pan?: Vec2;
 }
 
-export const getGraphEditorCursor = (options: Options): string => {
+const getCursor = (options: Options): string => {
   const {
     viewportMousePosition,
     yBounds,
@@ -69,7 +69,7 @@ export const getGraphEditorCursor = (options: Options): string => {
   return base64Cursors.selection;
 };
 
-export const getGraphEditorCursorFromRenderState = (
+export const getGraphEditorCursor = (
   globalMousePosition: Vec2,
   renderState: RenderState
 ) => {
@@ -93,7 +93,7 @@ export const getGraphEditorCursorFromRenderState = (
     viewport.top
   );
 
-  const cursor = getGraphEditorCursor({
+  const cursor = getCursor({
     timelines,
     length,
     viewBounds,
