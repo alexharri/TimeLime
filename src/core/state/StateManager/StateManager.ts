@@ -31,15 +31,9 @@ export interface StateManagerOptions<
   onStateChangeCallback?: (state: ActionState<T, S>) => void;
 }
 
-export type ShouldAddToStackFn = (
-  prevState: unknown,
-  nextState: unknown
-) => boolean;
-
 interface SubmitOptions {
   name: string;
   allowSelectionShift?: boolean;
-  shouldAddToStack?: ShouldAddToStackFn;
 }
 
 export interface RequestActionParams {
@@ -57,7 +51,6 @@ export interface RequestActionCallback {
 }
 
 interface RequestActionOptions {
-  shouldAddToStack?: ShouldAddToStackFn | ShouldAddToStackFn[];
   beforeSubmit?: (params: RequestActionParams) => void;
 }
 
@@ -103,7 +96,7 @@ export class StateManager<T, S, AT extends Action, AS extends Action> {
     options: RequestActionOptions,
     callback: RequestActionCallback
   ) {
-    const { shouldAddToStack, beforeSubmit } = options;
+    const { beforeSubmit } = options;
 
     const actionId = (++this._n).toString();
     const cancelTokens: string[] = [];
@@ -172,32 +165,6 @@ export class StateManager<T, S, AT extends Action, AS extends Action> {
 
         if (this.getActionId() !== actionId) {
           console.warn("Attempted to submit with the wrong action id.");
-          return;
-        }
-
-        const shouldAddToStackFns: ShouldAddToStackFn[] = [];
-
-        if (Array.isArray(shouldAddToStack)) {
-          shouldAddToStackFns.push(...shouldAddToStack);
-        } else if (typeof shouldAddToStack === "function") {
-          shouldAddToStackFns.push(shouldAddToStack);
-        }
-
-        if (options.shouldAddToStack) {
-          shouldAddToStackFns.push(options.shouldAddToStack);
-        }
-
-        let addToStack = shouldAddToStackFns.length === 0;
-
-        for (const shouldAddToStack of shouldAddToStackFns) {
-          if (shouldAddToStack(this.getCurrentState(), this.getActionState())) {
-            addToStack = true;
-          }
-        }
-
-        if (!addToStack) {
-          this.dispatchHistoryAction(historyActions.cancelAction(actionId));
-          onComplete();
           return;
         }
 
