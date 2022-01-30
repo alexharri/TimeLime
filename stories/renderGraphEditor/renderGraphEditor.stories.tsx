@@ -42,7 +42,7 @@ export const BasicExample = () => {
     renderGraphEditor({
       ctx,
       length: 100,
-      timelines: [timeline],
+      timelines: { [timeline.id]: timeline },
     });
   }, []);
 
@@ -91,7 +91,7 @@ export const Overlap = () => {
     renderGraphEditor({
       ctx,
       length: 100,
-      timelines: [timeline],
+      timelines: { [timeline.id]: timeline },
       viewBounds: [0.3, 0.7],
     });
   }, []);
@@ -126,7 +126,11 @@ export const ParseCurves = () => {
       ]),
     };
 
-    renderGraphEditor({ ctx, length: 200, timelines: [timeline] });
+    renderGraphEditor({
+      ctx,
+      length: 200,
+      timelines: { [timeline.id]: timeline },
+    });
   }, []);
 
   return <canvas ref={ref} width={800} height={400} />;

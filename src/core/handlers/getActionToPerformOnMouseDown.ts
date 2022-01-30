@@ -9,19 +9,22 @@ import {
   SomeMouseEvent,
   ViewBounds,
 } from "~/types/commonTypes";
-import { Timeline, TimelineKeyframe } from "~/types/timelineTypes";
+import { TimelineKeyframe, TimelineMap } from "~/types/timelineTypes";
 
 type ActionToPerform =
   | {
       type: "alt_mousedown_keyframe";
+      timelineId: string;
       keyframe: TimelineKeyframe;
     }
   | {
       type: "mousedown_keyframe";
+      timelineId: string;
       keyframe: TimelineKeyframe;
     }
   | {
       type: "mousedown_control_point";
+      timelineId: string;
       keyframe: TimelineKeyframe;
       which: "left" | "right";
     }
@@ -31,7 +34,7 @@ type ActionToPerform =
 
 interface ActionToPerformOptions {
   e: SomeMouseEvent;
-  timelines: Timeline[];
+  timelines: TimelineMap;
   viewport: Rect;
   length: number;
 
@@ -57,6 +60,7 @@ export const getActionToPerformOnMouseDown = (
     length,
     viewBounds,
     viewport,
+    timelines,
   });
 
   const normalToViewport = createNormalToViewportFn({
@@ -73,7 +77,11 @@ export const getActionToPerformOnMouseDown = (
     normal: globalToNormal(globalMousePosition),
   };
 
-  for (const timeline of timelines) {
+  const timelineList = Object.values(timelines);
+
+  for (const timeline of timelineList) {
+    const timelineId = timeline.id;
+
     const target = getGraphEditorTargetObject(
       timeline,
       mousePosition.viewport,
@@ -83,13 +91,22 @@ export const getActionToPerformOnMouseDown = (
     switch (target.type) {
       case "keyframe": {
         if (e.altKey) {
-          return { type: "alt_mousedown_keyframe", keyframe: target.keyframe };
+          return {
+            type: "alt_mousedown_keyframe",
+            timelineId,
+            keyframe: target.keyframe,
+          };
         }
-        return { type: "mousedown_keyframe", keyframe: target.keyframe };
+        return {
+          type: "mousedown_keyframe",
+          timelineId,
+          keyframe: target.keyframe,
+        };
       }
       case "control_point": {
         return {
           type: "mousedown_control_point",
+          timelineId,
           keyframe: target.keyframe,
           which: target.which,
         };

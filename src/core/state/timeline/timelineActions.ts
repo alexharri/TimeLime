@@ -1,37 +1,34 @@
-import { TimelineKeyframe } from "~/types/timelineTypes";
+import { Timeline, TimelineKeyframe } from "~/types/timelineTypes";
 import { Rect } from "~/types/commonTypes";
-
-export enum TimelineActionType {
-  SetKeyframe,
-  RemoveKeyframes,
-  SetDragSelectRect,
-}
-
-type TimelineActions = typeof timelineActions;
-type TimelineActionReturnTypes = {
-  [K in keyof TimelineActions]: ReturnType<TimelineActions[K]>;
-};
-
-export type TimelineAction =
-  TimelineActionReturnTypes[keyof TimelineActionReturnTypes];
+import { TimelineState } from "~/core/state/timeline/timelineReducer";
 
 export const timelineActions = {
+  setState: (state: TimelineState) => ({
+    type: <const>"tl/set-state",
+    state,
+  }),
+
   setKeyframe: (timelineId: string, keyframe: TimelineKeyframe) => ({
-    type: <const>"set-keyframe",
+    type: <const>"tl/set-keyframe",
     timelineId,
     keyframe,
   }),
 
   removeKeyframes: (timelineId: string, keyframeIds: string[]) => ({
-    type: <const>"remove-keyframe",
+    type: <const>"tl/remove-keyframe",
     timelineId,
     keyframeIds,
   }),
 
   setDragSelectRect: (timelineId: string, rect: Rect) => ({
-    type: <const>"set-drag-select-rect",
+    type: <const>"tl/set-drag-select-rect",
     timelineId,
     rect,
+  }),
+
+  setTimeline: (timeline: Timeline) => ({
+    type: <const>"tl/set-timeline",
+    timeline,
   }),
 
   // submitDragSelectRect: createAction(

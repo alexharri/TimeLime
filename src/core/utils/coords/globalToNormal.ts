@@ -1,7 +1,9 @@
 import { CANVAS_END_START_BUFFER } from "~/core/constants";
+import { getGraphEditorYBounds } from "~/core/render/yBounds";
 import { lerp } from "~/core/utils/math/math";
 import { Vec2 } from "~/core/utils/math/Vec2";
 import { Rect, ViewBounds, YBounds } from "~/types/commonTypes";
+import { TimelineMap } from "~/types/timelineTypes";
 
 interface Options {
   viewport: Rect;
@@ -11,11 +13,21 @@ interface Options {
   /** @default [0, 1] */
   viewBounds?: ViewBounds;
 
-  yBounds: YBounds;
+  timelines: TimelineMap;
+
+  yBounds?: YBounds;
 }
 
 export const createGlobalToNormalFn = (options: Options) => {
-  const { viewport, viewBounds = [0, 1], yBounds, length } = options;
+  const { viewport, timelines, viewBounds = [0, 1], length } = options;
+
+  const yBounds =
+    options.yBounds ||
+    getGraphEditorYBounds({
+      length,
+      timelines,
+      viewBounds,
+    });
 
   const [xMin, xMax] = viewBounds;
 

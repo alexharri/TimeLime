@@ -39,7 +39,7 @@ export const LogActionToPerform = () => {
     if (!ctx) {
       return;
     }
-    renderGraphEditor({ ctx, length, timelines: [timeline] });
+    renderGraphEditor({ ctx, length, timelines: { [timeline.id]: timeline } });
   }, []);
 
   const onMouseDown = (e: React.MouseEvent) => {
@@ -52,7 +52,7 @@ export const LogActionToPerform = () => {
     const actionToPerform = getActionToPerformOnMouseDown({
       e,
       length,
-      timelines: [timeline],
+      timelines: { [timeline.id]: timeline },
       viewport,
     });
     console.log(actionToPerform);

@@ -1,23 +1,29 @@
 import { mergeInMap } from "map-fns";
-import { TimelineAction } from "~/core/timelineActions";
+import { timelineActions } from "~/core/state/timeline/timelineActions";
 import { getInsertionIndex } from "~/core/utils/getInsertionIndex";
+import { ActionsReturnType } from "~/types/commonTypes";
 import { Timeline } from "~/types/timelineTypes";
 
 export interface TimelineState {
-  [timelineId: string]: Timeline;
+  timelines: { [timelineId: string]: Timeline };
 }
 
-export const initialTimelineState: TimelineState = {};
+export const initialTimelineState: TimelineState = {
+  timelines: {},
+};
 
 export function timelineReducer(
   state: TimelineState,
-  action: TimelineAction
+  action: ActionsReturnType<typeof timelineActions>
 ): TimelineState {
   switch (action.type) {
-    case "set-keyframe": {
+    case "tl/set-state":
+      return action.state;
+
+    case "tl/set-keyframe": {
       const { keyframe, timelineId } = action;
 
-      const timeline = state[timelineId];
+      const timeline = state.timelines[timelineId];
       const keyframes = [...timeline.keyframes];
       const keyframeIds = keyframes.map((k) => k.id);
 
@@ -41,15 +47,29 @@ export function timelineReducer(
       );
       keyframes.splice(insertIndex, 0, keyframe);
 
-      return mergeInMap(state, timelineId, { keyframes });
+      return {
+        ...state,
+        timelines: mergeInMap(state.timelines, timelineId, { keyframes }),
+      };
     }
 
-    case "remove-keyframe": {
+    case "tl/remove-keyframe": {
       const { timelineId, keyframeIds } = action;
       const set = new Set(keyframeIds);
-      return mergeInMap(state, timelineId, {
-        keyframes: (keyframes) => keyframes.filter((k) => !set.has(k.id)),
-      });
+      return {
+        ...state,
+        timelines: mergeInMap(state.timelines, timelineId, {
+          keyframes: (keyframes) => keyframes.filter((k) => !set.has(k.id)),
+        }),
+      };
+    }
+
+    case "tl/set-timeline": {
+      const { timeline } = action;
+      return {
+        ...state,
+        timelines: { ...state.timelines, [timeline.id]: timeline },
+      };
     }
 
     // case getType(timelineActions.setYPan): {

@@ -1,3 +1,7 @@
+export type TimelineMap = {
+  [timelineId: string]: Timeline;
+};
+
 export interface Timeline {
   id: string;
   keyframes: TimelineKeyframe[];

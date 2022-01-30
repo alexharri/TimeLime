@@ -18,11 +18,14 @@ import { transformRectWithVecTransformation } from "~/core/utils/math/math";
 import { Vec2 } from "~/core/utils/math/Vec2";
 import { generateGraphEditorYTicksFromBounds } from "~/core/utils/yTicks";
 import { Curve, Line, Rect, YBounds } from "~/types/commonTypes";
-import { Timeline, TimelineSelectionMap } from "~/types/timelineTypes";
+import { TimelineMap, TimelineSelectionMap } from "~/types/timelineTypes";
+import { RenderState } from "~/core/state/stateTypes";
+import { mapMap } from "map-fns";
+import { applyTimelineKeyframeShift } from "~/core/timeline/applyTimelineKeyframeShift";
 
 interface RenderOptions {
   ctx: CanvasRenderingContext2D;
-  timelines: Timeline[];
+  timelines: TimelineMap;
   length: number;
 
   /** @default canvas.width */
@@ -44,7 +47,7 @@ interface RenderOptions {
   colors?: Partial<{ [timelineId: string]: string }>;
 
   /** @default {} */
-  timelineSelectionMap?: TimelineSelectionMap;
+  timelineSelectionState?: TimelineSelectionMap;
 
   yBounds?: YBounds;
 
@@ -71,7 +74,7 @@ export function renderGraphEditor(options: RenderOptions) {
     length,
     yBounds,
     yPan = 0,
-    timelineSelectionMap = {},
+    timelineSelectionState = {},
   } = options;
   const { width, height } = getDimensions(options);
 
@@ -82,12 +85,14 @@ export function renderGraphEditor(options: RenderOptions) {
   ctx.fillStyle = colors.gray600;
   ctx.fill();
 
-  if (timelines.length === 0) {
+  const timelineList = Object.values(timelines);
+
+  if (timelineList.length === 0) {
     // No work to be done.
     return;
   }
 
-  const timelineCurves = timelines.map((timeline) =>
+  const timelineCurves = timelineList.map((timeline) =>
     keyframesToCurves(timeline.keyframes)
   );
 
@@ -145,12 +150,7 @@ export function renderGraphEditor(options: RenderOptions) {
   }
 
   const [yUpper, yLower] =
-    yBounds ||
-    getGraphEditorYBounds({
-      viewBounds,
-      length,
-      timelines,
-    });
+    yBounds || getGraphEditorYBounds({ viewBounds, length, timelines });
 
   const ticks = generateGraphEditorYTicksFromBounds([
     yUpper + yPan,
@@ -169,7 +169,7 @@ export function renderGraphEditor(options: RenderOptions) {
     ctx.fillText(ticks[i].toString(), 8, y - 2);
   }
 
-  timelines.forEach((timeline, i) => {
+  timelineList.forEach((timeline, i) => {
     const { keyframes } = timeline;
     const curves = timelineCurves[i];
 
@@ -259,7 +259,7 @@ export function renderGraphEditor(options: RenderOptions) {
      */
     keyframes.forEach((k) => {
       const vec = toViewport(Vec2.new(k.index, k.value));
-      const timelineSelection = timelineSelectionMap[timeline.id];
+      const timelineSelection = timelineSelectionState[timeline.id];
       const selected = timelineSelection && timelineSelection.keyframes[k.id];
       renderDiamond(ctx, vec, {
         fillColor: selected ? "#2f9eff" : "#333",
@@ -303,5 +303,38 @@ export function renderGraphEditor(options: RenderOptions) {
         fillColor: "rgba(255, 0, 0, .1)",
       });
     }
+  });
+}
+
+export function renderGraphEditorWithRenderState(
+  ctx: CanvasRenderingContext2D,
+  renderState: RenderState
+) {
+  const timelineSelectionState = renderState.selection;
+  const { length, viewport, viewBounds } = renderState.view;
+  const { keyframeShift, yBounds, yPan } = renderState.ephemeral;
+
+  let { timelines } = renderState.primary;
+
+  if (keyframeShift) {
+    timelines = mapMap(timelines, (timeline) =>
+      applyTimelineKeyframeShift({
+        timeline,
+        timelineSelection: renderState.selection[timeline.id],
+        keyframeShift,
+      })
+    );
+  }
+
+  renderGraphEditor({
+    ctx,
+    length,
+    timelines,
+    width: viewport.width,
+    height: viewport.height,
+    timelineSelectionState,
+    viewBounds,
+    yBounds,
+    yPan,
   });
 }

@@ -27,4 +27,19 @@ export interface MousePosition {
   normal: Vec2;
 }
 
-export type SomeMouseEvent = Pick<MouseEvent, "altKey" | "clientX" | "clientY">;
+export type SomeMouseEvent = Pick<
+  MouseEvent,
+  "altKey" | "clientX" | "clientY" | "shiftKey" | "metaKey"
+>;
+
+export type Action = { type: string };
+
+export interface ActionCollection {
+  [key: string]: (...args: any[]) => { type: string };
+}
+
+type ValuesInObject<T> = T[keyof T];
+
+export type ActionsReturnType<A extends ActionCollection> = ValuesInObject<
+  { [K in keyof A]: ReturnType<A[K]> }
+>;

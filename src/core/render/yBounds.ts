@@ -5,24 +5,26 @@ import {
 import { keyframesToCurves } from "~/core/transform/keyframesToCurves";
 import { splitTimelineCurve } from "~/core/utils/math/splitTimelineCurve";
 import { ViewBounds, YBounds } from "~/types/commonTypes";
-import { Timeline } from "~/types/timelineTypes";
+import { TimelineMap } from "~/types/timelineTypes";
 
 interface Options {
   viewBounds: ViewBounds;
   length: number;
-  timelines: Timeline[];
+  timelines: TimelineMap;
 }
 
 export const getGraphEditorYBounds = (options: Options): YBounds => {
   const { viewBounds, length, timelines } = options;
 
-  const timelineCurves = timelines.map((timeline) =>
+  const timelineList = Object.values(timelines);
+
+  const timelineCurves = timelineList.map((timeline) =>
     keyframesToCurves(timeline.keyframes)
   );
 
-  const timelineYBounds = timelines.map((timeline, i): [number, number] => {
+  const timelineYBounds = timelineList.map((timeline, i): [number, number] => {
     if (timeline.keyframes.length === 1) {
-      const { value } = timelines[0].keyframes[0];
+      const { value } = timelineList[0].keyframes[0];
       return [value, value];
     }
 

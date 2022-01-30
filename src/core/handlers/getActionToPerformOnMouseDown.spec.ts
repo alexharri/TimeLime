@@ -23,7 +23,7 @@ describe("getActionToPerformOnMouseDown", () => {
       id: "test",
       keyframes,
     };
-    const timelines = [timeline];
+    const timelines = { [timeline.id]: timeline };
 
     const viewport: Rect = {
       left: 0,
@@ -53,6 +53,7 @@ describe("getActionToPerformOnMouseDown", () => {
     expect(k0_action).toEqual({
       type: "mousedown_keyframe",
       keyframe: keyframes[0],
+      timelineId: "test",
     });
 
     const k1_action = getActionToPerformOnMouseDown({
@@ -64,6 +65,7 @@ describe("getActionToPerformOnMouseDown", () => {
     expect(k1_action).toEqual({
       type: "mousedown_keyframe",
       keyframe: keyframes[1],
+      timelineId: "test",
     });
 
     const cp0_action = getActionToPerformOnMouseDown({
@@ -74,6 +76,7 @@ describe("getActionToPerformOnMouseDown", () => {
     });
     expect(cp0_action).toEqual({
       keyframe: keyframes[0],
+      timelineId: "test",
       type: "mousedown_control_point",
       which: "right",
     });
@@ -86,6 +89,7 @@ describe("getActionToPerformOnMouseDown", () => {
     });
     expect(cp1_action).toEqual({
       keyframe: keyframes[1],
+      timelineId: "test",
       type: "mousedown_control_point",
       which: "left",
     });
@@ -99,6 +103,7 @@ describe("getActionToPerformOnMouseDown", () => {
     });
     expect(k0_action_alt).toEqual({
       type: "alt_mousedown_keyframe",
+      timelineId: "test",
       keyframe: keyframes[0],
     });
 
