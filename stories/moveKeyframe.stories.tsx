@@ -20,6 +20,7 @@ import { getGraphEditorCursor } from "~/core/render/cursor/graphEditorCursor";
 import { isKeyCodeOf } from "~/core/listener/keyboard";
 import { RequestActionParams } from "~/core/state/StateManager/StateManager";
 import { onPan } from "~/core/handlers/pan";
+import { onZoom } from "~/core/handlers/zoom";
 
 const initialTimelineState: TimelineState = {
   timelines: {
@@ -62,7 +63,7 @@ export const Test = () => {
 
   const viewRef = useRef<ViewState>({
     length,
-    viewBounds: [0, 0.2],
+    viewBounds: [0, 1],
     viewport: { top: 0, left: 0, width: 800, height: 400 },
   });
 
@@ -159,6 +160,13 @@ export const Test = () => {
       case "pan": {
         stateManager.requestAction((params) => {
           onPan(createActionOptions(params), { e });
+        });
+        break;
+      }
+      case "zoom_out":
+      case "zoom_in": {
+        stateManager.requestAction((params) => {
+          onZoom(createActionOptions(params), { ...actionToPerform, e });
         });
         break;
       }

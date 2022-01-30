@@ -13,3 +13,5 @@ export const KEYFRAME_DISTANCE_TRESHOLD = 6;
 export const CONTROL_POINT_DISTANCE_TRESHOLD = 6;
 
 export const MOUSE_MOVE_TRESHOLD = 5;
+
+export const ZOOM_FAC = 0.5;

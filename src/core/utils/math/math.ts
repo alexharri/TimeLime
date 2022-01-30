@@ -69,3 +69,6 @@ export const transformRectWithVecTransformation = (
   const height = rect.height * ht;
   return { left, top, width, height };
 };
+
+export const capToRange = (low: number, high: number, value: number) =>
+  Math.min(high, Math.max(low, value));

@@ -34,6 +34,12 @@ type ActionToPerform =
     }
   | {
       type: "pan";
+    }
+  | {
+      type: "zoom_out";
+    }
+  | {
+      type: "zoom_in";
     };
 
 interface ActionToPerformOptions {
@@ -49,11 +55,15 @@ interface ActionToPerformOptions {
 export const getActionToPerformOnMouseDown = (
   options: ActionToPerformOptions
 ): ActionToPerform => {
+  const { e, viewport, timelines, viewBounds = [0, 1], length } = options;
+
   if (isKeyDown("Space")) {
     return { type: "pan" };
   }
 
-  const { e, viewport, timelines, viewBounds = [0, 1], length } = options;
+  if (isKeyDown("Z")) {
+    return { type: e.altKey ? "zoom_out" : "zoom_in" };
+  }
 
   const globalMousePosition = Vec2.fromEvent(e);
 
