@@ -47,7 +47,7 @@ export interface RequestActionParams {
   submit: (options: SubmitOptions) => void;
   addListener: typeof _addListener;
   removeListener: typeof _removeListener;
-  done: () => boolean;
+  done: boolean;
   execOnComplete: (callback: () => void) => void;
 }
 
@@ -200,7 +200,9 @@ const performRequestedAction = (
   }
 
   const params: RequestActionParams = {
-    done,
+    get done() {
+      return done();
+    },
 
     primary,
     selection,
