@@ -31,17 +31,17 @@ interface SubmitOptions {
   shouldAddToStack?: ShouldAddToStackFn;
 }
 
-type SomeState<T, A extends ActionCollection> = {
+type StateStore<T, A extends ActionCollection> = {
   state: T;
   dispatch: (callback: (actions: A) => ActionsReturnType<A>) => void;
   reset: () => void;
 };
 
 export interface RequestActionParams {
-  primary: SomeState<PrimaryState, typeof timelineActions>;
-  selection: SomeState<SelectionState, typeof timelineSelectionActions>;
-  view: SomeState<ViewState, typeof viewActions>;
-  ephemeral: SomeState<EphemeralState, typeof ephemeralActions>;
+  primary: StateStore<PrimaryState, typeof timelineActions>;
+  selection: StateStore<SelectionState, typeof timelineSelectionActions>;
+  view: StateStore<ViewState, typeof viewActions>;
+  ephemeral: StateStore<EphemeralState, typeof ephemeralActions>;
 
   cancel: () => void;
   submit: (options: SubmitOptions) => void;
@@ -115,8 +115,8 @@ const performRequestedAction = (
 
   const createStateManager = <T, A extends ActionCollection>(
     options: CreateStateManagerOptions<T, A>
-  ): SomeState<T, A> => {
-    const obj: SomeState<T, A> = {
+  ): StateStore<T, A> => {
+    const obj: StateStore<T, A> = {
       state: options.initialState,
       dispatch: (callback) => {
         const nextState = options.reducer(obj.state, callback(options.actions));
