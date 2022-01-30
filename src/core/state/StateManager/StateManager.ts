@@ -14,7 +14,7 @@ import { Action } from "~/types/commonTypes";
 type ActionState<T, S, TK extends string, SK extends string> = Record<TK, T> &
   Record<SK, S>;
 
-interface Options<
+export interface StateManagerOptions<
   T,
   S,
   AT extends Action,
@@ -91,7 +91,7 @@ export class StateManager<
 
   private _n = 0;
 
-  constructor(options: Options<T, S, AT, AS, TK, SK>) {
+  constructor(options: StateManagerOptions<T, S, AT, AS, TK, SK>) {
     this.state = createInitialHistoryState(options.initialState, "normal");
     this.selectionState = createInitialHistoryState(
       options.initialSelectionState,

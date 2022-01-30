@@ -19,6 +19,9 @@ import { Vec2 } from "~/core/utils/math/Vec2";
 import { generateGraphEditorYTicksFromBounds } from "~/core/utils/yTicks";
 import { Curve, Line, Rect, YBounds } from "~/types/commonTypes";
 import { TimelineMap, TimelineSelectionMap } from "~/types/timelineTypes";
+import { RenderState } from "~/core/state/stateTypes";
+import { mapMap } from "map-fns";
+import { applyTimelineKeyframeShift } from "~/core/timeline/applyTimelineKeyframeShift";
 
 interface RenderOptions {
   ctx: CanvasRenderingContext2D;
@@ -300,5 +303,38 @@ export function renderGraphEditor(options: RenderOptions) {
         fillColor: "rgba(255, 0, 0, .1)",
       });
     }
+  });
+}
+
+export function renderGraphEditorWithRenderState(
+  ctx: CanvasRenderingContext2D,
+  renderState: RenderState
+) {
+  const timelineSelectionState = renderState.selection;
+  const { length, viewport, viewBounds } = renderState.view;
+  const { keyframeShift, yBounds, yPan } = renderState.ephemeral;
+
+  let { timelines } = renderState.primary;
+
+  if (keyframeShift) {
+    timelines = mapMap(timelines, (timeline) =>
+      applyTimelineKeyframeShift({
+        timeline,
+        timelineSelection: renderState.selection[timeline.id],
+        keyframeShift,
+      })
+    );
+  }
+
+  renderGraphEditor({
+    ctx,
+    length,
+    timelines,
+    width: viewport.width,
+    height: viewport.height,
+    timelineSelectionState,
+    viewBounds,
+    yBounds,
+    yPan,
   });
 }
