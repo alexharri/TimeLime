@@ -58,7 +58,6 @@ export interface RequestActionCallback {
 interface RequestActionOptions {
   userActionOptions: ActionOptions;
   shouldAddToStack?: ShouldAddToStackFn | ShouldAddToStackFn[];
-  beforeSubmit?: (params: RequestActionParams) => void;
 }
 
 let _n = 0;
@@ -70,7 +69,7 @@ const performRequestedAction = (
   options: RequestActionOptions,
   callback: RequestActionCallback
 ) => {
-  const { shouldAddToStack, beforeSubmit, userActionOptions } = options;
+  const { shouldAddToStack, userActionOptions } = options;
 
   const actionId = (++_n).toString();
   _actionId = actionId;
@@ -260,10 +259,6 @@ const performRequestedAction = (
       }
 
       ephemeral.reset();
-
-      if (beforeSubmit) {
-        beforeSubmit(params);
-      }
 
       onComplete();
       userActionOptions.onSubmit({

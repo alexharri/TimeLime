@@ -46,10 +46,6 @@ export interface RequestActionCallback {
   (params: RequestActionParams): void;
 }
 
-interface RequestActionOptions {
-  beforeSubmit?: (params: RequestActionParams) => void;
-}
-
 export class StateManager<T, S, AT extends Action, AS extends Action> {
   private state: HistoryState<T>;
   private selectionState: HistoryState<S>;
@@ -88,12 +84,7 @@ export class StateManager<T, S, AT extends Action, AS extends Action> {
     return this.state.action?.id;
   }
 
-  private performRequestedAction(
-    options: RequestActionOptions,
-    callback: RequestActionCallback
-  ) {
-    const { beforeSubmit } = options;
-
+  private performRequestedAction(callback: RequestActionCallback) {
     const actionId = (++this._n).toString();
 
     const done = () => actionId !== this.getActionId();
@@ -150,10 +141,6 @@ export class StateManager<T, S, AT extends Action, AS extends Action> {
           return;
         }
 
-        if (beforeSubmit) {
-          beforeSubmit(params);
-        }
-
         const modifiedState =
           this.state.action!.state !== this.state.list[this.state.index].state;
         const modifiedSelectionState =
@@ -183,34 +170,15 @@ export class StateManager<T, S, AT extends Action, AS extends Action> {
     callback(params);
   }
 
-  public requestAction(callback: RequestActionCallback): void;
-  public requestAction(
-    options: RequestActionOptions,
-    callback: RequestActionCallback
-  ): void;
-  public requestAction(
-    optionsOrCallback: RequestActionOptions | RequestActionCallback,
-    callback?: RequestActionCallback
-  ): void {
-    let options: RequestActionOptions;
-    let cb: RequestActionCallback;
-
-    if (typeof optionsOrCallback === "function") {
-      options = {};
-      cb = optionsOrCallback;
-    } else {
-      options = optionsOrCallback;
-      cb = callback!;
-    }
-
+  public requestAction(callback: RequestActionCallback): void {
     if (!this.getActionId()) {
-      this.performRequestedAction(options, cb);
+      this.performRequestedAction(callback);
       return;
     }
 
     requestAnimationFrame(() => {
       if (!this.getActionId()) {
-        this.performRequestedAction(options, cb);
+        this.performRequestedAction(callback);
         return;
       }
     });
