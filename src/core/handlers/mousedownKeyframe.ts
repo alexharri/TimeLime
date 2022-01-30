@@ -1,11 +1,9 @@
 import { areMapsShallowEqual } from "map-fns";
-import { MOUSE_MOVE_TRESHOLD } from "~/core/constants";
 import { getGraphEditorYBounds } from "~/core/render/yBounds";
-import { requestAction } from "~/core/state/requestAction";
+import { mouseDownMoveAction } from "~/core/state/mouseDownMoveAction";
 import { ActionOptions } from "~/core/state/stateTypes";
 import { applyTimelineKeyframeShift } from "~/core/timeline/applyTimelineKeyframeShift";
-import { createGlobalToNormalFn } from "~/core/utils/coords/globalToNormal";
-import { getDistance } from "~/core/utils/math/math";
+import { createGlobalToNormalFnFromActionOptions } from "~/core/utils/coords/globalToNormal";
 import { Vec2 } from "~/core/utils/math/Vec2";
 import { SomeMouseEvent } from "~/types/commonTypes";
 import { TimelineKeyframe } from "~/types/timelineTypes";
@@ -24,62 +22,51 @@ export function onMousedownKeyframe(
 
   const additiveSelection = e.shiftKey;
 
-  requestAction({ userActionOptions: actionOptions }, (params) => {
-    const { primary, selection, view, ephemeral } = params;
+  const globalToNormal = createGlobalToNormalFnFromActionOptions(actionOptions);
 
-    const { timelines } = primary.state;
-    const { length, viewBounds, viewport } = view.state;
+  mouseDownMoveAction({
+    userActionOptions: actionOptions,
+    e,
+    keys: ["Shift"],
+    translate: globalToNormal,
+    beforeMove: (params) => {
+      const { selection, ephemeral } = params;
+      const { timelines } = params.primary.state;
+      const { viewBounds, length } = params.view.state;
 
-    const globalToNormal = createGlobalToNormalFn({
-      length,
-      viewport,
-      viewBounds,
-      timelines,
-    });
+      const timelineSelection = selection.state[timelineId];
 
-    const initialGlobalMousePosition = Vec2.fromEvent(e);
-    const initialMousePosition =
-      initialGlobalMousePosition.apply(globalToNormal);
+      const yBounds = getGraphEditorYBounds({ length, timelines, viewBounds });
+      ephemeral.dispatch((actions) => actions.setFields({ yBounds }));
 
-    const yBounds = getGraphEditorYBounds({ length, timelines, viewBounds });
-    ephemeral.dispatch((actions) => actions.setFields({ yBounds }));
+      if (additiveSelection) {
+        selection.dispatch((actions) =>
+          actions.toggleKeyframe(timelineId, keyframe.id)
+        );
+      } else if (!timelineSelection?.keyframes[keyframe.id]) {
+        selection.dispatch((actions) => actions.clear(timelineId));
+        selection.dispatch((actions) =>
+          actions.toggleKeyframe(timelineId, keyframe.id)
+        );
+      }
+    },
+    mouseMove: (params, { moveVector, keyDown }) => {
+      const { ephemeral } = params;
+      let { x, y } = moveVector.normal;
 
-    const timelineSelection = selection.state[timelineId];
-
-    if (additiveSelection) {
-      selection.dispatch((actions) =>
-        actions.toggleKeyframe(timelineId, keyframe.id)
-      );
-    } else if (!timelineSelection?.keyframes[keyframe.id]) {
-      selection.dispatch((actions) => actions.clear(timelineId));
-      selection.dispatch((actions) =>
-        actions.toggleKeyframe(timelineId, keyframe.id)
-      );
-    }
-
-    let hasMoved = false;
-
-    params.addListener.repeated("mousemove", (e) => {
-      const globalMousePosition = Vec2.fromEvent(e);
-
-      if (!hasMoved) {
-        if (
-          getDistance(initialGlobalMousePosition, globalMousePosition) <
-          MOUSE_MOVE_TRESHOLD
-        ) {
-          return;
+      if (keyDown.Shift) {
+        if (Math.abs(moveVector.global.x) > Math.abs(moveVector.global.y)) {
+          y = 0;
+        } else {
+          x = 0;
         }
-        hasMoved = true;
       }
 
-      const mousePosition = globalMousePosition.apply(globalToNormal);
-      const moveVector = mousePosition.sub(initialMousePosition);
-
-      const keyframeShift = Vec2.new(Math.round(moveVector.x), moveVector.y);
+      const keyframeShift = Vec2.new(Math.round(x), y);
       ephemeral.dispatch((actions) => actions.setFields({ keyframeShift }));
-    });
-
-    params.addListener.once("mouseup", () => {
+    },
+    mouseUp: (params) => {
+      const { ephemeral, primary, selection } = params;
       const { keyframeShift } = ephemeral.state;
 
       if (!keyframeShift) {
@@ -92,6 +79,8 @@ export function onMousedownKeyframe(
         return;
       }
 
+      const { timelines } = primary.state;
+
       const timeline = timelines[timelineId];
       const timelineSelection = selection.state[timelineId];
 
@@ -103,6 +92,6 @@ export function onMousedownKeyframe(
 
       primary.dispatch((actions) => actions.setTimeline(nextTimeline));
       params.submit({ name: "Move keyframe", allowSelectionShift: true });
-    });
+    },
   });
 }
