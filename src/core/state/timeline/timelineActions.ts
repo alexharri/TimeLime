@@ -2,14 +2,6 @@ import { Timeline, TimelineKeyframe } from "~/types/timelineTypes";
 import { Rect } from "~/types/commonTypes";
 import { TimelineState } from "~/core/state/timeline/timelineReducer";
 
-type TimelineActions = typeof timelineActions;
-type TimelineActionReturnTypes = {
-  [K in keyof TimelineActions]: ReturnType<TimelineActions[K]>;
-};
-
-export type TimelineAction =
-  TimelineActionReturnTypes[keyof TimelineActionReturnTypes];
-
 export const timelineActions = {
   setState: (state: TimelineState) => ({
     type: <const>"tl/set-state",
