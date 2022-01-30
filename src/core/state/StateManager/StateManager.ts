@@ -11,27 +11,24 @@ import {
 } from "~/core/state/historyReducer";
 import { Action } from "~/types/commonTypes";
 
-type ActionState<T, S, TK extends string, SK extends string> = Record<TK, T> &
-  Record<SK, S>;
+type ActionState<T, S> = {
+  state: T;
+  selection: S;
+};
 
 export interface StateManagerOptions<
   T,
   S,
   AT extends Action,
-  AS extends Action,
-  TK extends string,
-  SK extends string
+  AS extends Action
 > {
-  stateKey: TK;
-  selectionStateKey: SK;
-
   initialState: T;
   initialSelectionState: S;
 
   reducer: (state: T, action: AT) => T;
   selectionReducer: (state: S, action: AS) => S;
 
-  onStateChangeCallback?: (state: ActionState<T, S, TK, SK>) => void;
+  onStateChangeCallback?: (state: ActionState<T, S>) => void;
 }
 
 export type ShouldAddToStackFn = (
@@ -64,21 +61,11 @@ interface RequestActionOptions {
   beforeSubmit?: (params: RequestActionParams) => void;
 }
 
-export class StateManager<
-  T,
-  S,
-  AT extends Action,
-  AS extends Action,
-  TK extends string,
-  SK extends string
-> {
-  private stateKey: TK;
-  private selectionStateKey: SK;
-
+export class StateManager<T, S, AT extends Action, AS extends Action> {
   private state: HistoryState<T>;
   private selectionState: HistoryState<S>;
 
-  private onStateChangeCallback?: (state: ActionState<T, S, TK, SK>) => void;
+  private onStateChangeCallback?: (state: ActionState<T, S>) => void;
 
   private reducer: (
     state: HistoryState<T>,
@@ -91,7 +78,7 @@ export class StateManager<
 
   private _n = 0;
 
-  constructor(options: StateManagerOptions<T, S, AT, AS, TK, SK>) {
+  constructor(options: StateManagerOptions<T, S, AT, AS>) {
     this.state = createInitialHistoryState(options.initialState, "normal");
     this.selectionState = createInitialHistoryState(
       options.initialSelectionState,
@@ -100,9 +87,6 @@ export class StateManager<
 
     this.reducer = createReducerWithHistory(options.reducer);
     this.selectionReducer = createReducerWithHistory(options.selectionReducer);
-
-    this.stateKey = options.stateKey;
-    this.selectionStateKey = options.selectionStateKey;
 
     this.onStateChangeCallback = options.onStateChangeCallback;
   }
@@ -221,15 +205,6 @@ export class StateManager<
           beforeSubmit(params);
         }
 
-        const modifiedKeys: Array<TK | SK> = [];
-        {
-          if (
-            this.state.action!.state !== this.state.list[this.state.index].state
-          ) {
-            modifiedKeys.push(this.stateKey);
-          }
-        }
-
         const modifiedState =
           this.state.action!.state !== this.state.list[this.state.index].state;
         const modifiedSelectionState =
@@ -296,40 +271,30 @@ export class StateManager<
     });
   }
 
-  public getActionState(): ActionState<T, S, TK, SK> {
-    type AS = ActionState<T, S, TK, SK>;
-
-    const out = {} as AS;
-
+  public getActionState(): ActionState<T, S> {
     if (this.state.action && this.selectionState.action) {
-      out[this.stateKey] = this.state.action.state as AS[TK];
-      out[this.selectionStateKey] = this.selectionState.action.state as AS[SK];
-    } else {
-      const s = this.selectionState;
-
-      const shiftForward =
-        s.type === "selection" &&
-        s.indexDirection === -1 &&
-        s.list[s.index + 1].modifiedRelated &&
-        s.list[s.index + 1].allowIndexShift;
-
-      out[this.stateKey] = this.state.list[this.state.index].state as AS[TK];
-      out[this.selectionStateKey] = s.list[s.index + (shiftForward ? 1 : 0)]
-        .state as AS[SK];
+      const out = {} as ActionState<T, S>;
+      out.state = this.state.action.state;
+      out.selection = this.selectionState.action.state;
+      return out;
     }
 
-    return out;
+    return this.getCurrentState();
   }
 
-  public getCurrentState(): ActionState<T, S, TK, SK> {
-    type AS = ActionState<T, S, TK, SK>;
+  public getCurrentState(): ActionState<T, S> {
+    const out = {} as ActionState<T, S>;
 
-    const out = {} as AS;
+    const s = this.selectionState;
 
-    out[this.stateKey] = this.state.list[this.state.index].state as AS[TK];
-    out[this.selectionStateKey] = this.selectionState.list[
-      this.selectionState.index
-    ].state as AS[SK];
+    const shiftForward =
+      s.type === "selection" &&
+      s.indexDirection === -1 &&
+      s.list[s.index + 1].modifiedRelated &&
+      s.list[s.index + 1].allowIndexShift;
+
+    out.state = this.state.list[this.state.index].state;
+    out.selection = s.list[s.index + (shiftForward ? 1 : 0)].state;
 
     return out;
   }

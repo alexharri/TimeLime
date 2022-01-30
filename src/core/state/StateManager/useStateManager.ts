@@ -10,18 +10,8 @@ interface Options {
   history?: boolean;
 }
 
-export function useStateManager<
-  T,
-  S,
-  AT extends Action,
-  AS extends Action,
-  TK extends string,
-  SK extends string
->(
-  options: Omit<
-    StateManagerOptions<T, S, AT, AS, TK, SK>,
-    "onStateChangeCallback"
-  > &
+export function useStateManager<T, S, AT extends Action, AS extends Action>(
+  options: Omit<StateManagerOptions<T, S, AT, AS>, "onStateChangeCallback"> &
     Options
 ) {
   const [n, setN] = useState(0);

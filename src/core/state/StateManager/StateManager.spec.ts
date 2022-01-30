@@ -30,16 +30,10 @@ function selectionReducer(state: SelectionState, action: any): SelectionState {
   }
 }
 
-const stateKey = "state";
-const selectionStateKey = "selection";
-
 const stateManagerFactory = () =>
   new StateManager({
     initialState: { value: 1 },
     initialSelectionState: { value: "a" },
-
-    stateKey,
-    selectionStateKey,
 
     reducer,
     selectionReducer,

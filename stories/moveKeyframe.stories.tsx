@@ -1,17 +1,11 @@
 import "./preventGlobals";
 
 import { ComponentMeta } from "@storybook/react";
-import { mapMap } from "map-fns";
-import React, { useLayoutEffect, useMemo, useRef, useState } from "react";
+import React, { useLayoutEffect, useRef, useState } from "react";
 import { getActionToPerformOnMouseDown } from "~/core/handlers/getActionToPerformOnMouseDown";
 import { onMousedownKeyframe } from "~/core/handlers/mousedownKeyframe";
-import {
-  renderGraphEditor,
-  renderGraphEditorWithRenderState,
-} from "~/core/render/renderGraphEditor";
-import { StateManager } from "~/core/state/StateManager/StateManager";
+import { renderGraphEditorWithRenderState } from "~/core/render/renderGraphEditor";
 import { RenderState, ViewState } from "~/core/state/stateTypes";
-import { applyTimelineKeyframeShift } from "~/core/timeline/applyTimelineKeyframeShift";
 import {
   timelineReducer,
   TimelineState,
@@ -59,9 +53,6 @@ export const Test = () => {
 
     initialState: initialTimelineState,
     initialSelectionState: {},
-
-    stateKey: "timelineState",
-    selectionStateKey: "timelineSelectionState",
   });
 
   const [viewState, setViewState] = useState<ViewState>({
@@ -88,7 +79,7 @@ export const Test = () => {
     const actionToPerform = getActionToPerformOnMouseDown({
       e,
       length,
-      timelines: stateManager.getActionState().timelineState.timelines,
+      timelines: stateManager.getActionState().state.timelines,
       viewport,
     });
 
@@ -126,8 +117,8 @@ export const Test = () => {
             params.dispatch(timelineSelectionActions.setState(selectionState));
           }),
           onSubmit: (options) => params.submitAction(options),
-          primary: actionState.timelineState,
-          selection: actionState.timelineSelectionState,
+          primary: actionState.state,
+          selection: actionState.selection,
           view: initialViewState,
           render,
         },
@@ -138,8 +129,8 @@ export const Test = () => {
 
   useLayoutEffect(() => {
     render({
-      primary: state.timelineState,
-      selection: state.timelineSelectionState,
+      primary: state.state,
+      selection: state.selection,
       view: viewState,
       ephemeral: {},
     });
