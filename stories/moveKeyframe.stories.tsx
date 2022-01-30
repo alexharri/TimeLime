@@ -105,10 +105,10 @@ export const Test = () => {
 
       onMousedownKeyframe(
         {
-          onCancel: () => {
+          onCancel: ifNotDone(() => {
             setViewState(initialViewState);
             params.cancelAction();
-          },
+          }),
           onViewStateChange: ifNotDone(setViewState),
           onPrimaryStateChange: ifNotDone((primaryState) => {
             params.dispatch(timelineActions.setState(primaryState));
