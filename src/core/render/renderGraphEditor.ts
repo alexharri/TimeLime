@@ -109,13 +109,13 @@ export function renderGraphEditor(options: RenderOptions) {
     timelines,
     viewBounds,
     yBounds,
-    yPan: pan.y,
+    pan,
   });
   const toViewportX = createNormalToViewportXFn({
     length,
     viewBounds,
     viewport,
-    xPan: pan.x,
+    pan,
   });
   const toViewport = (vec: Vec2) =>
     Vec2.new(toViewportX(vec.x), toViewportY(vec.y));

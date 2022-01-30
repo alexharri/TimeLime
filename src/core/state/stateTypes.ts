@@ -46,6 +46,7 @@ export interface ActionOptions {
     selection?: (selectionState: SelectionState) => void;
     view?: (viewState: ViewState) => void;
     ephemeral?: (ephemeralState: EphemeralState) => void;
+    render?: (renderState: RenderState) => void;
   };
 
   render: (renderState: RenderState) => void;

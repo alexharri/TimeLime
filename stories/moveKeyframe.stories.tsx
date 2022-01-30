@@ -1,7 +1,7 @@
 import "./preventGlobals";
 
 import { ComponentMeta } from "@storybook/react";
-import React, { useEffect, useLayoutEffect, useRef, useState } from "react";
+import React, { useEffect, useLayoutEffect, useRef } from "react";
 import { getActionToPerformOnMouseDown } from "~/core/handlers/getActionToPerformOnMouseDown";
 import { onMousedownKeyframe } from "~/core/handlers/mousedownKeyframe";
 import { renderGraphEditorWithRenderState } from "~/core/render/renderGraphEditor";
@@ -15,6 +15,9 @@ import { curvesToKeyframes } from "~/core/transform/curvesToKeyframes";
 import { timelineActions } from "~/core/state/timeline/timelineActions";
 import { timelineSelectionActions } from "~/core/state/timelineSelection/timelineSelectionActions";
 import { useStateManager } from "~/core/state/StateManager/useStateManager";
+import { Vec2 } from "~/core/utils/math/Vec2";
+import { getGraphEditorCursor } from "~/core/render/cursor/graphEditorCursor";
+import { isKeyCodeOf } from "~/core/listener/keyboard";
 
 const initialTimelineState: TimelineState = {
   timelines: {
@@ -55,17 +58,26 @@ export const Test = () => {
     initialSelectionState: {},
   });
 
-  const [viewState, setViewState] = useState<ViewState>({
+  const viewRef = useRef<ViewState>({
     length,
     viewBounds: [0, 1],
     viewport: { top: 0, left: 0, width: 800, height: 400 },
   });
 
+  const getRenderState = (): RenderState => {
+    const actionState = stateManager.getActionState();
+    return {
+      primary: actionState.state,
+      selection: actionState.selection,
+      view: viewRef.current,
+      ephemeral: {},
+    };
+  };
+
+  const renderStateRef = useRef(getRenderState());
+
   useEffect(() => {
-    setViewState((state) => ({
-      ...state,
-      viewport: ref.current?.getBoundingClientRect()!,
-    }));
+    viewRef.current.viewport = ref.current?.getBoundingClientRect()!;
   }, []);
 
   const render = (renderState: RenderState) => {
@@ -99,7 +111,7 @@ export const Test = () => {
     stateManager.requestAction((params) => {
       const actionState = stateManager.getActionState();
 
-      const initialViewState = viewState;
+      const initialViewState = { ...viewRef.current };
 
       function ifNotDone<F extends (...args: any[]) => void>(callback: F) {
         return ((...args) => {
@@ -118,18 +130,22 @@ export const Test = () => {
             view: initialViewState,
           },
 
-          onSubmit: (options) => {
-            const { name, state, allowSelectionShift } = options;
+          onStateChange: {
+            render: (renderState) => {
+              renderStateRef.current = renderState;
+            },
+          },
 
+          onSubmit: (options) => {
+            const { name, allowSelectionShift, state } = options;
             params.dispatch(timelineActions.setState(state.primary));
             params.dispatch(timelineSelectionActions.setState(state.selection));
-            setViewState(viewState);
-
+            viewRef.current = state.view;
             params.submitAction({ name, allowSelectionShift });
           },
 
           onCancel: ifNotDone(() => {
-            setViewState(initialViewState);
+            viewRef.current = initialViewState;
             params.cancelAction();
           }),
 
@@ -140,14 +156,50 @@ export const Test = () => {
     });
   };
 
-  useLayoutEffect(() => {
-    render({
-      primary: state.state,
-      selection: state.selection,
-      view: viewState,
-      ephemeral: {},
-    });
-  }, [state]);
+  useLayoutEffect(() => render(getRenderState()), [state]);
+
+  useEffect(() => {
+    const canvas = ref.current;
+
+    if (!canvas) {
+      return () => {};
+    }
+
+    let lastPost: Vec2 | undefined;
+
+    const renderCursor = () => {
+      if (!lastPost) {
+        return;
+      }
+
+      const renderState = renderStateRef.current;
+      const cursor = getGraphEditorCursor(lastPost, renderState);
+      canvas.style.cursor = cursor;
+    };
+
+    const mouseMoveListener = (e: MouseEvent) => {
+      lastPost = Vec2.fromEvent(e);
+      renderCursor();
+    };
+
+    const keyDownListener = (e: KeyboardEvent) => {
+      if (!isKeyCodeOf("Alt", e.keyCode)) {
+        return;
+      }
+
+      renderCursor();
+    };
+
+    canvas.addEventListener("mousemove", mouseMoveListener);
+    window.addEventListener("keydown", keyDownListener);
+    window.addEventListener("keyup", keyDownListener);
+
+    return () => {
+      canvas.removeEventListener("mousemove", mouseMoveListener);
+      window.removeEventListener("keydown", keyDownListener);
+      window.removeEventListener("keyup", keyDownListener);
+    };
+  }, []);
 
   return (
     <canvas ref={ref} width={800} height={400} onMouseDown={onMouseDown} />
