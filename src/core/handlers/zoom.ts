@@ -15,7 +15,7 @@ export function onZoom(actionOptions: ActionOptions, options: Options) {
 
   requestAction({ userActionOptions: actionOptions }, (params) => {
     const { view } = params;
-    const { viewport, viewBounds } = view.state;
+    const { viewport, viewBounds, allowExceedViewBounds } = view.state;
 
     const mousePos = Vec2.fromEvent(e)
       .subX(viewport.left)
@@ -24,11 +24,14 @@ export function onZoom(actionOptions: ActionOptions, options: Options) {
 
     let newBounds: [number, number];
 
+    const LOW = allowExceedViewBounds ? -Infinity : 0;
+    const HIGH = allowExceedViewBounds ? Infinity : 0;
+
     if (type === "zoom_out") {
       const add = Math.abs(viewBounds[0] - viewBounds[1]) * ZOOM_FAC * 2;
       newBounds = [
-        capToRange(0, 1, viewBounds[0] - add * t),
-        capToRange(0, 1, viewBounds[1] + add * (1 - t)),
+        capToRange(LOW, HIGH, viewBounds[0] - add * t),
+        capToRange(LOW, HIGH, viewBounds[1] + add * (1 - t)),
       ];
     } else {
       const remove = Math.abs(viewBounds[0] - viewBounds[1]) * ZOOM_FAC;

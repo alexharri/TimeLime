@@ -65,6 +65,7 @@ export const Test = () => {
     length,
     viewBounds: [0, 1],
     viewport: { top: 0, left: 0, width: 800, height: 400 },
+    allowExceedViewBounds: true,
   });
 
   const getRenderState = (): RenderState => {
@@ -136,17 +137,14 @@ export const Test = () => {
   };
 
   const onMouseDown = (e: React.MouseEvent) => {
-    const viewport = ref.current?.getBoundingClientRect();
-
-    if (!viewport) {
-      return;
-    }
+    const { viewport, viewBounds, length } = viewRef.current;
 
     const actionToPerform = getActionToPerformOnMouseDown({
       e,
       length,
       timelines: stateManager.getActionState().state.timelines,
       viewport,
+      viewBounds,
     });
 
     switch (actionToPerform.type) {

@@ -13,7 +13,9 @@ export function onPan(actionOptions: ActionOptions, options: Options) {
 
   const globalToNormal = createGlobalToNormalFnFromActionOptions(actionOptions);
 
-  const { viewBounds, length } = actionOptions.initialState.view;
+  const { viewBounds, length, allowExceedViewBounds } =
+    actionOptions.initialState.view;
+
   mouseDownMoveAction({
     userActionOptions: actionOptions,
     e,
@@ -36,10 +38,10 @@ export function onPan(actionOptions: ActionOptions, options: Options) {
       const leftShiftMax = -viewBounds[0];
 
       let newBounds = [viewBounds[0], viewBounds[1]] as [number, number];
-      if (tChange > rightShiftMax) {
+      if (!allowExceedViewBounds && tChange > rightShiftMax) {
         newBounds[1] = 1;
         newBounds[0] += rightShiftMax;
-      } else if (tChange < leftShiftMax) {
+      } else if (!allowExceedViewBounds && tChange < leftShiftMax) {
         newBounds[0] = 0;
         newBounds[1] += leftShiftMax;
       } else {
