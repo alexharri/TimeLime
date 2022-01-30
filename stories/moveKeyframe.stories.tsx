@@ -95,7 +95,7 @@ export const Test = () => {
       const initialViewState = viewState;
 
       function ifNotDone<F extends (...args: any[]) => void>(callback: F) {
-        return ((...args: any[]) => {
+        return ((...args) => {
           if (params.done) {
             return;
           }
