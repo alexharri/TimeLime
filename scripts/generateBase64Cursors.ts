@@ -5,7 +5,6 @@ const srcDir = path.resolve(__dirname, "../src");
 const cursorsDir = path.resolve(srcDir, "./core/utils/cursor");
 const pngDir = path.resolve(cursorsDir, "./png");
 const outFile = path.resolve(cursorsDir, "./base64Cursors.ts");
-// const base64Dir = path.resolve(cursorsDir, "./base64");
 
 const cursorFileNames = fs.readdirSync(pngDir);
 
@@ -16,7 +15,6 @@ for (const fileName of cursorFileNames) {
 
   const withoutDotPng = fileName.split(".png")[0];
 
-  // const base64Path = path.resolve(base64Dir, `./${fileName}`);
   const content = fs.readFileSync(cursorPath, "base64");
   out[withoutDotPng] = `url(data:image/png;base64,${content})`;
 }
