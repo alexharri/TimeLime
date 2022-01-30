@@ -2,7 +2,7 @@ import { areMapsShallowEqual } from "map-fns";
 import { MOUSE_MOVE_TRESHOLD } from "~/core/constants";
 import { getGraphEditorYBounds } from "~/core/render/yBounds";
 import { requestAction } from "~/core/state/requestAction";
-import { PerformActionOptions as ActionOptions } from "~/core/state/stateTypes";
+import { ActionOptions } from "~/core/state/stateTypes";
 import { applyTimelineKeyframeShift } from "~/core/timeline/applyTimelineKeyframeShift";
 import { createGlobalToNormalFn } from "~/core/utils/coords/globalToNormal";
 import { getDistance } from "~/core/utils/math/math";

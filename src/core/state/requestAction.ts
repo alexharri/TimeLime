@@ -6,7 +6,7 @@ import { ephemeralActions } from "~/core/state/ephemeral/ephemeralActions";
 import { ephemeralReducer } from "~/core/state/ephemeral/ephemeralReducer";
 import {
   EphemeralState,
-  PerformActionOptions as ActionOptions,
+  ActionOptions,
   PrimaryState,
   SelectionState,
   TrackedState,

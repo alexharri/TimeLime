@@ -37,7 +37,7 @@ interface SubmitActionOptions {
   allowSelectionShift: boolean;
 }
 
-export interface PerformActionOptions {
+export interface ActionOptions {
   primary: PrimaryState;
   selection: SelectionState;
   view: ViewState;
