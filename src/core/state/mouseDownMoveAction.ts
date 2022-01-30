@@ -44,7 +44,10 @@ interface MouseDownMoveActionOptions<K extends Key> {
   translateY?: (value: number) => number;
   moveTreshold?: number;
   shouldAddToStack?: ShouldAddToStackFn | ShouldAddToStackFn[];
-  tickShouldUpdate?: (options: MouseMoveOptions<Record<K, boolean>>) => boolean;
+  tickShouldUpdate?: (
+    params: RequestActionParams,
+    options: MouseMoveOptions<Record<K, boolean>>
+  ) => boolean;
   viewport?: Rect;
 }
 
@@ -159,7 +162,7 @@ export const mouseDownMoveAction = <K extends Key>(
         return _options;
       };
 
-      if (!shouldUpdate && options.tickShouldUpdate?.(getOptions())) {
+      if (!shouldUpdate && options.tickShouldUpdate?.(params, getOptions())) {
         shouldUpdate = true;
       }
 

@@ -9,14 +9,17 @@ export const createNormalToViewportXFn = (options: {
   length: number;
   viewBounds: ViewBounds;
   viewport: Rect;
+  xPan?: number;
 }): ((value: number) => number) => {
-  const { viewBounds, length, viewport } = options;
+  const { viewBounds, length, viewport, xPan = 0 } = options;
 
   const realWidth = viewport.width;
   const renderWidth = realWidth;
   const canvasWidth = realWidth - CANVAS_END_START_BUFFER * 2;
 
-  const [tMin, tMax] = viewBounds;
+  let [tMin, tMax] = viewBounds;
+  tMin += xPan / length;
+  tMax += xPan / length;
 
   return (index: number) => {
     const t = index / length;

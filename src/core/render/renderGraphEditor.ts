@@ -1,5 +1,4 @@
 import { colors } from "~/core/colors";
-import { CANVAS_END_START_BUFFER } from "~/core/constants";
 import {
   renderCircle,
   renderDiamond,
@@ -19,9 +18,9 @@ import { Vec2 } from "~/core/utils/math/Vec2";
 import { generateGraphEditorYTicksFromBounds } from "~/core/utils/yTicks";
 import { Curve, Line, Rect, YBounds } from "~/types/commonTypes";
 import { TimelineMap, TimelineSelectionMap } from "~/types/timelineTypes";
-import { RenderState } from "~/core/state/stateTypes";
 import { mapMap } from "map-fns";
 import { applyTimelineKeyframeShift } from "~/core/timeline/applyTimelineKeyframeShift";
+import { RenderState } from "~/core/state/stateTypes";
 
 interface RenderOptions {
   ctx: CanvasRenderingContext2D;
@@ -51,8 +50,8 @@ interface RenderOptions {
 
   yBounds?: YBounds;
 
-  /** @default 0 */
-  yPan?: number;
+  /** @default Vec2.ORIGIN */
+  pan?: Vec2;
 
   dragSelectRect?: Rect;
 }
@@ -73,7 +72,7 @@ export function renderGraphEditor(options: RenderOptions) {
     viewBounds = [0, 1],
     length,
     yBounds,
-    yPan = 0,
+    pan = Vec2.ORIGIN,
     timelineSelectionState = {},
   } = options;
   const { width, height } = getDimensions(options);
@@ -110,12 +109,13 @@ export function renderGraphEditor(options: RenderOptions) {
     timelines,
     viewBounds,
     yBounds,
-    yPan: undefined,
+    yPan: pan.y,
   });
   const toViewportX = createNormalToViewportXFn({
     length,
     viewBounds,
     viewport,
+    xPan: pan.x,
   });
   const toViewport = (vec: Vec2) =>
     Vec2.new(toViewportX(vec.x), toViewportY(vec.y));
@@ -126,12 +126,7 @@ export function renderGraphEditor(options: RenderOptions) {
   if (atZero > 0) {
     renderRect(
       ctx,
-      {
-        left: atZero - CANVAS_END_START_BUFFER - 1,
-        width: CANVAS_END_START_BUFFER,
-        top: 0,
-        height,
-      },
+      { left: 0, width: atZero, top: 0, height },
       { fillColor: colors.dark500 }
     );
   }
@@ -139,12 +134,7 @@ export function renderGraphEditor(options: RenderOptions) {
   if (atEnd < width) {
     renderRect(
       ctx,
-      {
-        left: atEnd,
-        width: width - atEnd + 1,
-        top: 0,
-        height,
-      },
+      { left: atEnd, width: width - atEnd + 1, top: 0, height },
       { fillColor: colors.dark500 }
     );
   }
@@ -153,8 +143,8 @@ export function renderGraphEditor(options: RenderOptions) {
     yBounds || getGraphEditorYBounds({ viewBounds, length, timelines });
 
   const ticks = generateGraphEditorYTicksFromBounds([
-    yUpper + yPan,
-    yLower + yPan,
+    yUpper + pan.y,
+    yLower + pan.y,
   ]);
 
   for (let i = 0; i < ticks.length; i += 1) {
@@ -312,7 +302,7 @@ export function renderGraphEditorWithRenderState(
 ) {
   const timelineSelectionState = renderState.selection;
   const { length, viewport, viewBounds } = renderState.view;
-  const { keyframeShift, yBounds, yPan } = renderState.ephemeral;
+  const { keyframeShift, yBounds, pan } = renderState.ephemeral;
 
   let { timelines } = renderState.primary;
 
@@ -335,6 +325,6 @@ export function renderGraphEditorWithRenderState(
     timelineSelectionState,
     viewBounds,
     yBounds,
-    yPan,
+    pan,
   });
 }

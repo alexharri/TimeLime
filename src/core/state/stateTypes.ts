@@ -15,7 +15,7 @@ export interface ViewState {
 
 export interface EphemeralState {
   yBounds?: YBounds;
-  yPan?: number;
+  pan?: Vec2;
   keyframeShift?: Vec2;
 }
 
