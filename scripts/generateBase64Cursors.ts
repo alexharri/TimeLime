@@ -16,7 +16,7 @@ for (const fileName of cursorFileNames) {
   const withoutDotPng = fileName.split(".png")[0];
 
   const content = fs.readFileSync(cursorPath, "base64");
-  out[withoutDotPng] = `url(data:image/png;base64,${content})`;
+  out[withoutDotPng] = `url(data:image/png;base64,${content}), auto`;
 }
 
 let str = `export const base64Cursors = {\n`;

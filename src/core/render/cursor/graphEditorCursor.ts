@@ -13,6 +13,7 @@ interface Options {
   viewport: Rect;
   viewportMousePosition: Vec2;
   timelines: TimelineMap;
+  pan?: Vec2;
 }
 
 export const getGraphEditorCursor = (options: Options): string => {
@@ -23,6 +24,7 @@ export const getGraphEditorCursor = (options: Options): string => {
     viewBounds,
     timelines,
     viewport,
+    pan,
   } = options;
   const normalToViewport = createNormalToViewportFn({
     yBounds,
@@ -30,6 +32,7 @@ export const getGraphEditorCursor = (options: Options): string => {
     length,
     timelines,
     viewport,
+    pan,
   });
 
   const timelineList = Object.values(timelines);

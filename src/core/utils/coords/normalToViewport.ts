@@ -9,17 +9,17 @@ export const createNormalToViewportXFn = (options: {
   length: number;
   viewBounds: ViewBounds;
   viewport: Rect;
-  xPan?: number;
+  pan?: Vec2;
 }): ((value: number) => number) => {
-  const { viewBounds, length, viewport, xPan = 0 } = options;
+  const { viewBounds, length, viewport, pan = Vec2.ORIGIN } = options;
 
   const realWidth = viewport.width;
   const renderWidth = realWidth;
   const canvasWidth = realWidth - CANVAS_END_START_BUFFER * 2;
 
   let [tMin, tMax] = viewBounds;
-  tMin += xPan / length;
-  tMax += xPan / length;
+  tMin += pan.x / length;
+  tMax += pan.x / length;
 
   return (index: number) => {
     const t = index / length;
@@ -40,7 +40,7 @@ export const createNormalToViewportYFn = (options: {
   timelines: TimelineMap;
   viewport: Rect;
   yBounds?: YBounds;
-  yPan?: number;
+  pan?: Vec2;
 }): ((value: number) => number) => {
   const {
     timelines,
@@ -48,7 +48,7 @@ export const createNormalToViewportYFn = (options: {
     viewBounds,
     length,
     yBounds,
-    yPan = 0,
+    pan = Vec2.ORIGIN,
   } = options;
 
   const [yUpper, yLower] =
@@ -56,7 +56,7 @@ export const createNormalToViewportYFn = (options: {
   const yUpLowDiff = yUpper - yLower;
 
   return (value: number) => {
-    const t = (value - yPan - yLower) / yUpLowDiff;
+    const t = (value - pan.y - yLower) / yUpLowDiff;
     return lerp(viewport.height, 0, t);
   };
 };
@@ -67,7 +67,7 @@ export const createNormalToViewportFn = (options: {
   timelines: TimelineMap;
   viewport: Rect;
   yBounds?: YBounds;
-  yPan?: number;
+  pan?: Vec2;
 }) => {
   const toX = createNormalToViewportXFn(options);
   const toY = createNormalToViewportYFn(options);
