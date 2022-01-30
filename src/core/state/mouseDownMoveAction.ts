@@ -62,8 +62,12 @@ export const mouseDownMoveAction = <K extends Key>(
     translate = options.globalToNormal;
   } else if (options.globalToNormalX || options.globalToNormalY) {
     translate = (vec) => {
-      const x = (options.globalToNormalX || ((value) => value))(vec.x);
-      const y = (options.globalToNormalY || ((value) => value))(vec.y);
+      const x = options.globalToNormalX
+        ? options.globalToNormalX(vec.x)
+        : vec.x;
+      const y = options.globalToNormalY
+        ? options.globalToNormalY(vec.y)
+        : vec.y;
       return Vec2.new(x, y);
     };
   } else {
