@@ -1,4 +1,7 @@
+import { mapMap } from "map-fns";
 import { isKeyDown } from "~/core/listener/keyboard";
+import { RenderState } from "~/core/state/stateTypes";
+import { applyTimelineKeyframeShift } from "~/core/timeline/applyTimelineKeyframeShift";
 import { createNormalToViewportFn } from "~/core/utils/coords/normalToViewport";
 import { base64Cursors } from "~/core/utils/cursor/base64Cursors";
 import { getGraphEditorTargetObject } from "~/core/utils/getGraphEditorTargetObject";
@@ -64,4 +67,40 @@ export const getGraphEditorCursor = (options: Options): string => {
   }
 
   return base64Cursors.selection;
+};
+
+export const getGraphEditorCursorFromRenderState = (
+  globalMousePosition: Vec2,
+  renderState: RenderState
+) => {
+  const { primary, selection, view, ephemeral } = renderState;
+  let { timelines } = primary;
+  const { viewBounds, length, viewport } = view;
+  const { yBounds, pan, keyframeShift } = ephemeral;
+
+  if (keyframeShift) {
+    timelines = mapMap(timelines, (timeline) =>
+      applyTimelineKeyframeShift({
+        timeline,
+        timelineSelection: selection[timeline.id],
+        keyframeShift,
+      })
+    );
+  }
+
+  const viewportMousePosition = globalMousePosition.subXY(
+    viewport.left,
+    viewport.top
+  );
+
+  const cursor = getGraphEditorCursor({
+    timelines,
+    length,
+    viewBounds,
+    viewport,
+    viewportMousePosition,
+    yBounds,
+    pan,
+  });
+  return cursor;
 };

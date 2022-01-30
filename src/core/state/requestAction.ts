@@ -139,12 +139,39 @@ const performRequestedAction = (
   const initialViewState = options.userActionOptions.initialState.view;
   const initialEphemeralState = {};
 
+  let renderStateUpdated = false;
+
+  const _sendRenderState = () => {
+    options.userActionOptions.onStateChange?.render?.({
+      primary: primary.state,
+      selection: selection.state,
+      view: view.state,
+      ephemeral: ephemeral.state,
+    });
+  };
+
+  const renderStateTick = () => {
+    if (done()) {
+      return;
+    }
+
+    requestAnimationFrame(renderStateTick);
+
+    if (!renderStateUpdated) {
+      return;
+    }
+    renderStateUpdated = false;
+    _sendRenderState();
+  };
+  renderStateTick();
+
   const primary = createStateStore({
     initialState: initialPrimaryState,
     actions: timelineActions,
     reducer: timelineReducer,
     onChange: (state) => {
       options.userActionOptions.onStateChange?.primary?.(state);
+      renderStateUpdated = true;
       render();
     },
   });
@@ -154,6 +181,7 @@ const performRequestedAction = (
     reducer: timelineSelectionReducer,
     onChange: (state) => {
       options.userActionOptions.onStateChange?.selection?.(state);
+      renderStateUpdated = true;
       render();
     },
   });
@@ -163,6 +191,7 @@ const performRequestedAction = (
     reducer: viewReducer,
     onChange: (state) => {
       options.userActionOptions.onStateChange?.view?.(state);
+      renderStateUpdated = true;
       render();
     },
   });
@@ -172,6 +201,7 @@ const performRequestedAction = (
     reducer: ephemeralReducer,
     onChange: (state) => {
       options.userActionOptions.onStateChange?.ephemeral?.(state);
+      renderStateUpdated = true;
       render();
     },
   });
@@ -189,6 +219,7 @@ const performRequestedAction = (
     for (const state of [primary, selection, view, ephemeral]) {
       state.reset();
     }
+    _sendRenderState();
     userActionOptions.onCancel();
     onComplete();
   };
@@ -261,7 +292,7 @@ const performRequestedAction = (
       }
 
       ephemeral.reset();
-
+      _sendRenderState();
       onComplete();
       userActionOptions.onSubmit({
         name,

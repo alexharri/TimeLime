@@ -1,15 +1,11 @@
 import "./preventGlobals";
 
 import { ComponentMeta } from "@storybook/react";
-import React, { useEffect, useLayoutEffect, useRef, useState } from "react";
+import React, { useEffect, useLayoutEffect, useRef } from "react";
 import { getActionToPerformOnMouseDown } from "~/core/handlers/getActionToPerformOnMouseDown";
 import { onMousedownKeyframe } from "~/core/handlers/mousedownKeyframe";
 import { renderGraphEditorWithRenderState } from "~/core/render/renderGraphEditor";
-import {
-  EphemeralState,
-  RenderState,
-  ViewState,
-} from "~/core/state/stateTypes";
+import { RenderState, ViewState } from "~/core/state/stateTypes";
 import {
   timelineReducer,
   TimelineState,
@@ -20,9 +16,7 @@ import { timelineActions } from "~/core/state/timeline/timelineActions";
 import { timelineSelectionActions } from "~/core/state/timelineSelection/timelineSelectionActions";
 import { useStateManager } from "~/core/state/StateManager/useStateManager";
 import { Vec2 } from "~/core/utils/math/Vec2";
-import { getGraphEditorCursor } from "~/core/render/cursor/graphEditorCursor";
-import { mapMap } from "map-fns";
-import { applyTimelineKeyframeShift } from "~/core/timeline/applyTimelineKeyframeShift";
+import { getGraphEditorCursorFromRenderState } from "~/core/render/cursor/graphEditorCursor";
 import { isKeyCodeOf } from "~/core/listener/keyboard";
 
 const initialTimelineState: TimelineState = {
@@ -64,19 +58,26 @@ export const Test = () => {
     initialSelectionState: {},
   });
 
-  const [viewState, setViewState] = useState<ViewState>({
+  const viewRef = useRef<ViewState>({
     length,
     viewBounds: [0, 1],
     viewport: { top: 0, left: 0, width: 800, height: 400 },
   });
 
-  const ephemeralStateRef = useRef<EphemeralState>({});
+  const getRenderState = (): RenderState => {
+    const actionState = stateManager.getActionState();
+    return {
+      primary: actionState.state,
+      selection: actionState.selection,
+      view: viewRef.current,
+      ephemeral: {},
+    };
+  };
+
+  const renderStateRef = useRef(getRenderState());
 
   useEffect(() => {
-    setViewState((state) => ({
-      ...state,
-      viewport: ref.current?.getBoundingClientRect()!,
-    }));
+    viewRef.current.viewport = ref.current?.getBoundingClientRect()!;
   }, []);
 
   const render = (renderState: RenderState) => {
@@ -110,7 +111,7 @@ export const Test = () => {
     stateManager.requestAction((params) => {
       const actionState = stateManager.getActionState();
 
-      const initialViewState = viewState;
+      const initialViewState = { ...viewRef.current };
 
       function ifNotDone<F extends (...args: any[]) => void>(callback: F) {
         return ((...args) => {
@@ -130,25 +131,21 @@ export const Test = () => {
           },
 
           onStateChange: {
-            primary: ifNotDone((state) =>
-              params.dispatch(timelineActions.setState(state))
-            ),
-            selection: ifNotDone((state) =>
-              params.dispatch(timelineSelectionActions.setState(state))
-            ),
-            view: ifNotDone(setViewState),
-            ephemeral: ifNotDone((state) => {
-              ephemeralStateRef.current = state;
-            }),
+            render: (renderState) => {
+              renderStateRef.current = renderState;
+            },
           },
 
           onSubmit: (options) => {
-            const { name, allowSelectionShift } = options;
+            const { name, allowSelectionShift, state } = options;
+            params.dispatch(timelineActions.setState(state.primary));
+            params.dispatch(timelineSelectionActions.setState(state.selection));
+            viewRef.current = state.view;
             params.submitAction({ name, allowSelectionShift });
           },
 
           onCancel: ifNotDone(() => {
-            setViewState(initialViewState);
+            viewRef.current = initialViewState;
             params.cancelAction();
           }),
 
@@ -159,20 +156,7 @@ export const Test = () => {
     });
   };
 
-  useLayoutEffect(() => {
-    render({
-      primary: state.state,
-      selection: state.selection,
-      view: viewState,
-      ephemeral: {},
-    });
-  }, [state]);
-
-  const stateRef = useRef(state);
-  stateRef.current = state;
-
-  const viewStateRef = useRef(viewState);
-  viewStateRef.current = viewState;
+  useLayoutEffect(() => render(getRenderState()), [state]);
 
   useEffect(() => {
     const canvas = ref.current;
@@ -181,8 +165,6 @@ export const Test = () => {
       return () => {};
     }
 
-    const viewport = canvas.getBoundingClientRect();
-
     let lastPost: Vec2 | undefined;
 
     const renderCursor = () => {
@@ -190,34 +172,8 @@ export const Test = () => {
         return;
       }
 
-      const viewportMousePosition = lastPost.subXY(viewport.left, viewport.top);
-
-      let {
-        state: { timelines },
-        selection: timelineSelection,
-      } = stateRef.current;
-      const { viewBounds, length } = viewStateRef.current;
-      const { yBounds, pan, keyframeShift } = ephemeralStateRef.current;
-
-      if (keyframeShift) {
-        timelines = mapMap(timelines, (timeline) =>
-          applyTimelineKeyframeShift({
-            timeline,
-            timelineSelection: timelineSelection[timeline.id],
-            keyframeShift,
-          })
-        );
-      }
-
-      const cursor = getGraphEditorCursor({
-        timelines,
-        length,
-        viewBounds,
-        viewport,
-        viewportMousePosition,
-        yBounds,
-        pan,
-      });
+      const renderState = renderStateRef.current || getRenderState();
+      const cursor = getGraphEditorCursorFromRenderState(lastPost, renderState);
       canvas.style.cursor = cursor;
     };
 
