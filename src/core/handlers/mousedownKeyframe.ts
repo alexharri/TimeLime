@@ -2,7 +2,7 @@ import { areMapsShallowEqual } from "map-fns";
 import { MOUSE_MOVE_TRESHOLD } from "~/core/constants";
 import { getGraphEditorYBounds } from "~/core/render/yBounds";
 import { requestAction } from "~/core/state/requestAction";
-import { PerformActionOptions } from "~/core/state/stateTypes";
+import { PerformActionOptions as ActionOptions } from "~/core/state/stateTypes";
 import { applyTimelineKeyframeShift } from "~/core/timeline/applyTimelineKeyframeShift";
 import { createGlobalToNormalFn } from "~/core/utils/coords/globalToNormal";
 import { getDistance } from "~/core/utils/math/math";
@@ -17,14 +17,14 @@ interface Options {
 }
 
 export function onMousedownKeyframe(
-  performOptions: PerformActionOptions,
+  actionOptions: ActionOptions,
   options: Options
 ) {
   const { e, timelineId, keyframe } = options;
 
   const additiveSelection = e.shiftKey;
 
-  requestAction({ performOptions }, (params) => {
+  requestAction({ userActionOptions: actionOptions }, (params) => {
     const { primary, selection, view, ephemeral } = params;
 
     const { timelines } = primary.state;

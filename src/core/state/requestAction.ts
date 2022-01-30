@@ -6,7 +6,7 @@ import { ephemeralActions } from "~/core/state/ephemeral/ephemeralActions";
 import { ephemeralReducer } from "~/core/state/ephemeral/ephemeralReducer";
 import {
   EphemeralState,
-  PerformActionOptions,
+  PerformActionOptions as ActionOptions,
   PrimaryState,
   SelectionState,
   TrackedState,
@@ -56,7 +56,7 @@ export interface RequestActionCallback {
 }
 
 interface RequestActionOptions {
-  performOptions: PerformActionOptions;
+  userActionOptions: ActionOptions;
   shouldAddToStack?: ShouldAddToStackFn | ShouldAddToStackFn[];
   beforeSubmit?: (params: RequestActionParams) => void;
 }
@@ -70,7 +70,7 @@ const performRequestedAction = (
   options: RequestActionOptions,
   callback: RequestActionCallback
 ) => {
-  const { shouldAddToStack, beforeSubmit, performOptions } = options;
+  const { shouldAddToStack, beforeSubmit, userActionOptions } = options;
 
   const actionId = (++_n).toString();
   _actionId = actionId;
@@ -134,9 +134,9 @@ const performRequestedAction = (
     return obj;
   };
 
-  const initialPrimaryState = options.performOptions.primary;
-  const initialSelectionState = options.performOptions.selection;
-  const initialViewState = options.performOptions.view;
+  const initialPrimaryState = options.userActionOptions.primary;
+  const initialSelectionState = options.userActionOptions.selection;
+  const initialViewState = options.userActionOptions.view;
   const initialEphemeralState = {};
 
   const primary = createStateManager({
@@ -144,7 +144,7 @@ const performRequestedAction = (
     actions: timelineActions,
     reducer: timelineReducer,
     onChange: (state) => {
-      options.performOptions.onPrimaryStateChange(state);
+      options.userActionOptions.onPrimaryStateChange(state);
       render();
     },
   });
@@ -153,7 +153,7 @@ const performRequestedAction = (
     actions: timelineSelectionActions,
     reducer: timelineSelectionReducer,
     onChange: (state) => {
-      options.performOptions.onSelectionStateChange(state);
+      options.userActionOptions.onSelectionStateChange(state);
       render();
     },
   });
@@ -162,7 +162,7 @@ const performRequestedAction = (
     actions: viewActions,
     reducer: viewReducer,
     onChange: (state) => {
-      options.performOptions.onViewStateChange(state);
+      options.userActionOptions.onViewStateChange(state);
       render();
     },
   });
@@ -171,13 +171,13 @@ const performRequestedAction = (
     actions: ephemeralActions,
     reducer: ephemeralReducer,
     onChange: (state) => {
-      options.performOptions.onEphemeralStateChange?.(state);
+      options.userActionOptions.onEphemeralStateChange?.(state);
       render();
     },
   });
 
   function render() {
-    performOptions.render({
+    userActionOptions.render({
       primary: primary.state,
       selection: selection.state,
       view: view.state,
@@ -189,7 +189,7 @@ const performRequestedAction = (
     for (const state of [primary, selection, view, ephemeral]) {
       state.reset();
     }
-    performOptions.onCancel();
+    userActionOptions.onCancel();
     onComplete();
   };
 
@@ -265,7 +265,7 @@ const performRequestedAction = (
       }
 
       onComplete();
-      performOptions.onSubmit({ name, allowSelectionShift });
+      userActionOptions.onSubmit({ name, allowSelectionShift });
     },
 
     addListener,
