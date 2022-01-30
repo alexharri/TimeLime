@@ -35,19 +35,11 @@ export interface RenderState {
 interface SubmitActionOptions {
   name: string;
   allowSelectionShift: boolean;
-  state: {
-    primary: PrimaryState;
-    selection: SelectionState;
-    view: ViewState;
-  };
+  state: TrackedState;
 }
 
 export interface ActionOptions {
-  initialState: {
-    primary: PrimaryState;
-    selection: SelectionState;
-    view: ViewState;
-  };
+  initialState: TrackedState;
 
   onStateChange?: {
     primary?: (primaryState: PrimaryState) => void;
