@@ -1,4 +1,4 @@
-import { HistoryAction } from "~/core/state/historyActions";
+import { HistoryAction } from "~/core/state/StateManager/history/historyActions";
 
 export const createInitialHistoryState = <S>(
   initialState: S,

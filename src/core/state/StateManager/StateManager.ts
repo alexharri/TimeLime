@@ -1,9 +1,12 @@
-import { HistoryAction, historyActions } from "~/core/state/historyActions";
+import {
+  HistoryAction,
+  historyActions,
+} from "~/core/state/StateManager/history/historyActions";
 import {
   createInitialHistoryState,
   createReducerWithHistory,
   HistoryState,
-} from "~/core/state/historyReducer";
+} from "~/core/state/StateManager/history/historyReducer";
 import { Action } from "~/types/commonTypes";
 
 type ActionState<T, S> = {
