@@ -51,7 +51,7 @@ export function onMousedownKeyframe(
 
   const d0 = globalToNormal(Vec2.new(0, 0));
   const d1 = globalToNormal(Vec2.new(1, 1));
-  const deltaFac = d0.sub(d1);
+  const normalFac = d0.sub(d1); // Global-to-Normal multiplier
 
   let yPan = 0;
   let xPan = 0;
@@ -96,14 +96,14 @@ export function onMousedownKeyframe(
       const [yUpper, yLower] = getYUpperLower(viewport, mousePosition.global);
 
       if (yLower) {
-        yPan -= yLower * deltaFac.y * PAN_FAC;
+        yPan -= yLower * normalFac.y * PAN_FAC;
       } else if (yUpper) {
-        yPan += yUpper * deltaFac.y * PAN_FAC;
+        yPan += yUpper * normalFac.y * PAN_FAC;
       }
       if (xLower) {
-        xPan -= xLower * deltaFac.x * PAN_FAC;
+        xPan -= xLower * normalFac.x * PAN_FAC;
       } else if (xUpper) {
-        xPan += xUpper * deltaFac.x * PAN_FAC;
+        xPan += xUpper * normalFac.x * PAN_FAC;
       }
 
       if (xLower || xUpper || yLower || yUpper) {
@@ -113,8 +113,8 @@ export function onMousedownKeyframe(
 
       const panShiftedInitialGlobalMousePosition =
         initialMousePosition.global.subXY(
-          -xPan / deltaFac.x,
-          -yPan / deltaFac.y
+          -xPan / normalFac.x,
+          -yPan / normalFac.y
         );
       const globalMoveVector = mousePosition.global.sub(
         panShiftedInitialGlobalMousePosition
