@@ -38,14 +38,18 @@ interface SubmitActionOptions {
 }
 
 export interface ActionOptions {
-  primary: PrimaryState;
-  selection: SelectionState;
-  view: ViewState;
+  initialState: {
+    primary: PrimaryState;
+    selection: SelectionState;
+    view: ViewState;
+  };
 
-  onPrimaryStateChange: (primaryState: PrimaryState) => void;
-  onSelectionStateChange: (selectionState: SelectionState) => void;
-  onViewStateChange: (viewState: ViewState) => void;
-  onEphemeralStateChange?: (ephemeralState: EphemeralState) => void;
+  onStateChange: {
+    primary: (primaryState: PrimaryState) => void;
+    selection: (selectionState: SelectionState) => void;
+    view: (viewState: ViewState) => void;
+    ephemeral?: (ephemeralState: EphemeralState) => void;
+  };
 
   render: (renderState: RenderState) => void;
 

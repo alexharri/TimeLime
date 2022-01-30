@@ -134,9 +134,10 @@ const performRequestedAction = (
     return obj;
   };
 
-  const initialPrimaryState = options.userActionOptions.primary;
-  const initialSelectionState = options.userActionOptions.selection;
-  const initialViewState = options.userActionOptions.view;
+  const initialPrimaryState = options.userActionOptions.initialState.primary;
+  const initialSelectionState =
+    options.userActionOptions.initialState.selection;
+  const initialViewState = options.userActionOptions.initialState.view;
   const initialEphemeralState = {};
 
   const primary = createStateManager({
@@ -144,7 +145,7 @@ const performRequestedAction = (
     actions: timelineActions,
     reducer: timelineReducer,
     onChange: (state) => {
-      options.userActionOptions.onPrimaryStateChange(state);
+      options.userActionOptions.onStateChange.primary(state);
       render();
     },
   });
@@ -153,7 +154,7 @@ const performRequestedAction = (
     actions: timelineSelectionActions,
     reducer: timelineSelectionReducer,
     onChange: (state) => {
-      options.userActionOptions.onSelectionStateChange(state);
+      options.userActionOptions.onStateChange.selection(state);
       render();
     },
   });
@@ -162,7 +163,7 @@ const performRequestedAction = (
     actions: viewActions,
     reducer: viewReducer,
     onChange: (state) => {
-      options.userActionOptions.onViewStateChange(state);
+      options.userActionOptions.onStateChange.view(state);
       render();
     },
   });
@@ -171,7 +172,7 @@ const performRequestedAction = (
     actions: ephemeralActions,
     reducer: ephemeralReducer,
     onChange: (state) => {
-      options.userActionOptions.onEphemeralStateChange?.(state);
+      options.userActionOptions.onStateChange.ephemeral?.(state);
       render();
     },
   });
