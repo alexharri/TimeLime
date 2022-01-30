@@ -5,7 +5,7 @@ import React, { useEffect, useLayoutEffect, useRef } from "react";
 import { getActionToPerformOnMouseDown } from "~/core/handlers/getActionToPerformOnMouseDown";
 import { onMousedownKeyframe } from "~/core/handlers/mousedownKeyframe";
 import { renderGraphEditorWithRenderState } from "~/core/render/renderGraphEditor";
-import { RenderState, ViewState } from "~/core/state/stateTypes";
+import { ActionOptions, RenderState, ViewState } from "~/core/state/stateTypes";
 import {
   timelineReducer,
   TimelineState,
@@ -18,6 +18,8 @@ import { useStateManager } from "~/core/state/StateManager/useStateManager";
 import { Vec2 } from "~/core/utils/math/Vec2";
 import { getGraphEditorCursor } from "~/core/render/cursor/graphEditorCursor";
 import { isKeyCodeOf } from "~/core/listener/keyboard";
+import { RequestActionParams } from "~/core/state/StateManager/StateManager";
+import { onPan } from "~/core/handlers/pan";
 
 const initialTimelineState: TimelineState = {
   timelines: {
@@ -60,7 +62,7 @@ export const Test = () => {
 
   const viewRef = useRef<ViewState>({
     length,
-    viewBounds: [0, 1],
+    viewBounds: [0, 0.2],
     viewport: { top: 0, left: 0, width: 800, height: 400 },
   });
 
@@ -88,6 +90,50 @@ export const Test = () => {
     renderGraphEditorWithRenderState(ctx, renderState);
   };
 
+  const createActionOptions = (params: RequestActionParams): ActionOptions => {
+    const actionState = stateManager.getActionState();
+
+    const initialViewState = { ...viewRef.current };
+
+    function ifNotDone<F extends (...args: any[]) => void>(callback: F) {
+      return ((...args) => {
+        if (params.done) {
+          return;
+        }
+        return callback(...args);
+      }) as F;
+    }
+
+    return {
+      initialState: {
+        primary: actionState.state,
+        selection: actionState.selection,
+        view: initialViewState,
+      },
+
+      onStateChange: {
+        render: (renderState) => {
+          renderStateRef.current = renderState;
+        },
+      },
+
+      onSubmit: (options) => {
+        const { name, allowSelectionShift, state } = options;
+        params.dispatch(timelineActions.setState(state.primary));
+        params.dispatch(timelineSelectionActions.setState(state.selection));
+        viewRef.current = state.view;
+        params.submitAction({ name, allowSelectionShift });
+      },
+
+      onCancel: ifNotDone(() => {
+        viewRef.current = initialViewState;
+        params.cancelAction();
+      }),
+
+      render,
+    };
+  };
+
   const onMouseDown = (e: React.MouseEvent) => {
     const viewport = ref.current?.getBoundingClientRect();
 
@@ -102,58 +148,24 @@ export const Test = () => {
       viewport,
     });
 
+    switch (actionToPerform.type) {
+      case "mousedown_keyframe": {
+        stateManager.requestAction((params) => {
+          const actionOptions = createActionOptions(params);
+          onMousedownKeyframe(actionOptions, { e, ...actionToPerform });
+        });
+        break;
+      }
+      case "pan": {
+        stateManager.requestAction((params) => {
+          onPan(createActionOptions(params), { e });
+        });
+        break;
+      }
+    }
     if (actionToPerform.type !== "mousedown_keyframe") {
       return;
     }
-
-    const { timelineId, keyframe } = actionToPerform;
-
-    stateManager.requestAction((params) => {
-      const actionState = stateManager.getActionState();
-
-      const initialViewState = { ...viewRef.current };
-
-      function ifNotDone<F extends (...args: any[]) => void>(callback: F) {
-        return ((...args) => {
-          if (params.done) {
-            return;
-          }
-          return callback(...args);
-        }) as F;
-      }
-
-      onMousedownKeyframe(
-        {
-          initialState: {
-            primary: actionState.state,
-            selection: actionState.selection,
-            view: initialViewState,
-          },
-
-          onStateChange: {
-            render: (renderState) => {
-              renderStateRef.current = renderState;
-            },
-          },
-
-          onSubmit: (options) => {
-            const { name, allowSelectionShift, state } = options;
-            params.dispatch(timelineActions.setState(state.primary));
-            params.dispatch(timelineSelectionActions.setState(state.selection));
-            viewRef.current = state.view;
-            params.submitAction({ name, allowSelectionShift });
-          },
-
-          onCancel: ifNotDone(() => {
-            viewRef.current = initialViewState;
-            params.cancelAction();
-          }),
-
-          render,
-        },
-        { e, keyframe, timelineId }
-      );
-    });
   };
 
   useLayoutEffect(() => render(getRenderState()), [state]);

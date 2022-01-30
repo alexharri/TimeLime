@@ -1,3 +1,4 @@
+import { isKeyDown } from "~/core/listener/keyboard";
 import { getGraphEditorYBounds } from "~/core/render/yBounds";
 import { createGlobalToNormalFn as createGlobalToNormalFn } from "~/core/utils/coords/globalToNormal";
 import { createNormalToViewportFn } from "~/core/utils/coords/normalToViewport";
@@ -30,6 +31,9 @@ type ActionToPerform =
     }
   | {
       type: "mousedown_empty";
+    }
+  | {
+      type: "pan";
     };
 
 interface ActionToPerformOptions {
@@ -45,6 +49,10 @@ interface ActionToPerformOptions {
 export const getActionToPerformOnMouseDown = (
   options: ActionToPerformOptions
 ): ActionToPerform => {
+  if (isKeyDown("Space")) {
+    return { type: "pan" };
+  }
+
   const { e, viewport, timelines, viewBounds = [0, 1], length } = options;
 
   const globalMousePosition = Vec2.fromEvent(e);
