@@ -145,7 +145,7 @@ const performRequestedAction = (
     actions: timelineActions,
     reducer: timelineReducer,
     onChange: (state) => {
-      options.userActionOptions.onStateChange.primary(state);
+      options.userActionOptions.onStateChange?.primary?.(state);
       render();
     },
   });
@@ -154,7 +154,7 @@ const performRequestedAction = (
     actions: timelineSelectionActions,
     reducer: timelineSelectionReducer,
     onChange: (state) => {
-      options.userActionOptions.onStateChange.selection(state);
+      options.userActionOptions.onStateChange?.selection?.(state);
       render();
     },
   });
@@ -163,7 +163,7 @@ const performRequestedAction = (
     actions: viewActions,
     reducer: viewReducer,
     onChange: (state) => {
-      options.userActionOptions.onStateChange.view(state);
+      options.userActionOptions.onStateChange?.view?.(state);
       render();
     },
   });
@@ -172,7 +172,7 @@ const performRequestedAction = (
     actions: ephemeralActions,
     reducer: ephemeralReducer,
     onChange: (state) => {
-      options.userActionOptions.onStateChange.ephemeral?.(state);
+      options.userActionOptions.onStateChange?.ephemeral?.(state);
       render();
     },
   });
@@ -237,19 +237,19 @@ const performRequestedAction = (
 
       let addToStack = shouldAddToStackFns.length === 0;
 
-      const prev: TrackedState = {
+      const prevState: TrackedState = {
         primary: initialPrimaryState,
         selection: initialSelectionState,
         view: initialViewState,
       };
-      const next: TrackedState = {
+      const nextState: TrackedState = {
         primary: primary.state,
         selection: selection.state,
         view: view.state,
       };
 
       for (const shouldAddToStack of shouldAddToStackFns) {
-        if (shouldAddToStack(prev, next)) {
+        if (shouldAddToStack(prevState, nextState)) {
           addToStack = true;
         }
       }
@@ -266,7 +266,11 @@ const performRequestedAction = (
       }
 
       onComplete();
-      userActionOptions.onSubmit({ name, allowSelectionShift });
+      userActionOptions.onSubmit({
+        name,
+        allowSelectionShift,
+        state: nextState,
+      });
     },
 
     addListener,

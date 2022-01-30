@@ -35,6 +35,11 @@ export interface RenderState {
 interface SubmitActionOptions {
   name: string;
   allowSelectionShift: boolean;
+  state: {
+    primary: PrimaryState;
+    selection: SelectionState;
+    view: ViewState;
+  };
 }
 
 export interface ActionOptions {
@@ -44,10 +49,10 @@ export interface ActionOptions {
     view: ViewState;
   };
 
-  onStateChange: {
-    primary: (primaryState: PrimaryState) => void;
-    selection: (selectionState: SelectionState) => void;
-    view: (viewState: ViewState) => void;
+  onStateChange?: {
+    primary?: (primaryState: PrimaryState) => void;
+    selection?: (selectionState: SelectionState) => void;
+    view?: (viewState: ViewState) => void;
     ephemeral?: (ephemeralState: EphemeralState) => void;
   };
 

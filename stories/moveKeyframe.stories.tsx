@@ -105,29 +105,27 @@ export const Test = () => {
 
       onMousedownKeyframe(
         {
-          onStateChange: {
-            primary: ifNotDone((primaryState) => {
-              params.dispatch(timelineActions.setState(primaryState));
-            }),
-            selection: ifNotDone((selectionState) => {
-              params.dispatch(
-                timelineSelectionActions.setState(selectionState)
-              );
-            }),
-            view: ifNotDone(setViewState),
-          },
-
           initialState: {
             primary: actionState.state,
             selection: actionState.selection,
             view: initialViewState,
           },
 
-          onSubmit: (options) => params.submitAction(options),
+          onSubmit: (options) => {
+            const { name, state, allowSelectionShift } = options;
+
+            params.dispatch(timelineActions.setState(state.primary));
+            params.dispatch(timelineSelectionActions.setState(state.selection));
+            setViewState(viewState);
+
+            params.submitAction({ name, allowSelectionShift });
+          },
+
           onCancel: ifNotDone(() => {
             setViewState(initialViewState);
             params.cancelAction();
           }),
+
           render,
         },
         { e, keyframe, timelineId }
