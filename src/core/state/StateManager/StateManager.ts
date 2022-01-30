@@ -1,8 +1,3 @@
-import {
-  addListener as _addListener,
-  removeListener,
-  removeListener as _removeListener,
-} from "~/core/listener/addListener";
 import { HistoryAction, historyActions } from "~/core/state/historyActions";
 import {
   createInitialHistoryState,
@@ -40,8 +35,6 @@ export interface RequestActionParams {
   dispatch: (action: Action) => void;
   cancelAction: () => void;
   submitAction: (options: SubmitOptions) => void;
-  addListener: typeof _addListener;
-  removeListener: typeof _removeListener;
   done: boolean;
   execOnComplete: (callback: () => void) => void;
 }
@@ -99,34 +92,14 @@ export class StateManager<T, S, AT extends Action, AS extends Action> {
     const { beforeSubmit } = options;
 
     const actionId = (++this._n).toString();
-    const cancelTokens: string[] = [];
 
     const done = () => actionId !== this.getActionId();
-
-    const addListener = Object.keys(_addListener).reduce<typeof _addListener>(
-      (obj, key) => {
-        (obj as any)[key] = (...args: any[]) => {
-          if (done()) {
-            return;
-          }
-
-          const cancelToken = (_addListener as any)[key](...args);
-          cancelTokens.push(cancelToken);
-          return cancelToken;
-        };
-        return obj;
-      },
-      {} as any
-    );
 
     let onCompleteCallback: (() => void) | null = null;
 
     const onComplete = () => {
-      cancelTokens.forEach((cancelToken) => removeListener(cancelToken));
-
-      if (onCompleteCallback) {
-        onCompleteCallback();
-      }
+      window.removeEventListener("keydown", escListener);
+      onCompleteCallback?.();
     };
 
     const dispatch: RequestActionParams["dispatch"] = (action) => {
@@ -140,12 +113,18 @@ export class StateManager<T, S, AT extends Action, AS extends Action> {
       onComplete();
     };
 
+    function escListener(e: KeyboardEvent) {
+      if (e.keyCode !== 27) {
+        return;
+      }
+      cancelAction();
+    }
+
     this.dispatchHistoryAction(historyActions.startAction(actionId));
 
     if (typeof window !== "undefined") {
       // Likely running inside of Jest
-      const escToken = addListener.keyboardOnce("Esc", "keydown", cancelAction);
-      cancelTokens.push(escToken);
+      window.addEventListener("keydown", escListener);
     }
 
     const params: RequestActionParams = {
@@ -192,10 +171,6 @@ export class StateManager<T, S, AT extends Action, AS extends Action> {
       },
 
       cancelAction,
-
-      addListener,
-
-      removeListener,
 
       execOnComplete: (cb) => {
         onCompleteCallback = cb;
