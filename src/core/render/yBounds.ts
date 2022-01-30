@@ -5,7 +5,7 @@ import {
 import { ActionOptions } from "~/core/state/stateTypes";
 import { keyframesToCurves } from "~/core/transform/keyframesToCurves";
 import { splitTimelineCurve } from "~/core/utils/math/splitTimelineCurve";
-import { Action, ViewBounds, YBounds } from "~/types/commonTypes";
+import { ViewBounds, YBounds } from "~/types/commonTypes";
 import { TimelineMap } from "~/types/timelineTypes";
 
 interface Options {
