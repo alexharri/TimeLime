@@ -16,8 +16,8 @@ import { viewActions } from "~/core/state/view/viewActions";
 import { viewReducer } from "~/core/state/view/viewReducer";
 import { timelineActions } from "~/core/state/timeline/timelineActions";
 import { timelineReducer } from "~/core/state/timeline/timelineReducer";
-import { timelineSelectionActions } from "~/core/timelineSelectionActions";
-import { timelineSelectionReducer } from "~/core/timelineSelectionReducer";
+import { timelineSelectionActions } from "~/core/state/timelineSelection/timelineSelectionActions";
+import { timelineSelectionReducer } from "~/core/state/timelineSelection/timelineSelectionReducer";
 import { ActionCollection, ActionsReturnType } from "~/types/commonTypes";
 
 export type ShouldAddToStackFn = (

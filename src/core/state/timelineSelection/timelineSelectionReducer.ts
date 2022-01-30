@@ -1,5 +1,6 @@
 import { modifyInMap, removeKeysFromMap } from "map-fns";
-import { TimelineSelectionAction } from "~/core/timelineSelectionActions";
+import { timelineSelectionActions } from "~/core/state/timelineSelection/timelineSelectionActions";
+import { ActionsReturnType } from "~/types/commonTypes";
 
 export interface TimelineSelection {
   keyframes: {
@@ -15,7 +16,7 @@ export const initialTimelineSelectionState: TimelineSelectionState = {};
 
 export function timelineSelectionReducer(
   state: TimelineSelectionState,
-  action: TimelineSelectionAction
+  action: ActionsReturnType<typeof timelineSelectionActions>
 ): TimelineSelectionState {
   switch (action.type) {
     case "tl-sel/clear": {

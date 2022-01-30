@@ -1,17 +1,7 @@
 import {
   TimelineSelection,
   TimelineSelectionState,
-} from "~/core/timelineSelectionReducer";
-
-type TimelineSelectionActions = typeof timelineSelectionActions;
-type TimelineSelectionActionReturnTypes = {
-  [K in keyof TimelineSelectionActions]: ReturnType<
-    TimelineSelectionActions[K]
-  >;
-};
-
-export type TimelineSelectionAction =
-  TimelineSelectionActionReturnTypes[keyof TimelineSelectionActionReturnTypes];
+} from "~/core/state/timelineSelection/timelineSelectionReducer";
 
 export const timelineSelectionActions = {
   clear: (timelineId: string) => ({

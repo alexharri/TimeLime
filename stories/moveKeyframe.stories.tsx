@@ -10,10 +10,10 @@ import {
   timelineReducer,
   TimelineState,
 } from "~/core/state/timeline/timelineReducer";
-import { timelineSelectionReducer } from "~/core/timelineSelectionReducer";
+import { timelineSelectionReducer } from "~/core/state/timelineSelection/timelineSelectionReducer";
 import { curvesToKeyframes } from "~/core/transform/curvesToKeyframes";
 import { timelineActions } from "~/core/state/timeline/timelineActions";
-import { timelineSelectionActions } from "~/core/timelineSelectionActions";
+import { timelineSelectionActions } from "~/core/state/timelineSelection/timelineSelectionActions";
 import { useStateManager } from "~/core/state/StateManager/useStateManager";
 
 const initialTimelineState: TimelineState = {
