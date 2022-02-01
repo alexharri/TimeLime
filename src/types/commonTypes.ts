@@ -19,7 +19,7 @@ export type Line = [Vec2, Vec2];
 export type Curve = CubicBezier | Line;
 
 export type ViewBounds = [number, number];
-export type YBounds = [number, number];
+export type YBounds = [yUpper: number, yLower: number];
 
 export interface MousePosition {
   global: Vec2;

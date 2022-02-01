@@ -126,6 +126,9 @@ const performRequestedAction = (
     };
 
     function onStateChange(state: T) {
+      if (params.done) {
+        return;
+      }
       obj.state = state;
       options.onChange(state);
     }
