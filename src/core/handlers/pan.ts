@@ -7,19 +7,49 @@ import { lerp } from "~/core/utils/math/math";
 import { Vec2 } from "~/core/utils/math/Vec2";
 import { SomeMouseEvent, ViewBounds, YBounds } from "~/types/commonTypes";
 
+// This may be converted to a configuration option in the future.
+const ANIMATE_Y_BOUNDS_ON_PAN = true;
+
+// Every tick, the momentum wants to increase to the maximum speed
+// allowed (defined by `MAX_SPEED`). The maximum possible momentum
+// is computed like so:
+//
+//    ```tsx
+//    momentum = lerp(currentValue, targetValue, MAX_SPEED) - currentValue
+//    ```
+//
+// However, this creates a steep ease-out curve (see https://easings.net/).
+//
+// We do not want to hit the maximum speed instantly from 0. Instead,
+// we add a bound where the next momentum must be lower than the current
+// momentum multiplied by a constant, which is this constant.
+//
+// So the next momentum is computed like so:
+//
+//    ```tsx
+//    const preferredMomentum = lerp(currentValue, targetValue, MAX_SPEED) - currentValue
+//
+//    momentum = Math.min(preferredMomentum, momentum * MAX_SPEED_INCREASE_PER_TICK)
+//    ```
+//
+// Since the bound is a multiple, it creates an exponential ramp-up, which
+// is desirable.
+//
+const MAX_SPEED_INCREASE_PER_TICK = 2.5;
+
 // Describes the maximum rate of change.
 //
 // 0.7 is near-instant, 0.1 is very slow.
-const MAX_SPEED = 0.23;
+const MAX_SPEED = 0.18;
 
+// When the current momentum is 0, we cannot find the next maximum momentum by
+// multiplying it with a constant since `0 * N = 0` (see MAX_SPEED_INCREASE_PER_TICK).
+//
+// This value describes the "mimimum momentum" for the purposes of computing
+// an upper bound for the next momentum.
+//
 // The lower this value is, the slower the speed ramps up from 0.
 const START_SPEED_FAC = 0.0002;
-
-// The ramp-up is proportional to (yUpper - yLower).
-//
-// This value describes how fast the ramp-up changes when the value
-// of (yUpper - yLower) changes.
-const RAMP_UP_CHANGE = 0.05;
 
 interface Options {
   e: SomeMouseEvent;
@@ -45,63 +75,84 @@ export function onPan(actionOptions: ActionOptions, options: Options) {
   let currYBounds = getYBounds(viewBounds);
   let [yUpper, yLower] = currYBounds;
 
-  let dir_up = 1;
-  let dir_down = 1;
-  let mom_up = 0;
-  let mom_down = 0;
+  // Instead of dealing with negative values, we store the absolute momentum
+  // and the direction of that momentum separately. This makes the math easier
+  // to think about.
+  let momentumUpper = 0;
+  let momentumLower = 0;
+  let directionUpper = 1;
+  let directionLower = 1;
 
-  let lastMin = (yUpper - yLower) * START_SPEED_FAC;
+  // Every tick, the maximum speed is the previous speed
   let hasRun = false;
 
   function tick(params: RequestActionParams) {
-    if (!params.done) {
-      requestAnimationFrame(() => tick(params));
+    if (params.done) {
+      return;
     }
 
-    if (
-      Math.abs(currYBounds[0] - yUpper) > 0.000001 ||
-      Math.abs(currYBounds[1] - yLower) > 0.000001 ||
+    requestAnimationFrame(() => tick(params));
+
+    const run =
       // We run into issues with jumping if this does not run once before
       // a big jump in the value of `currYBounds`
-      !hasRun
-    ) {
-      hasRun = true;
-      lastMin = lerp(
-        lastMin,
-        (yUpper - yLower) * START_SPEED_FAC,
-        RAMP_UP_CHANGE
-      );
+      !hasRun ||
+      // If the values are close enough, we don't need to keep updating.
+      Math.abs(currYBounds[0] - yUpper) > 0.000001 ||
+      Math.abs(currYBounds[1] - yLower) > 0.000001;
 
-      const next_mom_up_real = lerp(yUpper, currYBounds[0], MAX_SPEED) - yUpper;
-      const next_mom_down_real =
-        lerp(yLower, currYBounds[1], MAX_SPEED) - yLower;
-
-      const next_mom_up_abs = Math.abs(next_mom_up_real);
-      const next_mom_down_abs = Math.abs(next_mom_down_real);
-
-      const next_dir_up = next_mom_up_real >= 0 ? 1 : -1;
-      const next_dir_down = next_mom_down_real >= 0 ? 1 : -1;
-
-      if (dir_up !== next_dir_up) {
-        mom_up = 0;
-      }
-      if (dir_down !== next_dir_down) {
-        mom_down = 0;
-      }
-
-      dir_up = next_dir_up;
-      dir_down = next_dir_down;
-
-      mom_up = Math.min(next_mom_up_abs, Math.max(mom_up, lastMin) * 2);
-      mom_down = Math.min(next_mom_down_abs, Math.max(mom_down, lastMin) * 2);
-
-      yUpper += mom_up * dir_up;
-      yLower += mom_down * dir_down;
-
-      params.ephemeral.dispatch((actions) =>
-        actions.setFields({ yBounds: [yUpper, yLower] })
-      );
+    if (!run) {
+      return;
     }
+
+    hasRun = true;
+
+    // By "real", I mean that the value may be negative.
+    const nextMomentumUpperReal =
+      lerp(yUpper, currYBounds[0], MAX_SPEED) - yUpper;
+    const nextMomentumLowerReal =
+      lerp(yLower, currYBounds[1], MAX_SPEED) - yLower;
+
+    const nextMomentumUpperAbs = Math.abs(nextMomentumUpperReal);
+    const nextMomentumLowerAbs = Math.abs(nextMomentumLowerReal);
+
+    const nextDirectionUpper = nextMomentumUpperReal >= 0 ? 1 : -1;
+    const nextDirectionLower = nextMomentumLowerReal >= 0 ? 1 : -1;
+
+    // If the direction that we're moving in changes, reset the momentum.
+    //
+    // If instead we were to slowly reduce the momentum then reverse it, the
+    // animation might appear more smooth. However, we want it to feel snappy.
+    if (directionUpper !== nextDirectionUpper) {
+      momentumUpper = 0;
+    }
+    if (directionLower !== nextDirectionLower) {
+      momentumLower = 0;
+    }
+
+    directionUpper = nextDirectionUpper;
+    directionLower = nextDirectionLower;
+
+    // Prevent multiplying by 0. See comment on `START_SPEED_FAC`.
+    const minMomentum = (yUpper - yLower) * START_SPEED_FAC;
+    const getCurrentMomentum = (momentum: number) =>
+      Math.max(momentum, minMomentum) * MAX_SPEED_INCREASE_PER_TICK;
+
+    momentumUpper = Math.min(
+      nextMomentumUpperAbs,
+      getCurrentMomentum(momentumUpper)
+    );
+    momentumLower = Math.min(
+      nextMomentumLowerAbs,
+      getCurrentMomentum(momentumLower)
+    );
+
+    yUpper += momentumUpper * directionUpper;
+    yLower += momentumLower * directionLower;
+
+    params.ephemeral.dispatch((actions) =>
+      actions.setFields({ yBounds: [yUpper, yLower] })
+    );
   }
 
   mouseDownMoveAction({
@@ -109,7 +160,9 @@ export function onPan(actionOptions: ActionOptions, options: Options) {
     e,
     globalToNormal,
     beforeMove: (params) => {
-      tick(params);
+      if (ANIMATE_Y_BOUNDS_ON_PAN) {
+        tick(params);
+      }
     },
     mouseMove: (params, { mousePosition }) => {
       const { view } = params;
