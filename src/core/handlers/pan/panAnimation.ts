@@ -1,14 +1,6 @@
-import { getGraphEditorYBounds } from "~/core/render/yBounds";
-import { mouseDownMoveAction } from "~/core/state/mouseDownMoveAction";
 import { RequestActionParams } from "~/core/state/requestAction";
-import { ActionOptions } from "~/core/state/stateTypes";
-import { createGlobalToNormalFnFromActionOptions } from "~/core/utils/coords/globalToNormal";
 import { lerp } from "~/core/utils/math/math";
-import { Vec2 } from "~/core/utils/math/Vec2";
-import { SomeMouseEvent, ViewBounds, YBounds } from "~/types/commonTypes";
-
-// This may be converted to a configuration option in the future.
-const ANIMATE_Y_BOUNDS_ON_PAN = true;
+import { YBounds } from "~/types/commonTypes";
 
 // Every tick, the momentum wants to increase to the maximum speed
 // allowed (defined by `MAX_SPEED`). The maximum possible momentum
@@ -51,29 +43,20 @@ const MAX_SPEED = 0.18;
 // The lower this value is, the slower the speed ramps up from 0.
 const START_SPEED_FAC = 0.0002;
 
-interface Options {
-  e: SomeMouseEvent;
+interface YBoundsAnimationReference {
+  /**
+   * The animation will continuously be moving to the newest value of `yBounds`.
+   *
+   * This value is expected to be constantly changing.
+   */
+  yBounds: YBounds;
 }
 
-export function onPan(actionOptions: ActionOptions, options: Options) {
-  const { e } = options;
-
-  const globalToNormal = createGlobalToNormalFnFromActionOptions(actionOptions);
-
-  const { viewBounds, length, allowExceedViewBounds } =
-    actionOptions.initialState.view;
-  const { timelines } = actionOptions.initialState.primary;
-
-  const getYBounds = (viewBounds: ViewBounds): YBounds => {
-    return getGraphEditorYBounds({
-      length,
-      timelines,
-      viewBounds,
-    });
-  };
-
-  let currYBounds = getYBounds(viewBounds);
-  let [yUpper, yLower] = currYBounds;
+export function startPanActionYBoundsAnimation(
+  params: RequestActionParams,
+  yBoundsAnimationReference: YBoundsAnimationReference
+) {
+  let [yUpper, yLower] = yBoundsAnimationReference.yBounds;
 
   // Instead of dealing with negative values, we store the absolute momentum
   // and the direction of that momentum separately. This makes the math easier
@@ -83,7 +66,6 @@ export function onPan(actionOptions: ActionOptions, options: Options) {
   let directionUpper = 1;
   let directionLower = 1;
 
-  // Every tick, the maximum speed is the previous speed
   let hasRun = false;
 
   function tick(params: RequestActionParams) {
@@ -94,12 +76,12 @@ export function onPan(actionOptions: ActionOptions, options: Options) {
     requestAnimationFrame(() => tick(params));
 
     const run =
-      // We run into issues with jumping if this does not run once before
-      // a big jump in the value of `currYBounds`
+      // We run into issues with jumping if the tick does not run once before
+      // a big jump in the value of `actualYBounds`.
       !hasRun ||
       // If the values are close enough, we don't need to keep updating.
-      Math.abs(currYBounds[0] - yUpper) > 0.000001 ||
-      Math.abs(currYBounds[1] - yLower) > 0.000001;
+      Math.abs(yBoundsAnimationReference.yBounds[0] - yUpper) > 0.000001 ||
+      Math.abs(yBoundsAnimationReference.yBounds[1] - yLower) > 0.000001;
 
     if (!run) {
       return;
@@ -109,9 +91,9 @@ export function onPan(actionOptions: ActionOptions, options: Options) {
 
     // By "real", I mean that the value may be negative.
     const nextMomentumUpperReal =
-      lerp(yUpper, currYBounds[0], MAX_SPEED) - yUpper;
+      lerp(yUpper, yBoundsAnimationReference.yBounds[0], MAX_SPEED) - yUpper;
     const nextMomentumLowerReal =
-      lerp(yLower, currYBounds[1], MAX_SPEED) - yLower;
+      lerp(yLower, yBoundsAnimationReference.yBounds[1], MAX_SPEED) - yLower;
 
     const nextMomentumUpperAbs = Math.abs(nextMomentumUpperReal);
     const nextMomentumLowerAbs = Math.abs(nextMomentumLowerReal);
@@ -154,56 +136,5 @@ export function onPan(actionOptions: ActionOptions, options: Options) {
       actions.setFields({ yBounds: [yUpper, yLower] })
     );
   }
-
-  mouseDownMoveAction({
-    userActionOptions: actionOptions,
-    e,
-    globalToNormal,
-    beforeMove: (params) => {
-      if (ANIMATE_Y_BOUNDS_ON_PAN) {
-        tick(params);
-      }
-    },
-    mouseMove: (params, { mousePosition }) => {
-      const { view } = params;
-
-      const initialMousePosition = Vec2.fromEvent(e);
-      const initialNormalPosition = globalToNormal(initialMousePosition);
-      let initialT = initialNormalPosition.x / length;
-
-      const globalMousePosition = mousePosition.global;
-      const pos = globalToNormal(globalMousePosition);
-
-      const t = pos.x / length;
-
-      const tChange = (t - initialT) * -1;
-
-      const rightShiftMax = 1 - viewBounds[1];
-      const leftShiftMax = -viewBounds[0];
-
-      let newBounds = [viewBounds[0], viewBounds[1]] as [number, number];
-      if (!allowExceedViewBounds && tChange > rightShiftMax) {
-        newBounds[1] = 1;
-        newBounds[0] += rightShiftMax;
-      } else if (!allowExceedViewBounds && tChange < leftShiftMax) {
-        newBounds[0] = 0;
-        newBounds[1] += leftShiftMax;
-      } else {
-        newBounds[0] += tChange;
-        newBounds[1] += tChange;
-      }
-
-      view.dispatch((actions) => actions.setFields({ viewBounds: newBounds }));
-
-      currYBounds = getYBounds(newBounds);
-    },
-    mouseUp: (params, { hasMoved }) => {
-      if (!hasMoved) {
-        params.cancel();
-        return;
-      }
-
-      params.submit({ name: "Pan" });
-    },
-  });
+  tick(params);
 }

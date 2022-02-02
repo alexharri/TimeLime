@@ -19,7 +19,7 @@ import { Vec2 } from "~/core/utils/math/Vec2";
 import { getGraphEditorCursor } from "~/core/render/cursor/graphEditorCursor";
 import { isKeyCodeOf } from "~/core/listener/keyboard";
 import { RequestActionParams } from "~/core/state/StateManager/StateManager";
-import { onPan } from "~/core/handlers/pan";
+import { onPan } from "~/core/handlers/pan/pan";
 import { onZoom } from "~/core/handlers/zoom";
 
 const initialTimelineState: TimelineState = {
