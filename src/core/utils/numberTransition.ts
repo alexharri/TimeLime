@@ -2,7 +2,7 @@ import { animate, AnimateOptions } from "~/core/utils/animate";
 
 export const createNumberTransition = (
   initialValue: number,
-  options: AnimateOptions = {}
+  options: Partial<AnimateOptions> = {}
 ) => {
   const result = { value: initialValue, setValue };
 
