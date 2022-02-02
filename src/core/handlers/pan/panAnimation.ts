@@ -43,6 +43,15 @@ const MAX_SPEED = 0.18;
 // The lower this value is, the slower the speed ramps up from 0.
 const START_SPEED_FAC = 0.0002;
 
+// Different monitors have different refresh rates. We use this to prevent the animation
+// from running faster on monitors with a higher refresh rate.
+//
+// The number just below 1000 makes it more unlikely that we will drop ticks due to tiny
+// variations in the time between frames. On a 60hz monitor, this will average out to an
+// "elapsed time surplus" which means that we will run two ticks in a single frame once
+// in a while (which is not noticeable).
+const TIME_BETWEEN_TICKS = 999.5 / 60;
+
 interface YBoundsAnimationReference {
   /**
    * The animation will continuously be moving to the newest value of `yBounds`.
@@ -68,17 +77,11 @@ export function startPanActionYBoundsAnimation(
 
   let hasRun = false;
 
-  function tick(params: RequestActionParams) {
-    if (params.done) {
-      return;
-    }
+  let lastTime = Date.now();
+  let timeElapsed = 0;
 
-    requestAnimationFrame(() => tick(params));
-
+  function performTick() {
     const run =
-      // We run into issues with jumping if the tick does not run once before
-      // a big jump in the value of `actualYBounds`.
-      !hasRun ||
       // If the values are close enough, we don't need to keep updating.
       Math.abs(yBoundsAnimationReference.yBounds[0] - yUpper) > 0.000001 ||
       Math.abs(yBoundsAnimationReference.yBounds[1] - yLower) > 0.000001;
@@ -86,8 +89,6 @@ export function startPanActionYBoundsAnimation(
     if (!run) {
       return;
     }
-
-    hasRun = true;
 
     // By "real", I mean that the value may be negative.
     const nextMomentumUpperReal =
@@ -131,10 +132,46 @@ export function startPanActionYBoundsAnimation(
 
     yUpper += momentumUpper * directionUpper;
     yLower += momentumLower * directionLower;
+  }
 
+  function afterUpdated() {
     params.ephemeral.dispatch((actions) =>
       actions.setFields({ yBounds: [yUpper, yLower] })
     );
   }
-  tick(params);
+
+  function tick() {
+    if (params.done) {
+      return;
+    }
+
+    requestAnimationFrame(tick);
+
+    if (!hasRun) {
+      hasRun = true;
+
+      // We run into issues with jumping if the tick does not run once before
+      // a big jump in the value of `actualYBounds`.
+      performTick();
+      afterUpdated();
+      return;
+    }
+
+    let hasUpdated = false;
+    const time = Date.now();
+    timeElapsed += time - lastTime;
+    lastTime = time;
+
+    while (timeElapsed > TIME_BETWEEN_TICKS) {
+      hasUpdated = true;
+      timeElapsed -= TIME_BETWEEN_TICKS;
+      performTick();
+    }
+
+    if (hasUpdated) {
+      afterUpdated();
+    }
+  }
+
+  requestAnimationFrame(tick);
 }
