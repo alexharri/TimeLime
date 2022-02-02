@@ -92,7 +92,10 @@ export class StateManager<T, S, AT extends Action, AS extends Action> {
     let onCompleteCallback: (() => void) | null = null;
 
     const onComplete = () => {
-      window.removeEventListener("keydown", escListener);
+      if (typeof window !== "undefined") {
+        // Likely running inside of Jest
+        window.removeEventListener("keydown", escListener);
+      }
       onCompleteCallback?.();
     };
 
