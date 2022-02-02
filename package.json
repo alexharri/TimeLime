@@ -15,6 +15,7 @@
     "@storybook/addon-essentials": "^6.4.13",
     "@storybook/addon-links": "^6.4.13",
     "@storybook/react": "^6.4.13",
+    "@types/bezier-easing": "^2.1.2",
     "@types/jest": "^27.4.0",
     "babel-loader": "^8.2.3",
     "jest": "^27.4.7",
@@ -38,6 +39,7 @@
     "Alex Harri Jónsson <alexharri2919@gmail.com>"
   ],
   "dependencies": {
+    "bezier-easing": "^2.1.0",
     "map-fns": "^1.12.1"
   }
 }

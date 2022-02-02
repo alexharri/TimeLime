@@ -11,6 +11,7 @@ export interface ViewState {
   viewBounds: ViewBounds;
   viewport: Rect;
   length: number;
+  allowExceedViewBounds: boolean;
 }
 
 export interface EphemeralState {
