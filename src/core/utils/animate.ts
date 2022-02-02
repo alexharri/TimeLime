@@ -2,21 +2,13 @@ import BezierEasing from "bezier-easing";
 import { lerp } from "~/core/utils/math/math";
 
 export interface AnimateOptions {
-  from?: number;
-  to?: number | (() => number);
-  duration?: number;
-  bezier?: [number, number, number, number];
-  callback?: any;
-}
-
-interface AnimationOpts {
   from: number;
   to: number | (() => number);
   duration: number;
   bezier: [number, number, number, number];
 }
 
-const defaultOpts: AnimationOpts = {
+const defaultOpts: AnimateOptions = {
   from: 0,
   to: 1,
   duration: 500,
@@ -24,16 +16,13 @@ const defaultOpts: AnimationOpts = {
 };
 
 export function animate(
-  options: AnimateOptions,
+  options: Partial<AnimateOptions>,
   fn: (t: number) => void
 ): Promise<boolean> & { cancel: () => void } {
   let cancelled = false;
 
   const promise = new Promise<boolean>((resolve) => {
-    const opts = {
-      ...defaultOpts,
-      ...options,
-    };
+    const opts: AnimateOptions = { ...defaultOpts, ...options };
 
     const [p0, p1, p2, p3] = opts.bezier;
     const easing = BezierEasing(p0, p1, p2, p3);
