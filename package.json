@@ -39,6 +39,7 @@
     "Alex Harri Jónsson <alexharri2919@gmail.com>"
   ],
   "dependencies": {
+    "bezier-easing": "^2.1.0",
     "map-fns": "^1.12.1"
   }
 }
