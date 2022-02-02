@@ -7,6 +7,9 @@ import { capToRange, lerp } from "~/core/utils/math/math";
 import { Vec2 } from "~/core/utils/math/Vec2";
 import { SomeMouseEvent, ViewBounds, YBounds } from "~/types/commonTypes";
 
+// This may be converted to a configuration option in the future.
+const ANIMATE_ZOOM = true;
+
 interface Options {
   e: SomeMouseEvent;
   type: "zoom_out" | "zoom_in";
@@ -54,7 +57,7 @@ export function onZoom(actionOptions: ActionOptions, options: Options) {
       viewBounds: nextViewBounds,
     });
 
-    animate({ duration: 150 }, (t) => {
+    animate({ duration: ANIMATE_ZOOM ? 150 : 0 }, (t) => {
       const currYBounds: YBounds = [
         lerp(yBounds[0], nextYBounds[0], t),
         lerp(yBounds[1], nextYBounds[1], t),
