@@ -51,13 +51,12 @@ export function onPan(actionOptions: ActionOptions, options: Options) {
   let mom_down = 0;
 
   let lastMin = (yUpper - yLower) * START_SPEED_FAC;
+  let hasRun = false;
 
   function tick(params: RequestActionParams) {
     if (!params.done) {
       requestAnimationFrame(() => tick(params));
     }
-
-    let hasRun = false;
 
     if (
       Math.abs(currYBounds[0] - yUpper) > 0.000001 ||
