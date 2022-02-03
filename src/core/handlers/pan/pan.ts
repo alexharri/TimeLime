@@ -4,6 +4,7 @@ import { mouseDownMoveAction } from "~/core/state/mouseDownMoveAction";
 import { ActionOptions } from "~/core/state/stateTypes";
 import { createGlobalToNormalFnFromActionOptions } from "~/core/utils/coords/globalToNormal";
 import { Vec2 } from "~/core/utils/math/Vec2";
+import { shiftViewBoundsByT } from "~/core/utils/viewUtils";
 import { SomeMouseEvent, ViewBounds, YBounds } from "~/types/commonTypes";
 
 // This may be converted to a configuration option in the future.
@@ -18,8 +19,7 @@ export function onPan(actionOptions: ActionOptions, options: Options) {
 
   const globalToNormal = createGlobalToNormalFnFromActionOptions(actionOptions);
 
-  const { viewBounds, length, allowExceedViewBounds } =
-    actionOptions.initialState.view;
+  const { viewBounds, length } = actionOptions.initialState.view;
   const { timelines } = actionOptions.initialState.primary;
 
   const getYBounds = (viewBounds: ViewBounds): YBounds => {
@@ -56,29 +56,16 @@ export function onPan(actionOptions: ActionOptions, options: Options) {
       const pos = globalToNormal(globalMousePosition);
 
       const t = pos.x / length;
-
       const tChange = (t - initialT) * -1;
 
-      const rightShiftMax = 1 - viewBounds[1];
-      const leftShiftMax = -viewBounds[0];
+      const viewState = actionOptions.initialState.view;
+      const viewBounds = shiftViewBoundsByT(viewState, tChange);
 
-      let newBounds = [viewBounds[0], viewBounds[1]] as [number, number];
-      if (!allowExceedViewBounds && tChange > rightShiftMax) {
-        newBounds[1] = 1;
-        newBounds[0] += rightShiftMax;
-      } else if (!allowExceedViewBounds && tChange < leftShiftMax) {
-        newBounds[0] = 0;
-        newBounds[1] += leftShiftMax;
-      } else {
-        newBounds[0] += tChange;
-        newBounds[1] += tChange;
-      }
-
-      view.dispatch((actions) => actions.setFields({ viewBounds: newBounds }));
+      view.dispatch((actions) => actions.setFields({ viewBounds }));
 
       if (ANIMATE_Y_BOUNDS_ON_PAN) {
         // Update the value of yBounds so that the animation can follow it.
-        yBoundsAnimationReference.yBounds = getYBounds(newBounds);
+        yBoundsAnimationReference.yBounds = getYBounds(viewBounds);
       }
     },
     mouseUp: (params, { hasMoved }) => {
