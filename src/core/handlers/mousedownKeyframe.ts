@@ -5,6 +5,7 @@ import { ActionOptions } from "~/core/state/stateTypes";
 import { applyTimelineKeyframeShift } from "~/core/timeline/applyTimelineKeyframeShift";
 import { createGlobalToNormalFnFromActionOptions } from "~/core/utils/coords/globalToNormal";
 import { Vec2 } from "~/core/utils/math/Vec2";
+import { shiftViewBoundsByX } from "~/core/utils/viewUtils";
 import { Rect, SomeMouseEvent } from "~/types/commonTypes";
 import { TimelineKeyframe } from "~/types/timelineTypes";
 
@@ -137,7 +138,7 @@ export function onMousedownKeyframe(
       ephemeral.dispatch((actions) => actions.setFields({ keyframeShift }));
     },
     mouseUp: (params) => {
-      const { ephemeral, primary, selection } = params;
+      const { ephemeral, primary, selection, view } = params;
       const { keyframeShift } = ephemeral.state;
 
       if (!keyframeShift) {
@@ -160,6 +161,12 @@ export function onMousedownKeyframe(
         timeline,
         timelineSelection,
       });
+
+      const { pan = Vec2.ORIGIN } = ephemeral.state;
+
+      view.dispatch((actions) =>
+        actions.setFields({ viewBounds: shiftViewBoundsByX(view.state, pan.x) })
+      );
 
       primary.dispatch((actions) => actions.setTimeline(nextTimeline));
       params.submit({ name: "Move keyframe", allowSelectionShift: true });
