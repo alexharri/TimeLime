@@ -25,10 +25,14 @@ export function shiftViewBoundsByT(
   return newBounds;
 }
 
-export function shiftViewBounds(
+/**
+ * Returns new `ViewBounds` that have been shifted by N normal units,
+ * specified by the `shiftByX` argument.
+ */
+export function shiftViewBoundsByX(
   viewState: ViewState,
-  shiftByXNormal: number
+  shiftByX: number
 ): ViewBounds {
   const { length } = viewState;
-  return shiftViewBoundsByT(viewState, shiftByXNormal / length);
+  return shiftViewBoundsByT(viewState, shiftByX / length);
 }

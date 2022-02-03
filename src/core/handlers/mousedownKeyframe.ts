@@ -5,7 +5,7 @@ import { ActionOptions } from "~/core/state/stateTypes";
 import { applyTimelineKeyframeShift } from "~/core/timeline/applyTimelineKeyframeShift";
 import { createGlobalToNormalFnFromActionOptions } from "~/core/utils/coords/globalToNormal";
 import { Vec2 } from "~/core/utils/math/Vec2";
-import { shiftViewBounds } from "~/core/utils/viewUtils";
+import { shiftViewBoundsByX } from "~/core/utils/viewUtils";
 import { Rect, SomeMouseEvent } from "~/types/commonTypes";
 import { TimelineKeyframe } from "~/types/timelineTypes";
 
@@ -165,7 +165,7 @@ export function onMousedownKeyframe(
       const { pan = Vec2.ORIGIN } = ephemeral.state;
 
       view.dispatch((actions) =>
-        actions.setFields({ viewBounds: shiftViewBounds(view.state, pan.x) })
+        actions.setFields({ viewBounds: shiftViewBoundsByX(view.state, pan.x) })
       );
 
       primary.dispatch((actions) => actions.setTimeline(nextTimeline));
