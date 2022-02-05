@@ -9,6 +9,8 @@ import {
   TimelineSelection,
 } from "~/types/timelineTypes";
 
+const capTx = (tx: number) => capToRange(TIMELINE_CP_TX_MIN, TIMELINE_CP_TX_MAX, tx);
+
 interface Options {
   timeline: Timeline;
   timelineSelection?: TimelineSelection;
@@ -34,23 +36,70 @@ export const applyControlPointShift = (options: Options): Timeline => {
       i1: number,
       cp: TimelineKeyframeControlPoint,
     ): TimelineKeyframeControlPoint => {
-      const indexDifference = timeline.keyframes[i0].index - timeline.keyframes[i1].index;
+      const relativeToDistance = timeline.keyframes[i0].index - timeline.keyframes[i1].index;
 
-      const indexShift = shiftVector.x * (distanceBetweenKeyframes / indexDifference);
+      const indexShift = shiftVector.x * (distanceBetweenKeyframes / relativeToDistance);
 
       // This may exceed the bounds [0, 1] since the index difference between the
       // reference keyframes (the keyframes around the clicked control point) may
       // be different than the index difference between the current keyframes.
       const txShift = indexShift / distanceBetweenKeyframes;
+      const tx = capTx(cp.tx + txShift);
 
-      const currentValue = cp.value * (indexDifference / cp.relativeToDistance);
+      const currentValue = cp.value * (relativeToDistance / cp.relativeToDistance);
+      const value = shiftDown ? 0 : currentValue + shiftVector.y;
 
-      return {
-        relativeToDistance: indexDifference,
-        tx: capToRange(TIMELINE_CP_TX_MIN, TIMELINE_CP_TX_MAX, cp.tx + txShift),
-        value: shiftDown ? 0 : currentValue + shiftVector.y,
-      };
+      return { relativeToDistance, tx, value };
     };
+
+    const k0 = timeline.keyframes[i - 1];
+    const k1 = timeline.keyframes[i];
+    const k2 = timeline.keyframes[i + 1];
+    const kPos = Vec2.new(k1.index, k1.value);
+
+    function reflectedRight(): TimelineKeyframeControlPoint {
+      const cpl = computeCp(i, i - 1, k.controlPointLeft!);
+      const oldCpr = k.controlPointRight!;
+
+      const cplPos = Vec2.new(lerp(k0.index, k1.index, cpl.tx), k.value + cpl.value);
+      const cprPos = Vec2.new(lerp(k1.index, k2.index, oldCpr.tx), k.value + oldCpr.value);
+
+      const lDist = getDistance(kPos.scaleX(yFac), cplPos.scaleX(yFac));
+      const rDist = getDistance(kPos.scaleX(yFac), cprPos.scaleX(yFac));
+
+      const cprPosNew = cplPos.scale(-1, kPos).scale(rDist / lDist, kPos);
+
+      const relativeToDistance = k2.index - k1.index;
+
+      const cpIndexRelative = cprPosNew.x - k1.index;
+      const tx = capTx(cpIndexRelative / relativeToDistance);
+
+      const value = cprPosNew.y - k1.value;
+
+      return { relativeToDistance, tx, value };
+    }
+
+    function reflectedLeft(): TimelineKeyframeControlPoint {
+      const cpr = computeCp(i + 1, i, k.controlPointRight!);
+      const oldCpl = k.controlPointLeft!;
+
+      const cplPos = Vec2.new(lerp(k0.index, k1.index, oldCpl.tx), k.value + oldCpl.value);
+      const cprPos = Vec2.new(lerp(k1.index, k2.index, cpr.tx), k.value + cpr.value);
+
+      const lDist = getDistance(kPos.scaleX(yFac), cplPos.scaleX(yFac));
+      const rDist = getDistance(kPos.scaleX(yFac), cprPos.scaleX(yFac));
+
+      const cplPosNew = cprPos.scale(-1, kPos).scale(lDist / rDist, kPos);
+
+      const relativeToDistance = k1.index - k0.index;
+
+      const cpIndexRelative = cplPosNew.x - k0.index;
+      const tx = capTx(cpIndexRelative / relativeToDistance);
+
+      const value = cplPosNew.y - k1.value;
+
+      return { relativeToDistance, tx, value };
+    }
 
     if (direction === "left") {
       if (!timeline.keyframes[i - 1] || !k.controlPointLeft) {
@@ -59,43 +108,10 @@ export const applyControlPointShift = (options: Options): Timeline => {
 
       const reflect = k.reflectControlPoints && k.controlPointRight && timeline.keyframes[i + 1];
 
-      const cpl = computeCp(i, i - 1, k.controlPointLeft);
-      let cpr: TimelineKeyframeControlPoint | null;
+      const controlPointLeft = computeCp(i, i - 1, k.controlPointLeft);
+      const controlPointRight = reflect ? reflectedRight() : k.controlPointRight;
 
-      const oldCpr = k.controlPointRight!;
-
-      if (reflect) {
-        const k0 = timeline.keyframes[i - 1];
-        const k1 = timeline.keyframes[i];
-        const k2 = timeline.keyframes[i + 1];
-
-        const cplPos = Vec2.new(lerp(k0.index, k1.index, cpl.tx), k.value + cpl.value);
-        const cprPos = Vec2.new(lerp(k1.index, k2.index, oldCpr.tx), k.value + oldCpr.value);
-
-        const kPos = Vec2.new(k1.index, k1.value);
-        const lDist = getDistance(kPos.scaleX(yFac), cplPos.scaleX(yFac));
-        const rDist = getDistance(kPos.scaleX(yFac), cprPos.scaleX(yFac));
-
-        const cprPosNew = cplPos.scale(-1, kPos).scale(rDist / lDist, kPos);
-
-        cpr = {
-          relativeToDistance: k2.index - k1.index,
-          tx: capToRange(
-            TIMELINE_CP_TX_MIN,
-            TIMELINE_CP_TX_MAX,
-            (cprPosNew.x - k1.index) / (k2.index - k1.index),
-          ),
-          value: cprPosNew.y - k1.value,
-        };
-      } else {
-        cpr = k.controlPointRight;
-      }
-
-      return {
-        ...k,
-        controlPointLeft: cpl,
-        controlPointRight: cpr,
-      };
+      return { ...k, controlPointLeft, controlPointRight };
     } else {
       if (!timeline.keyframes[i + 1] || !k.controlPointRight) {
         return k;
@@ -103,43 +119,10 @@ export const applyControlPointShift = (options: Options): Timeline => {
 
       const reflect = k.reflectControlPoints && k.controlPointLeft && timeline.keyframes[i - 1];
 
-      const cpr = computeCp(i + 1, i, k.controlPointRight);
-      let cpl: TimelineKeyframeControlPoint | null;
+      const controlPointRight = computeCp(i + 1, i, k.controlPointRight);
+      const controlPointLeft = reflect ? reflectedLeft() : k.controlPointLeft;
 
-      const oldCpl = k.controlPointLeft!;
-
-      if (reflect) {
-        const k0 = timeline.keyframes[i - 1];
-        const k1 = timeline.keyframes[i];
-        const k2 = timeline.keyframes[i + 1];
-
-        const cplPos = Vec2.new(lerp(k0.index, k1.index, oldCpl.tx), k.value + oldCpl.value);
-        const cprPos = Vec2.new(lerp(k1.index, k2.index, cpr.tx), k.value + cpr.value);
-
-        const kPos = Vec2.new(k1.index, k1.value);
-        const lDist = getDistance(kPos.scaleX(yFac), cplPos.scaleX(yFac));
-        const rDist = getDistance(kPos.scaleX(yFac), cprPos.scaleX(yFac));
-
-        const cplPosNew = cprPos.scale(-1, kPos).scale(lDist / rDist, kPos);
-
-        cpl = {
-          relativeToDistance: k1.index - k0.index,
-          tx: capToRange(
-            TIMELINE_CP_TX_MIN,
-            TIMELINE_CP_TX_MAX,
-            (cplPosNew.x - k0.index) / (k1.index - k0.index),
-          ),
-          value: cplPosNew.y - k1.value,
-        };
-      } else {
-        cpl = k.controlPointLeft;
-      }
-
-      return {
-        ...k,
-        controlPointRight: cpr,
-        controlPointLeft: cpl,
-      };
+      return { ...k, controlPointRight, controlPointLeft };
     }
   });
 
