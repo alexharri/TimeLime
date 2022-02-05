@@ -122,7 +122,7 @@ export const onMousedownControlPoint = (actionOptions: ActionOptions, options: O
       x += xPan;
       y += yPan;
 
-      const indexDiff =
+      const distanceBetweenKeyframes =
         which === "left"
           ? timeline.keyframes[keyframeIndex].index - timeline.keyframes[keyframeIndex - 1].index
           : timeline.keyframes[keyframeIndex + 1].index - timeline.keyframes[keyframeIndex].index;
@@ -132,7 +132,13 @@ export const onMousedownControlPoint = (actionOptions: ActionOptions, options: O
 
       params.ephemeral.dispatch((actions) =>
         actions.setFields({
-          controlPointShift: { indexDiff, direction: which, shiftVector, yFac, shiftDown },
+          controlPointShift: {
+            distanceBetweenKeyframes,
+            direction: which,
+            shiftVector,
+            yFac,
+            shiftDown,
+          },
         }),
       );
     },

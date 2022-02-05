@@ -16,24 +16,13 @@ interface Options {
 }
 
 export const applyControlPointShift = (options: Options): Timeline => {
-  const { timeline, timelineSelection } = options;
+  const { timeline, timelineSelection, controlPointShift } = options;
 
   if (!timelineSelection) {
     return timeline;
   }
 
-  const _controlPointShift = options.controlPointShift!;
-
-  const {
-    shiftVector,
-    indexDiff: parentIndexDiff,
-    direction: direction,
-    yFac,
-    shiftDown,
-  } = _controlPointShift;
-
-  const parentIndexShift = shiftVector.x;
-  const valueShift = shiftVector.y;
+  const { shiftVector, distanceBetweenKeyframes, direction, yFac, shiftDown } = controlPointShift;
 
   const keyframes = timeline.keyframes.map<TimelineKeyframe>((k, i) => {
     if (!timelineSelection.keyframes[k.id]) {
@@ -45,16 +34,21 @@ export const applyControlPointShift = (options: Options): Timeline => {
       i1: number,
       cp: TimelineKeyframeControlPoint,
     ): TimelineKeyframeControlPoint => {
-      const indexDiff = timeline.keyframes[i0].index - timeline.keyframes[i1].index;
-      const indexShift = parentIndexShift * (parentIndexDiff / indexDiff);
+      const indexDifference = timeline.keyframes[i0].index - timeline.keyframes[i1].index;
+
+      const indexShift = shiftVector.x * (distanceBetweenKeyframes / indexDifference);
+
+      // This may exceed the bounds [0, 1] since the index difference between the
+      // reference keyframes (the keyframes around the clicked control point) may
+      // be different than the index difference between the current keyframes.
+      const txShift = indexShift / distanceBetweenKeyframes;
+
+      const currentValue = cp.value * (indexDifference / cp.relativeToDistance);
+
       return {
-        relativeToDistance: indexDiff,
-        tx: capToRange(
-          TIMELINE_CP_TX_MIN,
-          TIMELINE_CP_TX_MAX,
-          cp.tx + indexShift / parentIndexDiff,
-        ),
-        value: shiftDown ? 0 : cp.value * (indexDiff / cp.relativeToDistance) + valueShift,
+        relativeToDistance: indexDifference,
+        tx: capToRange(TIMELINE_CP_TX_MIN, TIMELINE_CP_TX_MAX, cp.tx + txShift),
+        value: shiftDown ? 0 : currentValue + shiftVector.y,
       };
     };
 

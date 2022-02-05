@@ -34,7 +34,7 @@ export type TimelineSelectionMap = Partial<{
 
 export interface ControlPointShift {
   shiftVector: Vec2;
-  indexDiff: number;
+  distanceBetweenKeyframes: number;
   direction: "left" | "right";
   yFac: number;
   shiftDown: boolean;
