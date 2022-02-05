@@ -32,7 +32,7 @@ const MAX_SPEED_INCREASE_PER_TICK = 2.5;
 // Describes the maximum rate of change.
 //
 // 0.7 is near-instant, 0.1 is very slow.
-const MAX_SPEED = 0.18;
+const MAX_SPEED = 0.23;
 
 // When the current momentum is 0, we cannot find the next maximum momentum by
 // multiplying it with a constant since `0 * N = 0` (see MAX_SPEED_INCREASE_PER_TICK).
@@ -41,7 +41,7 @@ const MAX_SPEED = 0.18;
 // an upper bound for the next momentum.
 //
 // The lower this value is, the slower the speed ramps up from 0.
-const START_SPEED_FAC = 0.0002;
+const START_SPEED_FAC = 0.02;
 
 // Different monitors have different refresh rates. We use this to prevent the animation
 // from running faster on monitors with a higher refresh rate.
@@ -63,7 +63,7 @@ interface YBoundsAnimationReference {
 
 export function startPanActionYBoundsAnimation(
   params: RequestActionParams,
-  yBoundsAnimationReference: YBoundsAnimationReference
+  yBoundsAnimationReference: YBoundsAnimationReference,
 ) {
   let [yUpper, yLower] = yBoundsAnimationReference.yBounds;
 
@@ -121,23 +121,15 @@ export function startPanActionYBoundsAnimation(
     const getCurrentMomentum = (momentum: number) =>
       Math.max(momentum, minMomentum) * MAX_SPEED_INCREASE_PER_TICK;
 
-    momentumUpper = Math.min(
-      nextMomentumUpperAbs,
-      getCurrentMomentum(momentumUpper)
-    );
-    momentumLower = Math.min(
-      nextMomentumLowerAbs,
-      getCurrentMomentum(momentumLower)
-    );
+    momentumUpper = Math.min(nextMomentumUpperAbs, getCurrentMomentum(momentumUpper));
+    momentumLower = Math.min(nextMomentumLowerAbs, getCurrentMomentum(momentumLower));
 
     yUpper += momentumUpper * directionUpper;
     yLower += momentumLower * directionLower;
   }
 
   function afterUpdated() {
-    params.ephemeral.dispatch((actions) =>
-      actions.setFields({ yBounds: [yUpper, yLower] })
-    );
+    params.ephemeral.dispatch((actions) => actions.setFields({ yBounds: [yUpper, yLower] }));
   }
 
   function tick() {
