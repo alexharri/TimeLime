@@ -17,6 +17,7 @@ import { onPan } from "~/core/handlers/pan/pan";
 import { onZoom } from "~/core/handlers/zoom";
 import { useIsomorphicLayoutEffect } from "~/core/utils/hook/useIsomorphicLayoutEffect";
 import { useRenderCursor } from "~/core/utils/hook/useRenderCursor";
+import { onMousedownControlPoint } from "~/core/handlers/mousedownControlPoint";
 
 const initialTimelineState: TimelineState = {
   timelines: {
@@ -31,7 +32,7 @@ const initialTimelineState: TimelineState = {
         ],
         [
           [100, 100],
-          [140, 121],
+          [140, 120],
           [180, 30],
           [200, 100],
         ],
@@ -168,6 +169,13 @@ export const Test = () => {
         stateManager.requestAction((params) => {
           const actionOptions = createActionOptions(params);
           onMousedownKeyframe(actionOptions, { e, ...actionToPerform });
+        });
+        break;
+      }
+      case "mousedown_control_point": {
+        stateManager.requestAction((params) => {
+          const actionOptions = createActionOptions(params);
+          onMousedownControlPoint(actionOptions, { e, ...actionToPerform });
         });
         break;
       }

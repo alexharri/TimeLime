@@ -1,4 +1,5 @@
 import { areMapsShallowEqual } from "map-fns";
+import { MOVE_ACTION_PAN_FAC } from "~/core/constants";
 import { getGraphEditorYBoundsFromActionOptions } from "~/core/render/yBounds";
 import { mouseDownMoveAction } from "~/core/state/mouseDownMoveAction";
 import { ActionOptions } from "~/core/state/stateTypes";
@@ -6,30 +7,10 @@ import { applyTimelineKeyframeShift } from "~/core/timeline/applyTimelineKeyfram
 import { createGlobalToNormalFnFromActionOptions } from "~/core/utils/coords/globalToNormal";
 import { base64Cursors } from "~/core/utils/cursor/base64Cursors";
 import { Vec2 } from "~/core/utils/math/Vec2";
+import { getViewportXUpperLower, getViewportYUpperLower } from "~/core/utils/viewportUtils";
 import { shiftViewBoundsByX } from "~/core/utils/viewUtils";
-import { Rect, SomeMouseEvent, YBounds } from "~/types/commonTypes";
+import { SomeMouseEvent } from "~/types/commonTypes";
 import { TimelineKeyframe } from "~/types/timelineTypes";
-
-const getYUpperLower = (viewport: Rect, mousePositionGlobal: Vec2): YBounds => {
-  const { y } = mousePositionGlobal;
-  const buffer = 15;
-  const yUpper = Math.max(0, viewport.top - (y - buffer));
-  const yLower = Math.max(0, y + buffer - (viewport.top + viewport.height));
-  return [yUpper, yLower];
-};
-
-const getXUpperLower = (
-  viewport: Rect,
-  mousePositionGlobal: Vec2,
-): [xUpper: number, xLower: number] => {
-  const { x } = mousePositionGlobal;
-  const buffer = 15;
-  const xUpper = Math.max(0, viewport.left - (x - buffer));
-  const xLower = Math.max(0, x + buffer - (viewport.left + viewport.width));
-  return [xUpper, xLower];
-};
-
-const PAN_FAC = 0.1;
 
 interface Options {
   e: SomeMouseEvent;
@@ -45,9 +26,8 @@ export function onMousedownKeyframe(actionOptions: ActionOptions, options: Optio
   const yBounds = getGraphEditorYBoundsFromActionOptions(actionOptions);
   const globalToNormal = createGlobalToNormalFnFromActionOptions(actionOptions);
 
-  const d0 = globalToNormal(Vec2.new(0, 0));
-  const d1 = globalToNormal(Vec2.new(1, 1));
-  const normalFac = d0.sub(d1); // Global-to-Normal multiplier
+  // Global-to-Normal multiplier
+  const normalFac = globalToNormal(Vec2.new(0, 0)).sub(globalToNormal(Vec2.new(1, 1)));
 
   let yPan = 0;
   let xPan = 0;
@@ -74,26 +54,26 @@ export function onMousedownKeyframe(actionOptions: ActionOptions, options: Optio
     },
     tickShouldUpdate: (params, { mousePosition }) => {
       const { viewport } = params.view.state;
-      const [yUpper, yLower] = getYUpperLower(viewport, mousePosition.global);
-      const [xUpper, xLower] = getXUpperLower(viewport, mousePosition.global);
+      const [yUpper, yLower] = getViewportYUpperLower(viewport, mousePosition.global);
+      const [xUpper, xLower] = getViewportXUpperLower(viewport, mousePosition.global);
       return !!(yUpper || yLower || xUpper || xLower);
     },
     mouseMove: (params, { initialMousePosition, mousePosition, moveVector, keyDown }) => {
       const { ephemeral, view } = params;
       const { viewport } = view.state;
 
-      const [xUpper, xLower] = getXUpperLower(viewport, mousePosition.global);
-      const [yUpper, yLower] = getYUpperLower(viewport, mousePosition.global);
+      const [xUpper, xLower] = getViewportXUpperLower(viewport, mousePosition.global);
+      const [yUpper, yLower] = getViewportYUpperLower(viewport, mousePosition.global);
 
       if (yLower) {
-        yPan -= yLower * normalFac.y * PAN_FAC;
+        yPan -= yLower * normalFac.y * MOVE_ACTION_PAN_FAC;
       } else if (yUpper) {
-        yPan += yUpper * normalFac.y * PAN_FAC;
+        yPan += yUpper * normalFac.y * MOVE_ACTION_PAN_FAC;
       }
       if (xLower) {
-        xPan -= xLower * normalFac.x * PAN_FAC;
+        xPan -= xLower * normalFac.x * MOVE_ACTION_PAN_FAC;
       } else if (xUpper) {
-        xPan += xUpper * normalFac.x * PAN_FAC;
+        xPan += xUpper * normalFac.x * MOVE_ACTION_PAN_FAC;
       }
 
       if (xLower || xUpper || yLower || yUpper) {

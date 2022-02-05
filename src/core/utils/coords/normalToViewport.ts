@@ -1,5 +1,6 @@
 import { CANVAS_END_START_BUFFER } from "~/core/constants";
 import { getGraphEditorYBounds } from "~/core/render/yBounds";
+import { ActionOptions } from "~/core/state/stateTypes";
 import { lerp, lerpInCanvasRange } from "~/core/utils/math/math";
 import { Vec2 } from "~/core/utils/math/Vec2";
 import { Rect, ViewBounds, YBounds } from "~/types/commonTypes";
@@ -24,12 +25,8 @@ export const createNormalToViewportXFn = (options: {
   return (index: number) => {
     const t = index / length;
     return (
-      lerpInCanvasRange(
-        t * renderWidth,
-        tMin * renderWidth,
-        tMax * renderWidth,
-        canvasWidth
-      ) + CANVAS_END_START_BUFFER
+      lerpInCanvasRange(t * renderWidth, tMin * renderWidth, tMax * renderWidth, canvasWidth) +
+      CANVAS_END_START_BUFFER
     );
   };
 };
@@ -42,17 +39,9 @@ export const createNormalToViewportYFn = (options: {
   yBounds?: YBounds;
   pan?: Vec2;
 }): ((value: number) => number) => {
-  const {
-    timelines,
-    viewport,
-    viewBounds,
-    length,
-    yBounds,
-    pan = Vec2.ORIGIN,
-  } = options;
+  const { timelines, viewport, viewBounds, length, yBounds, pan = Vec2.ORIGIN } = options;
 
-  const [yUpper, yLower] =
-    yBounds || getGraphEditorYBounds({ viewBounds, length, timelines });
+  const [yUpper, yLower] = yBounds || getGraphEditorYBounds({ viewBounds, length, timelines });
   const yUpLowDiff = yUpper - yLower;
 
   return (value: number) => {
@@ -73,4 +62,13 @@ export const createNormalToViewportFn = (options: {
   const toY = createNormalToViewportYFn(options);
 
   return (vec: Vec2) => Vec2.new(toX(vec.x), toY(vec.y));
+};
+
+export const createNormalToViewportFnFromActionOptions = (options: ActionOptions) => {
+  const { initialState } = options;
+
+  const { timelines } = initialState.primary;
+  const { viewport, viewBounds, length } = initialState.view;
+
+  return createNormalToViewportFn({ viewport, viewBounds, timelines, length });
 };

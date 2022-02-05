@@ -1,3 +1,5 @@
+import { Vec2 } from "~/core/utils/math/Vec2";
+
 export type TimelineMap = {
   [timelineId: string]: Timeline;
 };
@@ -29,3 +31,11 @@ export interface TimelineSelection {
 export type TimelineSelectionMap = Partial<{
   [timelineId: string]: TimelineSelection;
 }>;
+
+export interface ControlPointShift {
+  shiftVector: Vec2;
+  distanceBetweenKeyframes: number;
+  direction: "left" | "right";
+  yFac: number;
+  shiftKeyDown: boolean;
+}

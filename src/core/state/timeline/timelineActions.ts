@@ -1,4 +1,4 @@
-import { Timeline, TimelineKeyframe } from "~/types/timelineTypes";
+import { Timeline, TimelineKeyframe, TimelineKeyframeControlPoint } from "~/types/timelineTypes";
 import { Rect } from "~/types/commonTypes";
 import { TimelineState } from "~/core/state/timeline/timelineReducer";
 
@@ -29,6 +29,30 @@ export const timelineActions = {
   setTimeline: (timeline: Timeline) => ({
     type: <const>"tl/set-timeline",
     timeline,
+  }),
+
+  setKeyframeControlPoint: (
+    timelineId: string,
+    keyframeIndex: number,
+    direction: "left" | "right",
+    controlPoint: TimelineKeyframeControlPoint | null,
+  ) => ({
+    type: <const>"tl/set-keyframe-control-point",
+    timelineId,
+    controlPoint,
+    keyframeIndex,
+    direction,
+  }),
+
+  setKeyframeReflectControlPoints: (
+    timelineId: string,
+    keyframeIndex: number,
+    reflectControlPoints: boolean,
+  ) => ({
+    type: <const>"tl/set-keyframe-reflect-control-points",
+    timelineId,
+    keyframeIndex,
+    reflectControlPoints,
   }),
 
   // submitDragSelectRect: createAction(
@@ -87,29 +111,6 @@ export const timelineActions = {
   // setYPan: createAction("timeline/SET_Y_PAN", (resolve) => {
   //   return (timelineId: string, yPan: number) => resolve({ timelineId, yPan });
   // }),
-
-  // setKeyframeReflectControlPoints: createAction(
-  //   "timeline/SET_KEYFRAME_REFLECT_CONTROL_POINTS",
-  //   (resolve) => {
-  //     return (
-  //       timelineId: string,
-  //       keyframeIndex: number,
-  //       reflectControlPoints: boolean
-  //     ) => resolve({ timelineId, keyframeIndex, reflectControlPoints });
-  //   }
-  // ),
-
-  // setKeyframeControlPoint: createAction(
-  //   "timeline/SET_KEYFRAME_CONTROL_POINT",
-  //   (resolve) => {
-  //     return (
-  //       timelineId: string,
-  //       keyframeIndex: number,
-  //       direction: "left" | "right",
-  //       controlPoint: TimelineKeyframeControlPoint | null
-  //     ) => resolve({ timelineId, controlPoint, keyframeIndex, direction });
-  //   }
-  // ),
 };
 
 // export const timelineSelectionActions = {
