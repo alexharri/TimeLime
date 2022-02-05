@@ -3,6 +3,7 @@ import { getGraphEditorYBounds } from "~/core/render/yBounds";
 import { mouseDownMoveAction } from "~/core/state/mouseDownMoveAction";
 import { ActionOptions } from "~/core/state/stateTypes";
 import { createGlobalToNormalFnFromActionOptions } from "~/core/utils/coords/globalToNormal";
+import { base64Cursors } from "~/core/utils/cursor/base64Cursors";
 import { Vec2 } from "~/core/utils/math/Vec2";
 import { shiftViewBoundsByT } from "~/core/utils/viewUtils";
 import { SomeMouseEvent, ViewBounds, YBounds } from "~/types/commonTypes";
@@ -44,6 +45,8 @@ export function onPan(actionOptions: ActionOptions, options: Options) {
       if (ANIMATE_Y_BOUNDS_ON_PAN) {
         startPanActionYBoundsAnimation(params, yBoundsAnimationReference);
       }
+      const cursor = base64Cursors.grabbing;
+      params.ephemeral.dispatch((actions) => actions.setFields({ cursor }));
     },
     mouseMove: (params, { mousePosition }) => {
       const { view } = params;

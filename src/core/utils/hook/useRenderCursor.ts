@@ -1,5 +1,5 @@
 import React, { useCallback, useEffect, useRef } from "react";
-import { isKeyCodeOf } from "~/core/listener/keyboard";
+import { getKeyFromKeyCode } from "~/core/listener/keyboard";
 import { getGraphEditorCursor } from "~/core/render/cursor/graphEditorCursor";
 import { RenderState } from "~/core/state/stateTypes";
 import { Vec2 } from "~/core/utils/math/Vec2";
@@ -39,11 +39,13 @@ export const useRenderCursor = (options: Options) => {
     };
 
     const keyDownListener = (e: KeyboardEvent) => {
-      if (!isKeyCodeOf("Alt", e.keyCode)) {
-        return;
+      switch (getKeyFromKeyCode(e.keyCode)) {
+        case "Space":
+        case "Alt":
+        case "Z":
+          renderCursor(getRenderState());
+          break;
       }
-
-      renderCursor(getRenderState());
     };
 
     canvas.addEventListener("mousemove", mouseMoveListener);

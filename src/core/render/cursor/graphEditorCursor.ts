@@ -20,6 +20,14 @@ interface Options {
 }
 
 const getCursor = (options: Options): string => {
+  if (isKeyDown("Space")) {
+    return base64Cursors.grab;
+  }
+
+  if (isKeyDown("Z")) {
+    return isKeyDown("Alt") ? base64Cursors.zoom_out : base64Cursors.zoom_in;
+  }
+
   const { viewportMousePosition, yBounds, length, viewBounds, timelines, viewport, pan } = options;
   const normalToViewport = createNormalToViewportFn({
     yBounds,
@@ -46,7 +54,11 @@ const getCursor = (options: Options): string => {
 
       case "control_point": {
         if (isKeyDown("Alt")) {
-          return base64Cursors.convert_anchor;
+          if (target.keyframe.reflectControlPoints) {
+            return base64Cursors.convert_anchor_no_reflect;
+          }
+
+          return base64Cursors.convert_anchor_reflect;
         }
 
         return base64Cursors.selection_move;
