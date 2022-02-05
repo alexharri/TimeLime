@@ -25,4 +25,10 @@ export const timelineSelectionActions = {
     timelineId,
     keyframeId,
   }),
+
+  addKeyframes: (timelineId: string, keyframeIds: string[]) => ({
+    type: <const>"tl-sel/add-keyframes",
+    timelineId,
+    keyframeIds,
+  }),
 };

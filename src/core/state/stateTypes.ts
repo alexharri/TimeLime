@@ -21,6 +21,7 @@ export interface EphemeralState {
   keyframeShift?: Vec2;
   controlPointShift?: ControlPointShift;
   cursor?: string;
+  dragSelectionRect?: Rect;
 }
 
 export interface TrackedState {
