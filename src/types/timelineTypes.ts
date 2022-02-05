@@ -37,5 +37,5 @@ export interface ControlPointShift {
   distanceBetweenKeyframes: number;
   direction: "left" | "right";
   yFac: number;
-  shiftDown: boolean;
+  shiftKeyDown: boolean;
 }
