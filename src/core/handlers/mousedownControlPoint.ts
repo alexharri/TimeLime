@@ -3,9 +3,12 @@ import { isKeyDown } from "~/core/listener/keyboard";
 import { getGraphEditorYBoundsFromActionOptions } from "~/core/render/yBounds";
 import { mouseDownMoveAction } from "~/core/state/mouseDownMoveAction";
 import { ActionOptions } from "~/core/state/stateTypes";
+import { applyControlPointShift } from "~/core/timeline/applyControlPointShift";
 import { createGlobalToNormalFnFromActionOptions } from "~/core/utils/coords/globalToNormal";
+import { createNormalToViewportFnFromActionOptions } from "~/core/utils/coords/normalToViewport";
 import { Vec2 } from "~/core/utils/math/Vec2";
 import { getViewportXUpperLower, getViewportYUpperLower } from "~/core/utils/viewportUtils";
+import { shiftViewBoundsByX } from "~/core/utils/viewUtils";
 import { SomeMouseEvent } from "~/types/commonTypes";
 import { TimelineKeyframe } from "~/types/timelineTypes";
 
@@ -13,24 +16,28 @@ interface Options {
   e: SomeMouseEvent;
   timelineId: string;
   keyframe: TimelineKeyframe;
-  direction: "left" | "right";
+  which: "left" | "right";
 }
 
 export const onMousedownControlPoint = (actionOptions: ActionOptions, options: Options) => {
   const yBounds = getGraphEditorYBoundsFromActionOptions(actionOptions);
   const globalToNormal = createGlobalToNormalFnFromActionOptions(actionOptions);
+  const normalToViewport = createNormalToViewportFnFromActionOptions(actionOptions);
 
   const d0 = globalToNormal(Vec2.new(0, 0));
   const d1 = globalToNormal(Vec2.new(1, 1));
-  const normalFac = d0.sub(d1); // Global-to-Normal multiplier
-  const d1subd0 = d1.sub(d0);
+  const normalFac = d0.sub(d1); // Viewport-to-Normal multiplier
 
-  const yFac = d1subd0.x / d1subd0.y; // Proportion between Global X and Global Y
+  const n0 = normalToViewport(Vec2.new(0, 0));
+  const n1 = normalToViewport(Vec2.new(1, 1));
+  const reverseNormalFac = n1.sub(n0); // Normal-to-Viewport multiplier
+
+  const yFac = reverseNormalFac.x / reverseNormalFac.y; // Proportion between Viewport X and Viewport Y
 
   let xPan = 0;
   let yPan = 0;
 
-  const { e, keyframe: k, timelineId, direction } = options;
+  const { e, keyframe: k, timelineId, which } = options;
 
   // Whether or not the angle of the other control point of the keyframe should
   // be reflected according the the control point being moved.
@@ -127,13 +134,18 @@ export const onMousedownControlPoint = (actionOptions: ActionOptions, options: O
         xPan += xUpper * normalFac.x * MOVE_ACTION_PAN_FAC;
       }
 
+      if (xLower || xUpper || yLower || yUpper) {
+        const pan = Vec2.new(xPan, yPan);
+        params.ephemeral.dispatch((actions) => actions.setFields({ pan }));
+      }
+
       let { x, y } = moveVector.normal;
 
       x += xPan;
       y += yPan;
 
       const indexDiff =
-        direction === "left"
+        which === "left"
           ? timeline.keyframes[keyframeIndex].index - timeline.keyframes[keyframeIndex - 1].index
           : timeline.keyframes[keyframeIndex + 1].index - timeline.keyframes[keyframeIndex].index;
 
@@ -142,32 +154,49 @@ export const onMousedownControlPoint = (actionOptions: ActionOptions, options: O
 
       params.ephemeral.dispatch((actions) =>
         actions.setFields({
-          controlPointShift: { indexDiff, direction, shiftVector, yFac, shiftDown },
+          controlPointShift: { indexDiff, direction: which, shiftVector, yFac, shiftDown },
         }),
       );
     },
     mouseUp: (params, hasMoved) => {
-      if (!hasMoved) {
+      const { view, ephemeral } = params;
+
+      const { pan = Vec2.ORIGIN, controlPointShift } = ephemeral.state;
+
+      if (!hasMoved || !controlPointShift) {
         if (!altDownAtMouseDown) {
           params.cancel(); // No control point was moved
           return;
         }
 
         params.primary.dispatch((action) =>
-          action.setKeyframeControlPoint(timeline.id, keyframeIndex, direction, null),
+          action.setKeyframeControlPoint(timeline.id, keyframeIndex, which, null),
         );
         params.submit({ name: "Remove control point" });
         return;
       }
 
-      // Apply control point shift
-      // const timelineSelectionState = params.selection.state;
+      if (!controlPointShift) {
+      }
 
-      // op.add(
-      //   ...timelines.map(({ id }) =>
-      //     timelineActions.applyControlPointShift(id, timelineSelectionState[id]),
-      //   ),
-      // );
+      view.dispatch((actions) =>
+        actions.setFields({ viewBounds: shiftViewBoundsByX(view.state, pan.x) }),
+      );
+
+      // Apply control point shift
+      const timelineSelectionState = params.selection.state;
+
+      timelineList.forEach((timeline) => {
+        params.primary.dispatch((actions) =>
+          actions.setTimeline(
+            applyControlPointShift({
+              controlPointShift,
+              timeline,
+              timelineSelection: timelineSelectionState[timeline.id],
+            }),
+          ),
+        );
+      });
 
       params.submit({ name: "Move control point" });
     },

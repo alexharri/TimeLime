@@ -5,9 +5,7 @@ import { Vec2 } from "~/core/utils/math/Vec2";
 import { InputCurve } from "~/types/inputTypes";
 import { TimelineKeyframe } from "~/types/timelineTypes";
 
-export function curvesToKeyframes(
-  inputCurves: InputCurve[]
-): TimelineKeyframe[] {
+export function curvesToKeyframes(inputCurves: InputCurve[]): TimelineKeyframe[] {
   const curves = parseCurves(inputCurves);
 
   const keyframes: TimelineKeyframe[] = [];
@@ -88,7 +86,7 @@ export function curvesToKeyframes(
     const l_angle = getAngleRadians(p, pl);
     const r_angle = getAngleRadians(p, pr);
 
-    const difference = Math.abs(l_angle - -r_angle);
+    const difference = Math.abs(l_angle + r_angle);
 
     if (difference < DEG_TO_RAD_FAC * 0.5) {
       // If the difference in angle is less than half a degree we consider the keyframes

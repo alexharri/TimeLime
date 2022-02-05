@@ -21,6 +21,7 @@ import { TimelineMap, TimelineSelectionMap } from "~/types/timelineTypes";
 import { mapMap } from "map-fns";
 import { applyTimelineKeyframeShift } from "~/core/timeline/applyTimelineKeyframeShift";
 import { RenderState } from "~/core/state/stateTypes";
+import { applyControlPointShift } from "~/core/timeline/applyControlPointShift";
 
 interface RenderOptions {
   ctx: CanvasRenderingContext2D;
@@ -56,10 +57,8 @@ interface RenderOptions {
   dragSelectRect?: Rect;
 }
 
-const getWidth = (options: RenderOptions): number =>
-  options.width ?? options.ctx.canvas.width;
-const getHeight = (options: RenderOptions): number =>
-  options.height ?? options.ctx.canvas.height;
+const getWidth = (options: RenderOptions): number => options.width ?? options.ctx.canvas.width;
+const getHeight = (options: RenderOptions): number => options.height ?? options.ctx.canvas.height;
 const getDimensions = (options: RenderOptions) => ({
   width: getWidth(options),
   height: getHeight(options),
@@ -91,9 +90,7 @@ export function renderGraphEditor(options: RenderOptions) {
     return;
   }
 
-  const timelineCurves = timelineList.map((timeline) =>
-    keyframesToCurves(timeline.keyframes)
-  );
+  const timelineCurves = timelineList.map((timeline) => keyframesToCurves(timeline.keyframes));
 
   /** @todo - take viewport as argument */
   const viewport: Rect = {
@@ -117,35 +114,26 @@ export function renderGraphEditor(options: RenderOptions) {
     viewport,
     pan,
   });
-  const toViewport = (vec: Vec2) =>
-    Vec2.new(toViewportX(vec.x), toViewportY(vec.y));
+  const toViewport = (vec: Vec2) => Vec2.new(toViewportX(vec.x), toViewportY(vec.y));
 
   const atZero = toViewportX(0);
   const atEnd = toViewportX(length);
 
   if (atZero > 0) {
-    renderRect(
-      ctx,
-      { left: 0, width: atZero, top: 0, height },
-      { fillColor: colors.dark500 }
-    );
+    renderRect(ctx, { left: 0, width: atZero, top: 0, height }, { fillColor: colors.dark500 });
   }
 
   if (atEnd < width) {
     renderRect(
       ctx,
       { left: atEnd, width: width - atEnd + 1, top: 0, height },
-      { fillColor: colors.dark500 }
+      { fillColor: colors.dark500 },
     );
   }
 
-  const [yUpper, yLower] =
-    yBounds || getGraphEditorYBounds({ viewBounds, length, timelines });
+  const [yUpper, yLower] = yBounds || getGraphEditorYBounds({ viewBounds, length, timelines });
 
-  const ticks = generateGraphEditorYTicksFromBounds([
-    yUpper + pan.y,
-    yLower + pan.y,
-  ]);
+  const ticks = generateGraphEditorYTicksFromBounds([yUpper + pan.y, yLower + pan.y]);
 
   for (let i = 0; i < ticks.length; i += 1) {
     const y = toViewportY(ticks[i]);
@@ -163,9 +151,7 @@ export function renderGraphEditor(options: RenderOptions) {
     const { keyframes } = timeline;
     const curves = timelineCurves[i];
 
-    const transformedCurves = curves.map((curve) =>
-      curve.map((vec) => toViewport(vec))
-    ) as Curve[];
+    const transformedCurves = curves.map((curve) => curve.map((vec) => toViewport(vec))) as Curve[];
 
     let color = "red";
 
@@ -190,8 +176,7 @@ export function renderGraphEditor(options: RenderOptions) {
     ctx.beginPath();
     {
       const { value: startValue, index: startIndex } = keyframes[0];
-      const { value: endValue, index: endIndex } =
-        keyframes[keyframes.length - 1];
+      const { value: endValue, index: endIndex } = keyframes[keyframes.length - 1];
 
       const startX = toViewportX(startIndex);
       const startY = toViewportY(startValue);
@@ -283,10 +268,7 @@ export function renderGraphEditor(options: RenderOptions) {
     }
 
     if (options.dragSelectRect) {
-      const rect = transformRectWithVecTransformation(
-        options.dragSelectRect,
-        toViewport
-      );
+      const rect = transformRectWithVecTransformation(options.dragSelectRect, toViewport);
       renderRect(ctx, rect, {
         strokeColor: colors.red500,
         strokeWidth: 1,
@@ -298,11 +280,11 @@ export function renderGraphEditor(options: RenderOptions) {
 
 export function renderGraphEditorWithRenderState(
   ctx: CanvasRenderingContext2D,
-  renderState: RenderState
+  renderState: RenderState,
 ) {
   const timelineSelectionState = renderState.selection;
   const { length, viewport, viewBounds } = renderState.view;
-  const { keyframeShift, yBounds, pan } = renderState.ephemeral;
+  const { keyframeShift, controlPointShift, yBounds, pan } = renderState.ephemeral;
 
   let { timelines } = renderState.primary;
 
@@ -312,7 +294,17 @@ export function renderGraphEditorWithRenderState(
         timeline,
         timelineSelection: renderState.selection[timeline.id],
         keyframeShift,
-      })
+      }),
+    );
+  }
+
+  if (controlPointShift) {
+    timelines = mapMap(timelines, (timeline) =>
+      applyControlPointShift({
+        timeline,
+        timelineSelection: renderState.selection[timeline.id],
+        controlPointShift,
+      }),
     );
   }
 
