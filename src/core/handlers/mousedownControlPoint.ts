@@ -45,20 +45,6 @@ export const onMousedownControlPoint = (actionOptions: ActionOptions, options: O
   const keyframeIndex = timeline.keyframes.findIndex((keyframe) => keyframe.id === k.id);
   const timelineList = Object.values(timelines);
 
-  const timelineSelectedKeyframes = timelineList.map<
-    Array<{ index: number; keyframe: TimelineKeyframe }>
-  >((timeline) => {
-    const selection = timelineSelectionState[timeline.id];
-
-    if (!selection) {
-      return [];
-    }
-
-    return timeline.keyframes
-      .map((keyframe, index) => ({ keyframe, index }))
-      .filter((item) => selection.keyframes[item.keyframe.id]);
-  });
-
   const altDownAtMouseDown = isKeyDown("Alt");
 
   mouseDownMoveAction({
@@ -82,20 +68,20 @@ export const onMousedownControlPoint = (actionOptions: ActionOptions, options: O
       }
 
       if (altDownAtMouseDown) {
-        // If alt was down, toggle the reflection preferences of all selected
+        // If alt was down, toggle the reflection preference of all selected
         // keyframes in all active timelines.
-        timelineSelectedKeyframes.forEach((ids, timelineIndex) => {
-          const timeline = timelineList[timelineIndex];
-          ids.forEach(({ keyframe, index }) => {
+        for (const timeline of timelineList) {
+          const selection = timelineSelectionState[timeline.id] || { keyframes: {} };
+          for (const [i, keyframe] of timeline.keyframes.entries()) {
+            if (!selection.keyframes[keyframe.id]) {
+              continue;
+            }
+            const { reflectControlPoints } = keyframe;
             params.primary.dispatch((actions) =>
-              actions.setKeyframeReflectControlPoints(
-                timeline.id,
-                index,
-                !keyframe.reflectControlPoints,
-              ),
+              actions.setKeyframeReflectControlPoints(timeline.id, i, !reflectControlPoints),
             );
-          });
-        });
+          }
+        }
       }
 
       const cursor = altDownAtMouseDown
