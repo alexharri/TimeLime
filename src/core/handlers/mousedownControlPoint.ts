@@ -40,11 +40,6 @@ export const onMousedownControlPoint = (actionOptions: ActionOptions, options: O
 
   const { e, keyframe: k, timelineId, which } = options;
 
-  // Whether or not the angle of the other control point of the keyframe should
-  // be reflected according the the control point being moved.
-  const shouldReflect = k.reflectControlPoints;
-  let reflect = isKeyDown("Alt") ? !shouldReflect : shouldReflect;
-
   const timelineSelectionState = actionOptions.initialState.selection;
   const { timelines } = actionOptions.initialState.primary;
   const timeline = timelines[timelineId];
@@ -103,12 +98,6 @@ export const onMousedownControlPoint = (actionOptions: ActionOptions, options: O
           });
         });
       }
-
-      // Set mousedown keyframe specifically because `options.reflect` may
-      // Have been provided.
-      params.primary.dispatch((actions) =>
-        actions.setKeyframeReflectControlPoints(timelineId, keyframeIndex, reflect),
-      );
 
       const cursor = altDownAtMouseDown
         ? base64Cursors.convert_anchor
