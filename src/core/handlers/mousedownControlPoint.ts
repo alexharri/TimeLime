@@ -6,6 +6,7 @@ import { ActionOptions } from "~/core/state/stateTypes";
 import { applyControlPointShift } from "~/core/timeline/applyControlPointShift";
 import { createGlobalToNormalFnFromActionOptions } from "~/core/utils/coords/globalToNormal";
 import { createNormalToViewportFnFromActionOptions } from "~/core/utils/coords/normalToViewport";
+import { base64Cursors } from "~/core/utils/cursor/base64Cursors";
 import { Vec2 } from "~/core/utils/math/Vec2";
 import { getViewportXUpperLower, getViewportYUpperLower } from "~/core/utils/viewportUtils";
 import { shiftViewBoundsByX } from "~/core/utils/viewUtils";
@@ -90,7 +91,7 @@ export const onMousedownControlPoint = (actionOptions: ActionOptions, options: O
         // If alt was down, toggle the reflection preferences of all selected
         // keyframes in all active timelines.
         timelineSelectedKeyframes.forEach((ids, timelineIndex) => {
-          const timeline = timelines[timelineIndex];
+          const timeline = timelineList[timelineIndex];
           ids.forEach(({ keyframe, index }) => {
             params.primary.dispatch((actions) =>
               actions.setKeyframeReflectControlPoints(
@@ -109,7 +110,10 @@ export const onMousedownControlPoint = (actionOptions: ActionOptions, options: O
         actions.setKeyframeReflectControlPoints(timelineId, keyframeIndex, reflect),
       );
 
-      params.ephemeral.dispatch((actions) => actions.setFields({ yBounds }));
+      const cursor = altDownAtMouseDown
+        ? base64Cursors.convert_anchor
+        : base64Cursors.selection_move;
+      params.ephemeral.dispatch((actions) => actions.setFields({ yBounds, cursor }));
     },
     tickShouldUpdate: (params, { mousePosition }) => {
       const { viewport } = params.view.state;
@@ -184,6 +188,7 @@ export const onMousedownControlPoint = (actionOptions: ActionOptions, options: O
       );
 
       // Apply control point shift
+      const { timelines } = params.primary.state;
       const timelineSelectionState = params.selection.state;
 
       timelineList.forEach((timeline) => {
@@ -191,7 +196,8 @@ export const onMousedownControlPoint = (actionOptions: ActionOptions, options: O
           actions.setTimeline(
             applyControlPointShift({
               controlPointShift,
-              timeline,
+              // Use the latest timeline, keyframe.reflectControlPoints may have changed
+              timeline: timelines[timeline.id],
               timelineSelection: timelineSelectionState[timeline.id],
             }),
           ),
