@@ -39,7 +39,6 @@ export const onMousedownControlPoint = (actionOptions: ActionOptions, options: O
 
   const { e, keyframe: k, timelineId, which } = options;
 
-  const timelineSelectionState = actionOptions.initialState.selection;
   const { timelines } = actionOptions.initialState.primary;
   const timeline = timelines[timelineId];
   const keyframeIndex = timeline.keyframes.findIndex((keyframe) => keyframe.id === k.id);
@@ -53,31 +52,35 @@ export const onMousedownControlPoint = (actionOptions: ActionOptions, options: O
     keys: ["Shift"],
     globalToNormal,
     beforeMove: (params) => {
+      const { primary, selection, ephemeral } = params;
+
       // Add keyframe to selection if not part of current selection.
       //
       // If not part of current selection and shift key was not down, the current
       // timeline selection is cleared.
-      const selected = timelineSelectionState[timelineId]?.keyframes[k.id];
+      const selected = selection.state[timelineId]?.keyframes[k.id];
       if (!selected) {
-        if (!isKeyDown("Shift")) {
-          timelineList.forEach((timeline) => {
-            params.selection.dispatch((actions) => actions.clear(timeline.id));
-          });
-        }
-        params.selection.dispatch((actions) => actions.toggleKeyframe(timelineId, k.id));
+        timelineList.forEach((timeline) => {
+          selection.dispatch((actions) => actions.clear(timeline.id));
+        });
+        selection.dispatch((actions) => actions.toggleKeyframe(timelineId, k.id));
       }
 
       if (altDownAtMouseDown) {
         // If alt was down, toggle the reflection preference of all selected
         // keyframes in all active timelines.
         for (const timeline of timelineList) {
-          const selection = timelineSelectionState[timeline.id] || { keyframes: {} };
+          const timelineSelection = selection.state[timeline.id];
+          if (!timelineSelection) {
+            continue;
+          }
+
           for (const [i, keyframe] of timeline.keyframes.entries()) {
-            if (!selection.keyframes[keyframe.id]) {
+            if (!timelineSelection.keyframes[keyframe.id]) {
               continue;
             }
             const { reflectControlPoints } = keyframe;
-            params.primary.dispatch((actions) =>
+            primary.dispatch((actions) =>
               actions.setKeyframeReflectControlPoints(timeline.id, i, !reflectControlPoints),
             );
           }
@@ -87,7 +90,7 @@ export const onMousedownControlPoint = (actionOptions: ActionOptions, options: O
       const cursor = altDownAtMouseDown
         ? base64Cursors.convert_anchor
         : base64Cursors.selection_move;
-      params.ephemeral.dispatch((actions) => actions.setFields({ yBounds, cursor }));
+      ephemeral.dispatch((actions) => actions.setFields({ yBounds, cursor }));
     },
     tickShouldUpdate: (params, { mousePosition }) => {
       const { viewport } = params.view.state;
@@ -96,7 +99,8 @@ export const onMousedownControlPoint = (actionOptions: ActionOptions, options: O
       return !!(yUpper || yLower || xUpper || xLower);
     },
     mouseMove: (params, { moveVector, mousePosition, keyDown }) => {
-      const { viewport } = params.view.state;
+      const { ephemeral, view } = params;
+      const { viewport } = view.state;
 
       const [xUpper, xLower] = getViewportXUpperLower(viewport, mousePosition.global);
       const [yUpper, yLower] = getViewportYUpperLower(viewport, mousePosition.global);
@@ -114,7 +118,7 @@ export const onMousedownControlPoint = (actionOptions: ActionOptions, options: O
 
       if (xLower || xUpper || yLower || yUpper) {
         const pan = Vec2.new(xPan, yPan);
-        params.ephemeral.dispatch((actions) => actions.setFields({ pan }));
+        ephemeral.dispatch((actions) => actions.setFields({ pan }));
       }
 
       let { x, y } = moveVector.normal;
@@ -130,7 +134,7 @@ export const onMousedownControlPoint = (actionOptions: ActionOptions, options: O
       const shiftKeyDown = keyDown.Shift;
       const shiftVector = Vec2.new(x, y);
 
-      params.ephemeral.dispatch((actions) =>
+      ephemeral.dispatch((actions) =>
         actions.setFields({
           controlPointShift: {
             distanceBetweenKeyframes,
@@ -143,7 +147,7 @@ export const onMousedownControlPoint = (actionOptions: ActionOptions, options: O
       );
     },
     mouseUp: (params, hasMoved) => {
-      const { view, ephemeral } = params;
+      const { primary, selection, view, ephemeral } = params;
 
       const { pan = Vec2.ORIGIN, controlPointShift } = ephemeral.state;
 
@@ -153,7 +157,7 @@ export const onMousedownControlPoint = (actionOptions: ActionOptions, options: O
           return;
         }
 
-        params.primary.dispatch((action) =>
+        primary.dispatch((action) =>
           action.setKeyframeControlPoint(timeline.id, keyframeIndex, which, null),
         );
         params.submit({ name: "Remove control point" });
@@ -168,11 +172,11 @@ export const onMousedownControlPoint = (actionOptions: ActionOptions, options: O
       );
 
       // Apply control point shift
-      const { timelines } = params.primary.state;
-      const timelineSelectionState = params.selection.state;
+      const { timelines } = primary.state;
+      const timelineSelectionState = selection.state;
 
       timelineList.forEach((timeline) => {
-        params.primary.dispatch((actions) =>
+        primary.dispatch((actions) =>
           actions.setTimeline(
             applyControlPointShift({
               controlPointShift,
