@@ -18,6 +18,7 @@ import { onZoom } from "~/core/handlers/zoom";
 import { useIsomorphicLayoutEffect } from "~/core/utils/hook/useIsomorphicLayoutEffect";
 import { useRenderCursor } from "~/core/utils/hook/useRenderCursor";
 import { onMousedownControlPoint } from "~/core/handlers/mousedownControlPoint";
+import { onMousedownEmpty } from "~/core/handlers/mousedownEmpty";
 
 const initialTimelineState: TimelineState = {
   timelines: {
@@ -165,6 +166,13 @@ export const Test = () => {
     });
 
     switch (actionToPerform.type) {
+      case "mousedown_empty": {
+        stateManager.requestAction((params) => {
+          const actionOptions = createActionOptions(params);
+          onMousedownEmpty(actionOptions, { e, ...actionToPerform });
+        });
+        break;
+      }
       case "mousedown_keyframe": {
         stateManager.requestAction((params) => {
           const actionOptions = createActionOptions(params);

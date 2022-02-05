@@ -16,7 +16,7 @@ export const initialTimelineSelectionState: TimelineSelectionState = {};
 
 export function timelineSelectionReducer(
   state: TimelineSelectionState,
-  action: ActionsReturnType<typeof timelineSelectionActions>
+  action: ActionsReturnType<typeof timelineSelectionActions>,
 ): TimelineSelectionState {
   switch (action.type) {
     case "tl-sel/clear": {
@@ -59,6 +59,22 @@ export function timelineSelectionReducer(
       });
     }
 
+    case "tl-sel/add-keyframes": {
+      const { timelineId, keyframeIds } = action;
+      return {
+        ...state,
+        [timelineId]: {
+          keyframes: {
+            ...state[timelineId]?.keyframes,
+            ...keyframeIds.reduce<Record<string, boolean>>((obj, key) => {
+              obj[key] = true;
+              return obj;
+            }, {}),
+          },
+        },
+      };
+    }
+
     // case getType(timelineSelectionActions.clear): {
     // 	const { timelineId } = action.payload;
     // 	return removeKeysFromMap(state, [timelineId]);
@@ -95,22 +111,6 @@ export function timelineSelectionReducer(
     // 			keyframes: {
     // 				...newTimeline.keyframes,
     // 				[keyframeId]: true,
-    // 			},
-    // 		},
-    // 	};
-    // }
-
-    // case getType(timelineSelectionActions.addKeyframes): {
-    // 	const { timelineId, keyframeIds } = action.payload;
-    // 	return {
-    // 		...state,
-    // 		[timelineId]: {
-    // 			keyframes: {
-    // 				...state[timelineId]?.keyframes,
-    // 				...keyframeIds.reduce<KeySelectionMap>((obj, key) => {
-    // 					obj[key] = true;
-    // 					return obj;
-    // 				}, {}),
     // 			},
     // 		},
     // 	};

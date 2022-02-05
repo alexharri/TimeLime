@@ -54,7 +54,7 @@ interface RenderOptions {
   /** @default Vec2.ORIGIN */
   pan?: Vec2;
 
-  dragSelectRect?: Rect;
+  dragSelectionRect?: Rect;
 }
 
 const getWidth = (options: RenderOptions): number => options.width ?? options.ctx.canvas.width;
@@ -266,16 +266,16 @@ export function renderGraphEditor(options: RenderOptions) {
         renderCircle(ctx, path[2], { color: "yellow", radius: 2 });
       }
     }
-
-    if (options.dragSelectRect) {
-      const rect = transformRectWithVecTransformation(options.dragSelectRect, toViewport);
-      renderRect(ctx, rect, {
-        strokeColor: colors.red500,
-        strokeWidth: 1,
-        fillColor: "rgba(255, 0, 0, .1)",
-      });
-    }
   });
+
+  if (options.dragSelectionRect) {
+    const rect = transformRectWithVecTransformation(options.dragSelectionRect, toViewport);
+    renderRect(ctx, rect, {
+      strokeColor: colors.red500,
+      strokeWidth: 1,
+      fillColor: "rgba(255, 0, 0, .1)",
+    });
+  }
 }
 
 export function renderGraphEditorWithRenderState(
@@ -284,7 +284,8 @@ export function renderGraphEditorWithRenderState(
 ) {
   const timelineSelectionState = renderState.selection;
   const { length, viewport, viewBounds } = renderState.view;
-  const { keyframeShift, controlPointShift, yBounds, pan } = renderState.ephemeral;
+  const { keyframeShift, controlPointShift, yBounds, pan, dragSelectionRect } =
+    renderState.ephemeral;
 
   let { timelines } = renderState.primary;
 
@@ -318,5 +319,6 @@ export function renderGraphEditorWithRenderState(
     viewBounds,
     yBounds,
     pan,
+    dragSelectionRect,
   });
 }
