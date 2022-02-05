@@ -18,6 +18,13 @@ export interface EphemeralState {
   yBounds?: YBounds;
   pan?: Vec2;
   keyframeShift?: Vec2;
+  controlPointShift?: {
+    shiftVector: Vec2;
+    indexDiff: number;
+    direction: "left" | "right";
+    yFac: number;
+    shiftDown: boolean;
+  };
   cursor?: string;
 }
 

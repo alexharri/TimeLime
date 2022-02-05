@@ -2,7 +2,7 @@ import { mergeInMap } from "map-fns";
 import { timelineActions } from "~/core/state/timeline/timelineActions";
 import { getInsertionIndex } from "~/core/utils/getInsertionIndex";
 import { ActionsReturnType } from "~/types/commonTypes";
-import { Timeline } from "~/types/timelineTypes";
+import { Timeline, TimelineKeyframe } from "~/types/timelineTypes";
 
 export interface TimelineState {
   timelines: { [timelineId: string]: Timeline };
@@ -14,7 +14,7 @@ export const initialTimelineState: TimelineState = {
 
 export function timelineReducer(
   state: TimelineState,
-  action: ActionsReturnType<typeof timelineActions>
+  action: ActionsReturnType<typeof timelineActions>,
 ): TimelineState {
   switch (action.type) {
     case "tl/set-state":
@@ -32,19 +32,13 @@ export function timelineReducer(
         keyframes.splice(currentIndex, 1);
       }
 
-      const indexOfKeyframeAtIndex = keyframes
-        .map((k) => k.index)
-        .indexOf(keyframe.index);
+      const indexOfKeyframeAtIndex = keyframes.map((k) => k.index).indexOf(keyframe.index);
 
       if (indexOfKeyframeAtIndex !== -1) {
         keyframes.splice(indexOfKeyframeAtIndex, 1);
       }
 
-      const insertIndex = getInsertionIndex(
-        keyframes,
-        keyframe,
-        (a, b) => a.index - b.index
-      );
+      const insertIndex = getInsertionIndex(keyframes, keyframe, (a, b) => a.index - b.index);
       keyframes.splice(insertIndex, 0, keyframe);
 
       return {
@@ -69,6 +63,44 @@ export function timelineReducer(
       return {
         ...state,
         timelines: { ...state.timelines, [timeline.id]: timeline },
+      };
+    }
+
+    case "tl/set-keyframe-control-point": {
+      const { timelineId, keyframeIndex, controlPoint, direction } = action;
+
+      const newKeyframe: TimelineKeyframe = {
+        ...state.timelines[timelineId].keyframes[keyframeIndex],
+      };
+
+      if (direction === "right") {
+        newKeyframe.controlPointRight = controlPoint;
+      } else {
+        newKeyframe.controlPointLeft = controlPoint;
+      }
+
+      return {
+        ...state,
+        timelines: mergeInMap(state.timelines, timelineId, {
+          keyframes: (keyframes) =>
+            keyframes.map((keyframe, index) => {
+              return keyframeIndex !== index ? keyframe : newKeyframe;
+            }),
+        }),
+      };
+    }
+
+    case "tl/set-keyframe-reflect-control-points": {
+      const { timelineId, keyframeIndex, reflectControlPoints } = action;
+
+      return {
+        ...state,
+        timelines: mergeInMap(state.timelines, timelineId, {
+          keyframes: (keyframes) =>
+            keyframes.map((keyframe, index) =>
+              keyframeIndex !== index ? keyframe : { ...keyframe, reflectControlPoints },
+            ),
+        }),
       };
     }
 
@@ -164,57 +196,6 @@ export function timelineReducer(
     //         ...k,
     //         index: k.index + shiftBy,
     //       })),
-    //     },
-    //   };
-    // }
-
-    // case getType(timelineActions.setKeyframeReflectControlPoints): {
-    //   const { timelineId, keyframeIndex, reflectControlPoints } =
-    //     action;
-
-    //   const timeline = state[timelineId];
-
-    //   return {
-    //     ...state,
-    //     [timelineId]: {
-    //       ...timeline,
-    //       keyframes: timeline.keyframes.map((keyframe, index) => {
-    //         if (keyframeIndex !== index) {
-    //           return keyframe;
-    //         }
-
-    //         return { ...keyframe, reflectControlPoints };
-    //       }),
-    //     },
-    //   };
-    // }
-
-    // case getType(timelineActions.setKeyframeControlPoint): {
-    //   const { timelineId, keyframeIndex, controlPoint, direction } =
-    //     action;
-    //   const newKeyframe: TimelineKeyframe = {
-    //     ...state[timelineId].keyframes[keyframeIndex],
-    //   };
-
-    //   if (direction === "right") {
-    //     newKeyframe.controlPointRight = controlPoint;
-    //   } else {
-    //     newKeyframe.controlPointLeft = controlPoint;
-    //   }
-
-    //   const timeline = state[timelineId];
-
-    //   return {
-    //     ...state,
-    //     [timelineId]: {
-    //       ...timeline,
-    //       keyframes: timeline.keyframes.map((keyframe, index) => {
-    //         if (keyframeIndex !== index) {
-    //           return keyframe;
-    //         }
-
-    //         return newKeyframe;
-    //       }),
     //     },
     //   };
     // }
