@@ -1,26 +1,22 @@
 import "./preventGlobals";
 
 import { ComponentMeta } from "@storybook/react";
-import React, { useEffect, useLayoutEffect, useRef } from "react";
+import React, { useEffect, useRef } from "react";
 import { getActionToPerformOnMouseDown } from "~/core/handlers/getActionToPerformOnMouseDown";
 import { onMousedownKeyframe } from "~/core/handlers/mousedownKeyframe";
 import { renderGraphEditorWithRenderState } from "~/core/render/renderGraphEditor";
 import { ActionOptions, RenderState, ViewState } from "~/core/state/stateTypes";
-import {
-  timelineReducer,
-  TimelineState,
-} from "~/core/state/timeline/timelineReducer";
+import { timelineReducer, TimelineState } from "~/core/state/timeline/timelineReducer";
 import { timelineSelectionReducer } from "~/core/state/timelineSelection/timelineSelectionReducer";
 import { curvesToKeyframes } from "~/core/transform/curvesToKeyframes";
 import { timelineActions } from "~/core/state/timeline/timelineActions";
 import { timelineSelectionActions } from "~/core/state/timelineSelection/timelineSelectionActions";
 import { useStateManager } from "~/core/state/StateManager/useStateManager";
-import { Vec2 } from "~/core/utils/math/Vec2";
-import { getGraphEditorCursor } from "~/core/render/cursor/graphEditorCursor";
-import { isKeyCodeOf } from "~/core/listener/keyboard";
 import { RequestActionParams } from "~/core/state/StateManager/StateManager";
 import { onPan } from "~/core/handlers/pan/pan";
 import { onZoom } from "~/core/handlers/zoom";
+import { useIsomorphicLayoutEffect } from "~/core/utils/hook/useIsomorphicLayoutEffect";
+import { useRenderCursor } from "~/core/utils/hook/useRenderCursor";
 
 const initialTimelineState: TimelineState = {
   timelines: {
@@ -78,19 +74,36 @@ export const Test = () => {
     };
   };
 
-  const renderStateRef = useRef(getRenderState());
-
-  useEffect(() => {
-    viewRef.current.viewport = ref.current?.getBoundingClientRect()!;
-  }, []);
-
   const render = (renderState: RenderState) => {
     const ctx = ref.current?.getContext("2d");
     if (!ctx) {
       return;
     }
     renderGraphEditorWithRenderState(ctx, renderState);
+    renderCursor(renderState);
   };
+
+  const renderStateRef = useRef(getRenderState());
+  renderStateRef.current = getRenderState();
+
+  useEffect(() => {
+    // Set the correct viewport on mount.
+    viewRef.current.viewport = ref.current?.getBoundingClientRect()!;
+  }, []);
+
+  const { renderCursor } = useRenderCursor({ canvasRef: ref, getRenderState: () => renderStateRef.current });
+
+  useIsomorphicLayoutEffect(() => {
+    // Always render on mount and when the state in the store changes. This covers:
+    //
+    //  - The initial render
+    //  - Undo and Redo
+    //
+    // The `onStateChange.render` handler covers rendering during actions.
+    //
+    render(renderStateRef.current);
+    renderCursor(renderStateRef.current);
+  }, [state]);
 
   const createActionOptions = (params: RequestActionParams): ActionOptions => {
     const actionState = stateManager.getActionState();
@@ -174,52 +187,5 @@ export const Test = () => {
     }
   };
 
-  useLayoutEffect(() => render(getRenderState()), [state]);
-
-  useEffect(() => {
-    const canvas = ref.current;
-
-    if (!canvas) {
-      return () => {};
-    }
-
-    let lastPost: Vec2 | undefined;
-
-    const renderCursor = () => {
-      if (!lastPost) {
-        return;
-      }
-
-      const renderState = renderStateRef.current;
-      const cursor = getGraphEditorCursor(lastPost, renderState);
-      canvas.style.cursor = cursor;
-    };
-
-    const mouseMoveListener = (e: MouseEvent) => {
-      lastPost = Vec2.fromEvent(e);
-      renderCursor();
-    };
-
-    const keyDownListener = (e: KeyboardEvent) => {
-      if (!isKeyCodeOf("Alt", e.keyCode)) {
-        return;
-      }
-
-      renderCursor();
-    };
-
-    canvas.addEventListener("mousemove", mouseMoveListener);
-    window.addEventListener("keydown", keyDownListener);
-    window.addEventListener("keyup", keyDownListener);
-
-    return () => {
-      canvas.removeEventListener("mousemove", mouseMoveListener);
-      window.removeEventListener("keydown", keyDownListener);
-      window.removeEventListener("keyup", keyDownListener);
-    };
-  }, []);
-
-  return (
-    <canvas ref={ref} width={800} height={400} onMouseDown={onMouseDown} />
-  );
+  return <canvas ref={ref} width={800} height={400} onMouseDown={onMouseDown} />;
 };

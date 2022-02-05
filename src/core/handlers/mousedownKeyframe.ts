@@ -4,6 +4,7 @@ import { mouseDownMoveAction } from "~/core/state/mouseDownMoveAction";
 import { ActionOptions } from "~/core/state/stateTypes";
 import { applyTimelineKeyframeShift } from "~/core/timeline/applyTimelineKeyframeShift";
 import { createGlobalToNormalFnFromActionOptions } from "~/core/utils/coords/globalToNormal";
+import { base64Cursors } from "~/core/utils/cursor/base64Cursors";
 import { Vec2 } from "~/core/utils/math/Vec2";
 import { shiftViewBoundsByX } from "~/core/utils/viewUtils";
 import { Rect, SomeMouseEvent } from "~/types/commonTypes";
@@ -67,7 +68,9 @@ export function onMousedownKeyframe(
 
       const timelineSelection = selection.state[timelineId];
 
-      ephemeral.dispatch((actions) => actions.setFields({ yBounds }));
+      ephemeral.dispatch((actions) =>
+        actions.setFields({ yBounds, cursor: base64Cursors.selection_move })
+      );
 
       if (additiveSelection) {
         selection.dispatch((actions) =>
