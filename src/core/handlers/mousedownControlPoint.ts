@@ -127,7 +127,7 @@ export const onMousedownControlPoint = (actionOptions: ActionOptions, options: O
           ? timeline.keyframes[keyframeIndex].index - timeline.keyframes[keyframeIndex - 1].index
           : timeline.keyframes[keyframeIndex + 1].index - timeline.keyframes[keyframeIndex].index;
 
-      const shiftDown = keyDown.Shift;
+      const shiftKeyDown = keyDown.Shift;
       const shiftVector = Vec2.new(x, y);
 
       params.ephemeral.dispatch((actions) =>
@@ -137,7 +137,7 @@ export const onMousedownControlPoint = (actionOptions: ActionOptions, options: O
             direction: which,
             shiftVector,
             yFac,
-            shiftDown,
+            shiftKeyDown,
           },
         }),
       );

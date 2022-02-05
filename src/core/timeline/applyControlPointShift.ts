@@ -24,7 +24,8 @@ export const applyControlPointShift = (options: Options): Timeline => {
     return timeline;
   }
 
-  const { shiftVector, distanceBetweenKeyframes, direction, yFac, shiftDown } = controlPointShift;
+  const { shiftVector, distanceBetweenKeyframes, direction, yFac, shiftKeyDown } =
+    controlPointShift;
 
   const keyframes = timeline.keyframes.map<TimelineKeyframe>((k, i) => {
     if (!timelineSelection.keyframes[k.id]) {
@@ -47,7 +48,7 @@ export const applyControlPointShift = (options: Options): Timeline => {
       const tx = capTx(cp.tx + txShift);
 
       const currentValue = cp.value * (relativeToDistance / cp.relativeToDistance);
-      const value = shiftDown ? 0 : currentValue + shiftVector.y;
+      const value = shiftKeyDown ? 0 : currentValue + shiftVector.y;
 
       return { relativeToDistance, tx, value };
     };
