@@ -26,9 +26,8 @@ export function onMousedownKeyframe(actionOptions: ActionOptions, options: Optio
   const yBounds = getGraphEditorYBoundsFromActionOptions(actionOptions);
   const globalToNormal = createGlobalToNormalFnFromActionOptions(actionOptions);
 
-  const d0 = globalToNormal(Vec2.new(0, 0));
-  const d1 = globalToNormal(Vec2.new(1, 1));
-  const normalFac = d0.sub(d1); // Global-to-Normal multiplier
+  // Global-to-Normal multiplier
+  const normalFac = globalToNormal(Vec2.new(0, 0)).sub(globalToNormal(Vec2.new(1, 1)));
 
   let yPan = 0;
   let xPan = 0;

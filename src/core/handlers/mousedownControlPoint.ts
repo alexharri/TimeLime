@@ -25,15 +25,14 @@ export const onMousedownControlPoint = (actionOptions: ActionOptions, options: O
   const globalToNormal = createGlobalToNormalFnFromActionOptions(actionOptions);
   const normalToViewport = createNormalToViewportFnFromActionOptions(actionOptions);
 
-  const d0 = globalToNormal(Vec2.new(0, 0));
-  const d1 = globalToNormal(Vec2.new(1, 1));
-  const normalFac = d0.sub(d1); // Viewport-to-Normal multiplier
+  // Viewport-to-Normal multiplier
+  const normalFac = globalToNormal(Vec2.new(0, 0)).sub(globalToNormal(Vec2.new(1, 1)));
 
-  const n0 = normalToViewport(Vec2.new(0, 0));
-  const n1 = normalToViewport(Vec2.new(1, 1));
-  const reverseNormalFac = n1.sub(n0); // Normal-to-Viewport multiplier
+  // Normal-to-Viewport multiplier
+  const reverseNormalFac = normalToViewport(Vec2.new(1, 1)).sub(normalToViewport(Vec2.new(0, 0)));
 
-  const yFac = reverseNormalFac.x / reverseNormalFac.y; // Proportion between Viewport X and Viewport Y
+  // Proportion between Viewport X and Viewport Y
+  const yFac = reverseNormalFac.x / reverseNormalFac.y;
 
   let xPan = 0;
   let yPan = 0;
