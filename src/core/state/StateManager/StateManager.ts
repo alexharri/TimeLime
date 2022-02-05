@@ -1,7 +1,4 @@
-import {
-  HistoryAction,
-  historyActions,
-} from "~/core/state/StateManager/history/historyActions";
+import { HistoryAction, historyActions } from "~/core/state/StateManager/history/historyActions";
 import {
   createInitialHistoryState,
   createReducerWithHistory,
@@ -14,12 +11,7 @@ type ActionState<T, S> = {
   selection: S;
 };
 
-export interface StateManagerOptions<
-  T,
-  S,
-  AT extends Action,
-  AS extends Action
-> {
+export interface StateManagerOptions<T, S, AT extends Action, AS extends Action> {
   initialState: T;
   initialSelectionState: S;
 
@@ -52,23 +44,14 @@ export class StateManager<T, S, AT extends Action, AS extends Action> {
 
   private onStateChangeCallback?: (state: ActionState<T, S>) => void;
 
-  private reducer: (
-    state: HistoryState<T>,
-    action: HistoryAction
-  ) => HistoryState<T>;
-  private selectionReducer: (
-    state: HistoryState<S>,
-    action: HistoryAction
-  ) => HistoryState<S>;
+  private reducer: (state: HistoryState<T>, action: HistoryAction) => HistoryState<T>;
+  private selectionReducer: (state: HistoryState<S>, action: HistoryAction) => HistoryState<S>;
 
   private _n = 0;
 
   constructor(options: StateManagerOptions<T, S, AT, AS>) {
     this.state = createInitialHistoryState(options.initialState, "normal");
-    this.selectionState = createInitialHistoryState(
-      options.initialSelectionState,
-      "selection"
-    );
+    this.selectionState = createInitialHistoryState(options.initialSelectionState, "selection");
 
     this.reducer = createReducerWithHistory(options.reducer);
     this.selectionReducer = createReducerWithHistory(options.selectionReducer);
@@ -100,9 +83,7 @@ export class StateManager<T, S, AT extends Action, AS extends Action> {
     };
 
     const dispatch: RequestActionParams["dispatch"] = (action) => {
-      this.dispatchHistoryAction(
-        historyActions.dispatchToAction(actionId, action, true)
-      );
+      this.dispatchHistoryAction(historyActions.dispatchToAction(actionId, action, true));
     };
 
     const cancelAction = () => {
@@ -144,8 +125,7 @@ export class StateManager<T, S, AT extends Action, AS extends Action> {
           return;
         }
 
-        const modifiedState =
-          this.state.action!.state !== this.state.list[this.state.index].state;
+        const modifiedState = this.state.action!.state !== this.state.list[this.state.index].state;
         const modifiedSelectionState =
           this.selectionState.action!.state !==
           this.selectionState.list[this.selectionState.index].state;
@@ -157,8 +137,8 @@ export class StateManager<T, S, AT extends Action, AS extends Action> {
             true,
             modifiedState,
             modifiedSelectionState,
-            allowSelectionShift
-          )
+            allowSelectionShift,
+          ),
         );
         onComplete();
       },

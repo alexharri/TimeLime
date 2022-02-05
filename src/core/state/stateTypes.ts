@@ -18,6 +18,7 @@ export interface EphemeralState {
   yBounds?: YBounds;
   pan?: Vec2;
   keyframeShift?: Vec2;
+  cursor?: string;
 }
 
 export interface TrackedState {

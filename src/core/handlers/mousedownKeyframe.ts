@@ -4,15 +4,13 @@ import { mouseDownMoveAction } from "~/core/state/mouseDownMoveAction";
 import { ActionOptions } from "~/core/state/stateTypes";
 import { applyTimelineKeyframeShift } from "~/core/timeline/applyTimelineKeyframeShift";
 import { createGlobalToNormalFnFromActionOptions } from "~/core/utils/coords/globalToNormal";
+import { base64Cursors } from "~/core/utils/cursor/base64Cursors";
 import { Vec2 } from "~/core/utils/math/Vec2";
 import { shiftViewBoundsByX } from "~/core/utils/viewUtils";
-import { Rect, SomeMouseEvent } from "~/types/commonTypes";
+import { Rect, SomeMouseEvent, YBounds } from "~/types/commonTypes";
 import { TimelineKeyframe } from "~/types/timelineTypes";
 
-const getYUpperLower = (
-  viewport: Rect,
-  mousePositionGlobal: Vec2
-): [yUpper: number, yLower: number] => {
+const getYUpperLower = (viewport: Rect, mousePositionGlobal: Vec2): YBounds => {
   const { y } = mousePositionGlobal;
   const buffer = 15;
   const yUpper = Math.max(0, viewport.top - (y - buffer));
@@ -22,7 +20,7 @@ const getYUpperLower = (
 
 const getXUpperLower = (
   viewport: Rect,
-  mousePositionGlobal: Vec2
+  mousePositionGlobal: Vec2,
 ): [xUpper: number, xLower: number] => {
   const { x } = mousePositionGlobal;
   const buffer = 15;
@@ -39,10 +37,7 @@ interface Options {
   keyframe: TimelineKeyframe;
 }
 
-export function onMousedownKeyframe(
-  actionOptions: ActionOptions,
-  options: Options
-) {
+export function onMousedownKeyframe(actionOptions: ActionOptions, options: Options) {
   const { e, timelineId, keyframe } = options;
 
   const additiveSelection = e.shiftKey;
@@ -67,17 +62,14 @@ export function onMousedownKeyframe(
 
       const timelineSelection = selection.state[timelineId];
 
-      ephemeral.dispatch((actions) => actions.setFields({ yBounds }));
+      const cursor = base64Cursors.selection_move;
+      ephemeral.dispatch((actions) => actions.setFields({ yBounds, cursor }));
 
       if (additiveSelection) {
-        selection.dispatch((actions) =>
-          actions.toggleKeyframe(timelineId, keyframe.id)
-        );
+        selection.dispatch((actions) => actions.toggleKeyframe(timelineId, keyframe.id));
       } else if (!timelineSelection?.keyframes[keyframe.id]) {
         selection.dispatch((actions) => actions.clear(timelineId));
-        selection.dispatch((actions) =>
-          actions.toggleKeyframe(timelineId, keyframe.id)
-        );
+        selection.dispatch((actions) => actions.toggleKeyframe(timelineId, keyframe.id));
       }
     },
     tickShouldUpdate: (params, { mousePosition }) => {
@@ -86,10 +78,7 @@ export function onMousedownKeyframe(
       const [xUpper, xLower] = getXUpperLower(viewport, mousePosition.global);
       return !!(yUpper || yLower || xUpper || xLower);
     },
-    mouseMove: (
-      params,
-      { initialMousePosition, mousePosition, moveVector, keyDown }
-    ) => {
+    mouseMove: (params, { initialMousePosition, mousePosition, moveVector, keyDown }) => {
       const { ephemeral, view } = params;
       const { viewport } = view.state;
 
@@ -112,14 +101,11 @@ export function onMousedownKeyframe(
         ephemeral.dispatch((actions) => actions.setFields({ pan }));
       }
 
-      const panShiftedInitialGlobalMousePosition =
-        initialMousePosition.global.subXY(
-          -xPan / normalFac.x,
-          -yPan / normalFac.y
-        );
-      const globalMoveVector = mousePosition.global.sub(
-        panShiftedInitialGlobalMousePosition
+      const panShiftedInitialGlobalMousePosition = initialMousePosition.global.subXY(
+        -xPan / normalFac.x,
+        -yPan / normalFac.y,
       );
+      const globalMoveVector = mousePosition.global.sub(panShiftedInitialGlobalMousePosition);
 
       let { x, y } = moveVector.normal;
 
@@ -145,8 +131,7 @@ export function onMousedownKeyframe(
         // The mouse did not move. The selection may have been modified.
         params.submit({
           name: "Modify selection",
-          shouldAddToStack: (prev, next) =>
-            !areMapsShallowEqual(prev.selection, next.selection),
+          shouldAddToStack: (prev, next) => !areMapsShallowEqual(prev.selection, next.selection),
         });
         return;
       }
@@ -165,7 +150,7 @@ export function onMousedownKeyframe(
       const { pan = Vec2.ORIGIN } = ephemeral.state;
 
       view.dispatch((actions) =>
-        actions.setFields({ viewBounds: shiftViewBoundsByX(view.state, pan.x) })
+        actions.setFields({ viewBounds: shiftViewBoundsByX(view.state, pan.x) }),
       );
 
       primary.dispatch((actions) => actions.setTimeline(nextTimeline));
