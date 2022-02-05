@@ -71,12 +71,24 @@ export const getGraphEditorCursor = (globalMousePosition: Vec2, renderState: Ren
 
   if (keyframeShift) {
     timelines = mapMap(timelines, (timeline) =>
-      applyTimelineKeyframeShift({ timeline, timelineSelection: selection[timeline.id], keyframeShift }),
+      applyTimelineKeyframeShift({
+        timeline,
+        timelineSelection: selection[timeline.id],
+        keyframeShift,
+      }),
     );
   }
 
   const viewportMousePosition = globalMousePosition.subXY(viewport.left, viewport.top);
 
-  const cursor = getCursor({ timelines, length, viewBounds, viewport, viewportMousePosition, yBounds, pan });
+  const cursor = getCursor({
+    timelines,
+    length,
+    viewBounds,
+    viewport,
+    viewportMousePosition,
+    yBounds,
+    pan,
+  });
   return cursor;
 };

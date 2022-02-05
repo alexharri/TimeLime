@@ -91,7 +91,10 @@ export const Test = () => {
     viewRef.current.viewport = ref.current?.getBoundingClientRect()!;
   }, []);
 
-  const { renderCursor } = useRenderCursor({ canvasRef: ref, getRenderState: () => renderStateRef.current });
+  const { renderCursor } = useRenderCursor({
+    canvasRef: ref,
+    getRenderState: () => renderStateRef.current,
+  });
 
   useIsomorphicLayoutEffect(() => {
     // Always render on mount and when the state in the store changes. This covers:

@@ -7,10 +7,10 @@ import { createGlobalToNormalFnFromActionOptions } from "~/core/utils/coords/glo
 import { base64Cursors } from "~/core/utils/cursor/base64Cursors";
 import { Vec2 } from "~/core/utils/math/Vec2";
 import { shiftViewBoundsByX } from "~/core/utils/viewUtils";
-import { Rect, SomeMouseEvent } from "~/types/commonTypes";
+import { Rect, SomeMouseEvent, YBounds } from "~/types/commonTypes";
 import { TimelineKeyframe } from "~/types/timelineTypes";
 
-const getYUpperLower = (viewport: Rect, mousePositionGlobal: Vec2): [yUpper: number, yLower: number] => {
+const getYUpperLower = (viewport: Rect, mousePositionGlobal: Vec2): YBounds => {
   const { y } = mousePositionGlobal;
   const buffer = 15;
   const yUpper = Math.max(0, viewport.top - (y - buffer));
@@ -18,7 +18,10 @@ const getYUpperLower = (viewport: Rect, mousePositionGlobal: Vec2): [yUpper: num
   return [yUpper, yLower];
 };
 
-const getXUpperLower = (viewport: Rect, mousePositionGlobal: Vec2): [xUpper: number, xLower: number] => {
+const getXUpperLower = (
+  viewport: Rect,
+  mousePositionGlobal: Vec2,
+): [xUpper: number, xLower: number] => {
   const { x } = mousePositionGlobal;
   const buffer = 15;
   const xUpper = Math.max(0, viewport.left - (x - buffer));
@@ -59,7 +62,8 @@ export function onMousedownKeyframe(actionOptions: ActionOptions, options: Optio
 
       const timelineSelection = selection.state[timelineId];
 
-      ephemeral.dispatch((actions) => actions.setFields({ yBounds, cursor: base64Cursors.selection_move }));
+      const cursor = base64Cursors.selection_move;
+      ephemeral.dispatch((actions) => actions.setFields({ yBounds, cursor }));
 
       if (additiveSelection) {
         selection.dispatch((actions) => actions.toggleKeyframe(timelineId, keyframe.id));
@@ -145,7 +149,9 @@ export function onMousedownKeyframe(actionOptions: ActionOptions, options: Optio
 
       const { pan = Vec2.ORIGIN } = ephemeral.state;
 
-      view.dispatch((actions) => actions.setFields({ viewBounds: shiftViewBoundsByX(view.state, pan.x) }));
+      view.dispatch((actions) =>
+        actions.setFields({ viewBounds: shiftViewBoundsByX(view.state, pan.x) }),
+      );
 
       primary.dispatch((actions) => actions.setTimeline(nextTimeline));
       params.submit({ name: "Move keyframe", allowSelectionShift: true });
