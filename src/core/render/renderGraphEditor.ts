@@ -2,7 +2,6 @@ import { colors } from "~/core/colors";
 import {
   renderCircle,
   renderDiamond,
-  renderLine,
   renderRect,
   traceCubicBezier,
   traceLine,
@@ -13,15 +12,16 @@ import {
 } from "~/core/utils/coords/normalToViewport";
 import { getGraphEditorYBounds } from "~/core/render/yBounds";
 import { keyframesToCurves } from "~/core/transform/keyframesToCurves";
-import { transformRectWithVecTransformation } from "~/core/utils/math/math";
+import { transformRectWithVecTransformation, translateRect } from "~/core/utils/math/math";
 import { Vec2 } from "~/core/utils/math/Vec2";
 import { generateGraphEditorYTicksFromBounds } from "~/core/utils/yTicks";
-import { Curve, Line, Rect, YBounds } from "~/types/commonTypes";
+import { Curve, Rect, YBounds } from "~/types/commonTypes";
 import { TimelineMap, TimelineSelectionMap } from "~/types/timelineTypes";
 import { mapMap } from "map-fns";
 import { applyTimelineKeyframeShift } from "~/core/timeline/applyTimelineKeyframeShift";
 import { RenderState } from "~/core/state/stateTypes";
 import { applyControlPointShift } from "~/core/timeline/applyControlPointShift";
+import { theme } from "~/core/theme";
 
 interface RenderOptions {
   ctx: CanvasRenderingContext2D;
@@ -80,7 +80,7 @@ export function renderGraphEditor(options: RenderOptions) {
 
   ctx.beginPath();
   ctx.rect(0, 0, width, height);
-  ctx.fillStyle = colors.gray600;
+  ctx.fillStyle = theme.background;
   ctx.fill();
 
   const timelineList = Object.values(timelines);
@@ -116,18 +116,38 @@ export function renderGraphEditor(options: RenderOptions) {
   });
   const toViewport = (vec: Vec2) => Vec2.new(toViewportX(vec.x), toViewportY(vec.y));
 
-  const atZero = toViewportX(0);
-  const atEnd = toViewportX(length);
+  const atZero = Math.round(toViewportX(0));
+  const atEnd = Math.round(toViewportX(length));
 
-  if (atZero > 0) {
-    renderRect(ctx, { left: 0, width: atZero, top: 0, height }, { fillColor: colors.dark500 });
+  if (atZero >= 0) {
+    renderRect(
+      ctx,
+      { left: 0, width: atZero, top: 0, height },
+      { fillColor: theme.backgroundOutside },
+    );
+    renderRect(
+      ctx,
+      { left: atZero - 1, top: 0, width: 1, height },
+      { fillColor: theme.outsideBorder },
+    );
+    renderRect(
+      ctx,
+      { left: atZero, top: 0, width: 1, height },
+      { fillColor: theme.insideHighlight },
+    );
   }
 
-  if (atEnd < width) {
+  if (atEnd <= width) {
     renderRect(
       ctx,
       { left: atEnd, width: width - atEnd + 1, top: 0, height },
-      { fillColor: colors.dark500 },
+      { fillColor: theme.backgroundOutside },
+    );
+    renderRect(ctx, { left: atEnd, top: 0, width: 1, height }, { fillColor: theme.outsideBorder });
+    renderRect(
+      ctx,
+      { left: atEnd - 1, top: 0, width: 1, height },
+      { fillColor: theme.insideHighlight },
     );
   }
 
@@ -136,14 +156,28 @@ export function renderGraphEditor(options: RenderOptions) {
   const ticks = generateGraphEditorYTicksFromBounds([yUpper + pan.y, yLower + pan.y]);
 
   for (let i = 0; i < ticks.length; i += 1) {
-    const y = toViewportY(ticks[i]);
-    const line: Line = [Vec2.new(0, y), Vec2.new(width, y)];
-    renderLine(ctx, line, {
-      color: colors.dark500,
-      strokeWidth: 1,
+    const y = Math.round(toViewportY(ticks[i]));
+    const tickRect: Rect = { width, height: 1, left: 0, top: y };
+
+    renderRect(ctx, tickRect, { fillColor: theme.yTickLineOutside });
+    renderRect(ctx, translateRect(tickRect, Vec2.new(0, 1)), {
+      fillColor: theme.yTickLineOutsideShadow,
     });
     ctx.font = "10px sans-serif";
-    ctx.fillStyle = colors.light500;
+    ctx.fillStyle = theme.yTickLabel;
+    ctx.fillText(ticks[i].toString(), 8, y - 2);
+  }
+
+  for (let i = 0; i < ticks.length; i += 1) {
+    const y = Math.round(toViewportY(ticks[i]));
+    const tickRect: Rect = { width: atEnd - atZero, height: 1, left: atZero, top: y };
+
+    renderRect(ctx, tickRect, { fillColor: theme.yTickLine });
+    renderRect(ctx, translateRect(tickRect, Vec2.new(0, 1)), {
+      fillColor: theme.yTickLineShadow,
+    });
+    ctx.font = "10px sans-serif";
+    ctx.fillStyle = theme.yTickLabel;
     ctx.fillText(ticks[i].toString(), 8, y - 2);
   }
 
@@ -153,25 +187,34 @@ export function renderGraphEditor(options: RenderOptions) {
 
     const transformedCurves = curves.map((curve) => curve.map((vec) => toViewport(vec))) as Curve[];
 
-    let color = "red";
+    let color = theme.timelines[i % theme.timelines.length];
 
     if (options.colors?.[timeline.id]) {
       color = options.colors[timeline.id]!;
     }
 
-    ctx.beginPath();
-    for (let i = 0; i < curves.length; i += 1) {
-      const curve = transformedCurves[i];
-      if (curve.length === 4) {
-        traceCubicBezier(ctx, curve, { move: i === 0 });
-      } else {
-        traceLine(ctx, curve, { move: i === 0 });
+    for (const [c, yOff] of <const>[
+      [colors.dark400, 1],
+      [color, 0],
+    ]) {
+      ctx.beginPath();
+      for (let i = 0; i < curves.length; i += 1) {
+        let curve = transformedCurves[i];
+        if (yOff !== 0) {
+          curve = curve.map((v) => v.addY(yOff)) as typeof curve;
+        }
+
+        if (curve.length === 4) {
+          traceCubicBezier(ctx, curve, { move: i === 0 });
+        } else {
+          traceLine(ctx, curve, { move: i === 0 });
+        }
       }
+      ctx.strokeStyle = c;
+      ctx.lineWidth = 1;
+      ctx.stroke();
+      ctx.closePath();
     }
-    ctx.strokeStyle = color;
-    ctx.lineWidth = 1;
-    ctx.stroke();
-    ctx.closePath();
 
     ctx.beginPath();
     {
@@ -179,23 +222,20 @@ export function renderGraphEditor(options: RenderOptions) {
       const { value: endValue, index: endIndex } = keyframes[keyframes.length - 1];
 
       const startX = toViewportX(startIndex);
-      const startY = toViewportY(startValue);
+      const startY = Math.round(toViewportY(startValue)) - 0.5;
 
       const endX = toViewportX(endIndex);
-      const endY = toViewportY(endValue);
+      const endY = Math.round(toViewportY(endValue)) - 0.5;
 
       if (startX > 0) {
-        traceLine(ctx, [Vec2.new(startX, startY), Vec2.new(0, startY)], {
-          move: true,
-        });
+        traceLine(ctx, [Vec2.new(startX, startY), Vec2.new(0, startY)], { move: true });
       }
 
       if (endX < width) {
-        traceLine(ctx, [Vec2.new(endX, endY), Vec2.new(width, endY)], {
-          move: true,
-        });
+        traceLine(ctx, [Vec2.new(endX, endY), Vec2.new(width, endY)], { move: true });
       }
     }
+    ctx.strokeStyle = color;
     ctx.setLineDash([8, 8]);
     ctx.stroke();
     ctx.closePath();

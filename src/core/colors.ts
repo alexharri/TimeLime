@@ -7,6 +7,9 @@ export const colors = {
 
   red300: "#B4281E",
   red500: "#c21f13",
+  red700: "#ff2626",
+
+  green700: "#37eA3e",
 
   white500: "#f3f3f3",
 
@@ -20,11 +23,14 @@ export const colors = {
   gray600: "#444444",
   gray500: "#3d3d3d",
   gray400: "#353535",
+  gray300: "#313131",
+  gray200: "#2f2f2f",
 
-  dark800: "#333333",
-  dark700: "#2d2d2d",
-  dark600: "#272727",
+  dark800: "#2d2d2d",
+  dark700: "#282828",
+  dark600: "#252525",
   dark500: "#222222",
-  dark400: "#191919",
-  dark300: "#111111",
+  dark400: "#202020",
+  dark300: "#171717",
+  dark200: "#111111",
 };
