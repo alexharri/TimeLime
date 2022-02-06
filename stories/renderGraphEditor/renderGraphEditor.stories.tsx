@@ -2,7 +2,11 @@ import { ComponentMeta } from "@storybook/react";
 import React, { useEffect, useRef } from "react";
 import { renderGraphEditor } from "~/core/render/renderGraphEditor";
 import { curvesToKeyframes } from "~/core/transform/curvesToKeyframes";
+import { ViewBounds } from "~/types/commonTypes";
 import { Timeline } from "~/types/timelineTypes";
+
+const viewBounds: ViewBounds = [0, 1];
+const viewBoundsHeight = 0;
 
 export default {
   title: "API/renderGraphEditor",
@@ -43,6 +47,8 @@ export const BasicExample = () => {
       ctx,
       length: 100,
       timelines: { [timeline.id]: timeline },
+      viewBounds,
+      viewBoundsHeight,
     });
   }, []);
 
@@ -93,6 +99,7 @@ export const Overlap = () => {
       length: 100,
       timelines: { [timeline.id]: timeline },
       viewBounds: [0.3, 0.7],
+      viewBoundsHeight,
     });
   }, []);
 
@@ -130,6 +137,8 @@ export const ParseCurves = () => {
       ctx,
       length: 200,
       timelines: { [timeline.id]: timeline },
+      viewBounds,
+      viewBoundsHeight,
     });
   }, []);
 

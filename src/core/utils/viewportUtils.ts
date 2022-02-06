@@ -22,3 +22,19 @@ export const getViewportXUpperLower = (
   const xLower = Math.max(0, x + buffer - (viewport.left + viewport.width));
   return [xUpper, xLower];
 };
+
+interface Options {
+  viewport: Rect;
+  viewBoundsHeight: number;
+}
+
+export function getGraphEditorViewport(options: Options): Rect {
+  const { viewport, viewBoundsHeight } = options;
+
+  return {
+    left: 0,
+    top: viewBoundsHeight,
+    height: viewport.height - viewBoundsHeight,
+    width: viewport.width,
+  };
+}

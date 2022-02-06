@@ -26,6 +26,7 @@ import { RenderState } from "~/core/state/stateTypes";
 import { applyControlPointShift } from "~/core/timeline/applyControlPointShift";
 import { theme } from "~/core/theme";
 import { applyNewControlPointShift } from "~/core/timeline/applyNewControlPointShift";
+import { getGraphEditorViewport } from "~/core/utils/viewportUtils";
 
 interface RenderOptions {
   ctx: CanvasRenderingContext2D;
@@ -40,10 +41,10 @@ interface RenderOptions {
 
   /**
    * `start` and `end` should be numbers from 0 to 1. `start` should always be lower than `end`.
-   *
-   * @default [0, 1]
    */
-  viewBounds?: [start: number, end: number];
+  viewBounds: [start: number, end: number];
+
+  viewBoundsHeight: number;
 
   /**
    * If not provided, colors will be based on the order of the timelines.
@@ -73,6 +74,7 @@ export function renderGraphEditor(options: RenderOptions) {
     ctx,
     timelines,
     viewBounds = [0, 1],
+    viewBoundsHeight = 0,
     length,
     yBounds,
     pan = Vec2.ORIGIN,
@@ -80,10 +82,12 @@ export function renderGraphEditor(options: RenderOptions) {
   } = options;
   const { width, height } = getDimensions(options);
 
-  ctx.clearRect(0, 0, width, height);
+  const viewport: Rect = { width, height, left: 0, top: 0 };
+
+  ctx.clearRect(viewport.left, viewport.top, width, height);
 
   ctx.beginPath();
-  ctx.rect(0, 0, width, height);
+  ctx.rect(viewport.left, viewport.top, width, height);
   ctx.fillStyle = theme.background;
   ctx.fill();
 
@@ -96,16 +100,10 @@ export function renderGraphEditor(options: RenderOptions) {
 
   const timelineCurves = timelineList.map((timeline) => keyframesToCurves(timeline.keyframes));
 
-  /** @todo - take viewport as argument */
-  const viewport: Rect = {
-    width,
-    height,
-    left: 0,
-    top: 0,
-  };
+  const graphEditorViewport = getGraphEditorViewport({ viewport, viewBoundsHeight });
 
   const toViewportY = createNormalToViewportYFn({
-    viewport,
+    graphEditorViewport,
     length,
     timelines,
     viewBounds,
@@ -115,7 +113,7 @@ export function renderGraphEditor(options: RenderOptions) {
   const toViewportX = createNormalToViewportXFn({
     length,
     viewBounds,
-    viewport,
+    graphEditorViewport,
     pan,
   });
   const toViewport = (vec: Vec2) => Vec2.new(toViewportX(vec.x), toViewportY(vec.y));
@@ -126,17 +124,17 @@ export function renderGraphEditor(options: RenderOptions) {
   if (atZero >= 0) {
     renderRect(
       ctx,
-      { left: 0, width: atZero, top: 0, height },
+      { left: 0, width: atZero, top: viewBoundsHeight, height },
       { fillColor: theme.backgroundOutside },
     );
     renderRect(
       ctx,
-      { left: atZero - 1, top: 0, width: 1, height },
+      { left: atZero - 1, top: viewBoundsHeight, width: 1, height },
       { fillColor: theme.outsideBorder },
     );
     renderRect(
       ctx,
-      { left: atZero, top: 0, width: 1, height },
+      { left: atZero, top: viewBoundsHeight, width: 1, height },
       { fillColor: theme.insideHighlight },
     );
   }
@@ -144,13 +142,17 @@ export function renderGraphEditor(options: RenderOptions) {
   if (atEnd <= width) {
     renderRect(
       ctx,
-      { left: atEnd, width: width - atEnd + 1, top: 0, height },
+      { left: atEnd, width: width - atEnd + 1, top: viewBoundsHeight, height },
       { fillColor: theme.backgroundOutside },
     );
-    renderRect(ctx, { left: atEnd, top: 0, width: 1, height }, { fillColor: theme.outsideBorder });
     renderRect(
       ctx,
-      { left: atEnd - 1, top: 0, width: 1, height },
+      { left: atEnd, top: viewBoundsHeight, width: 1, height },
+      { fillColor: theme.outsideBorder },
+    );
+    renderRect(
+      ctx,
+      { left: atEnd - 1, top: viewBoundsHeight, width: 1, height },
       { fillColor: theme.insideHighlight },
     );
   }
@@ -329,6 +331,11 @@ export function renderGraphEditor(options: RenderOptions) {
       fillColor: theme.selectionRectFill,
     });
   }
+
+  ctx.beginPath();
+  ctx.rect(0, 0, width, viewBoundsHeight);
+  ctx.fillStyle = "red";
+  ctx.fill();
 }
 
 export function renderGraphEditorWithRenderState(
@@ -336,7 +343,7 @@ export function renderGraphEditorWithRenderState(
   renderState: RenderState,
 ) {
   const timelineSelectionState = renderState.selection;
-  const { length, viewport, viewBounds } = renderState.view;
+  const { length, viewport, viewBounds, viewBoundsHeight } = renderState.view;
   const {
     keyframeShift,
     controlPointShift,
@@ -382,6 +389,7 @@ export function renderGraphEditorWithRenderState(
     timelines,
     width: viewport.width,
     height: viewport.height,
+    viewBoundsHeight,
     timelineSelectionState,
     viewBounds,
     yBounds,

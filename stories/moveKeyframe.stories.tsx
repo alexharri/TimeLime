@@ -64,6 +64,7 @@ export const Test = () => {
   });
 
   const viewRef = useRef<ViewState>({
+    viewBoundsHeight: 24,
     length,
     viewBounds: [0, 1],
     viewport: { top: 0, left: 0, width: 800, height: 400 },
@@ -163,7 +164,7 @@ export const Test = () => {
   };
 
   const onMouseDown = (e: React.MouseEvent) => {
-    const { viewport, viewBounds, length } = viewRef.current;
+    const { viewport, viewBounds, viewBoundsHeight, length } = viewRef.current;
 
     const actionToPerform = getActionToPerformOnMouseDown({
       e,
@@ -171,6 +172,7 @@ export const Test = () => {
       timelines: stateManager.getActionState().state.timelines,
       viewport,
       viewBounds,
+      viewBoundsHeight,
     });
 
     switch (actionToPerform.type) {

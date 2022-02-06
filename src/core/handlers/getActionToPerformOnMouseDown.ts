@@ -4,12 +4,8 @@ import { createGlobalToNormalFn as createGlobalToNormalFn } from "~/core/utils/c
 import { createNormalToViewportFn } from "~/core/utils/coords/normalToViewport";
 import { getGraphEditorTargetObject } from "~/core/utils/getGraphEditorTargetObject";
 import { Vec2 } from "~/core/utils/math/Vec2";
-import {
-  MousePosition,
-  Rect,
-  SomeMouseEvent,
-  ViewBounds,
-} from "~/types/commonTypes";
+import { getGraphEditorViewport } from "~/core/utils/viewportUtils";
+import { MousePosition, Rect, SomeMouseEvent, ViewBounds } from "~/types/commonTypes";
 import { TimelineKeyframe, TimelineMap } from "~/types/timelineTypes";
 
 type ActionToPerform =
@@ -47,15 +43,12 @@ interface ActionToPerformOptions {
   timelines: TimelineMap;
   viewport: Rect;
   length: number;
-
-  /** @default [0, 1] */
-  viewBounds?: ViewBounds;
+  viewBounds: ViewBounds;
+  viewBoundsHeight: number;
 }
 
-export const getActionToPerformOnMouseDown = (
-  options: ActionToPerformOptions
-): ActionToPerform => {
-  const { e, viewport, timelines, viewBounds = [0, 1], length } = options;
+export const getActionToPerformOnMouseDown = (options: ActionToPerformOptions): ActionToPerform => {
+  const { e, timelines, viewBounds, length, viewport } = options;
 
   if (isKeyDown("Space")) {
     return { type: "pan" };
@@ -66,6 +59,8 @@ export const getActionToPerformOnMouseDown = (
   }
 
   const globalMousePosition = Vec2.fromEvent(e);
+
+  const graphEditorViewport = getGraphEditorViewport(options);
 
   const yBounds = getGraphEditorYBounds({
     length,
@@ -78,6 +73,7 @@ export const getActionToPerformOnMouseDown = (
     length,
     viewBounds,
     viewport,
+    graphEditorViewport,
     timelines,
   });
 
@@ -86,7 +82,7 @@ export const getActionToPerformOnMouseDown = (
     viewBounds,
     length,
     timelines,
-    viewport,
+    graphEditorViewport,
   });
 
   const mousePosition: MousePosition = {
@@ -100,11 +96,7 @@ export const getActionToPerformOnMouseDown = (
   for (const timeline of timelineList) {
     const timelineId = timeline.id;
 
-    const target = getGraphEditorTargetObject(
-      timeline,
-      mousePosition.viewport,
-      normalToViewport
-    );
+    const target = getGraphEditorTargetObject(timeline, mousePosition.viewport, normalToViewport);
 
     switch (target.type) {
       case "keyframe": {
