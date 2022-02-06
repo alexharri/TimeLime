@@ -19,9 +19,7 @@ export const getGraphEditorYBounds = (options: Options): YBounds => {
 
   const timelineList = Object.values(timelines);
 
-  const timelineCurves = timelineList.map((timeline) =>
-    keyframesToCurves(timeline.keyframes)
-  );
+  const timelineCurves = timelineList.map((timeline) => keyframesToCurves(timeline.keyframes));
 
   const timelineYBounds = timelineList.map((timeline, i): [number, number] => {
     if (timeline.keyframes.length === 1) {
@@ -32,8 +30,8 @@ export const getGraphEditorYBounds = (options: Options): YBounds => {
     let paths = timelineCurves[i];
     const originalPaths = [...paths];
 
-    const iStart = viewBounds[0] * (length - 1);
-    const iEnd = viewBounds[1] * (length - 1);
+    const iStart = viewBounds[0] * length;
+    const iEnd = viewBounds[1] * length;
 
     // Remove all paths before and after the viewbounds end
     paths = paths.filter((path) => {
@@ -62,11 +60,7 @@ export const getGraphEditorYBounds = (options: Options): YBounds => {
         }
       }
 
-      if (
-        paths.length > 1 &&
-        curveAtEnd.length === 4 &&
-        curveAtEnd[3].x >= iEnd
-      ) {
+      if (paths.length > 1 && curveAtEnd.length === 4 && curveAtEnd[3].x >= iEnd) {
         // Reverse case for start curve.
         for (let j = 1; j < 3; j += 1) {
           if (curveAtEnd[j].x >= iStart && curveAtEnd[j].x <= iEnd) {
@@ -104,10 +98,7 @@ export const getGraphEditorYBounds = (options: Options): YBounds => {
     } else {
       const startIndex = originalPaths[0][0].x;
       const lastPath = originalPaths[originalPaths.length - 1];
-      const y =
-        startIndex > iStart
-          ? originalPaths[0][0].y
-          : lastPath[lastPath.length - 1].y;
+      const y = startIndex > iStart ? originalPaths[0][0].y : lastPath[lastPath.length - 1].y;
       return [y, y];
     }
 
@@ -164,9 +155,7 @@ export const getGraphEditorYBounds = (options: Options): YBounds => {
   return [yUpper + buffer, yLower - buffer];
 };
 
-export const getGraphEditorYBoundsFromActionOptions = (
-  actionOptions: ActionOptions
-) => {
+export const getGraphEditorYBoundsFromActionOptions = (actionOptions: ActionOptions) => {
   const { timelines } = actionOptions.initialState.primary;
   const { viewBounds, length } = actionOptions.initialState.view;
 
