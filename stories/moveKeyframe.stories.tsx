@@ -20,6 +20,9 @@ import { useRenderCursor } from "~/core/utils/hook/useRenderCursor";
 import { onMousedownControlPoint } from "~/core/handlers/mousedownControlPoint";
 import { onMousedownEmpty } from "~/core/handlers/mousedownEmpty";
 import { onAltMousedownKeyframe } from "~/core/handlers/altMousedownKeyframe";
+import { parseWheelEvent } from "~/core/utils/wheelEvent";
+import { onWheelZoom } from "~/core/handlers/zoom/wheelZoom";
+import { TRACKPAD_ZOOM_DELTA_FAC } from "~/core/constants";
 
 const initialTimelineState: TimelineState = {
   timelines: {
@@ -145,7 +148,8 @@ export const Test = () => {
         viewRef.current = state.view;
         params.submitAction({ name, allowSelectionShift });
       },
-      onSubmitView: () => {
+      onSubmitView: ({ viewState }) => {
+        viewRef.current = viewState;
         params.cancelAction();
       },
 
@@ -216,6 +220,46 @@ export const Test = () => {
       return;
     }
   };
+
+  useEffect(() => {
+    if (!ref.current) {
+      return;
+    }
+
+    const listener = (e: WheelEvent) => {
+      e.preventDefault();
+
+      const parsed = parseWheelEvent(e);
+
+      switch (parsed.type) {
+        case "pinch_zoom": {
+          console.log("pinch zoom");
+          stateManager.requestAction((params) => {
+            const actionOptions = createActionOptions(params);
+            onWheelZoom(actionOptions, { e, impact: Math.abs(e.deltaY) * TRACKPAD_ZOOM_DELTA_FAC });
+          });
+          break;
+        }
+
+        case "pan": {
+          /** @todo */
+          break;
+        }
+
+        case "mouse_wheel": {
+          /** @todo */
+          break;
+        }
+      }
+    };
+
+    const el = ref.current;
+    el.addEventListener("wheel", listener, { passive: false });
+
+    return () => {
+      el.removeEventListener("wheel", listener);
+    };
+  }, [ref.current]);
 
   return <canvas ref={ref} width={800} height={400} onMouseDown={onMouseDown} />;
 };

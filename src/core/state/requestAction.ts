@@ -311,7 +311,7 @@ const performRequestedAction = (options: RequestActionOptions, callback: Request
       selection.reset();
       _sendRenderState();
       onComplete();
-      userActionOptions.onSubmitView();
+      userActionOptions.onSubmitView({ viewState: view.state });
     },
 
     addListener,
