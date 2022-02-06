@@ -109,8 +109,17 @@ export function onAltMousedownKeyframe(actionOptions: ActionOptions, options: Op
       const { primary, ephemeral } = params;
       const { newControlPointShift } = ephemeral.state;
 
+      const timeline = primary.state.timelines[timelineId];
+
       if (!newControlPointShift) {
-        // Alt click on keyframe. Remove current control points.
+        // Alt click on keyframe. Remove current control points if they exist.
+
+        const keyframe = timeline.keyframes[keyframeIndex];
+        if (!keyframe.controlPointLeft && !keyframe.controlPointRight) {
+          // No keyframes to remove. Cancel.
+          params.cancel();
+          return;
+        }
 
         primary.dispatch((actions) =>
           actions.removeKeyframeControlPoints(timelineId, keyframeIndex),
@@ -118,8 +127,6 @@ export function onAltMousedownKeyframe(actionOptions: ActionOptions, options: Op
         params.submit({ name: "Remove keyframe control points", allowSelectionShift: true });
         return;
       }
-
-      const timeline = primary.state.timelines[timelineId];
 
       const newTimeline = applyNewControlPointShift(timeline, newControlPointShift);
       primary.dispatch((actions) => actions.setTimeline(newTimeline));
