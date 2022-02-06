@@ -145,6 +145,9 @@ export const Test = () => {
         viewRef.current = state.view;
         params.submitAction({ name, allowSelectionShift });
       },
+      onSubmitView: () => {
+        params.cancelAction();
+      },
 
       onCancel: ifNotDone(() => {
         viewRef.current = initialViewState;

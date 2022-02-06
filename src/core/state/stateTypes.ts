@@ -59,4 +59,5 @@ export interface ActionOptions {
 
   onCancel: () => void;
   onSubmit: (options: SubmitActionOptions) => void;
+  onSubmitView: () => void;
 }
