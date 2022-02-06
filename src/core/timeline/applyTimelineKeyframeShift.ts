@@ -1,9 +1,5 @@
 import { Vec2 } from "~/core/utils/math/Vec2";
-import {
-  Timeline,
-  TimelineKeyframe,
-  TimelineSelection,
-} from "~/types/timelineTypes";
+import { Timeline, TimelineKeyframe, TimelineSelection } from "~/types/timelineTypes";
 
 interface Options {
   timeline: Timeline;
@@ -24,7 +20,8 @@ export const applyTimelineKeyframeShift = (options: Options): Timeline => {
     for (let i = 0; i < timeline.keyframes.length; i += 1) {
       const keyframe = timeline.keyframes[i];
       if (timelineSelection.keyframes[keyframe.id]) {
-        removeKeyframesAtIndex.add(keyframe.index + keyframeShift.x);
+        const index = Math.round(keyframe.index + keyframeShift.x);
+        removeKeyframesAtIndex.add(index);
       }
     }
   }
@@ -41,7 +38,7 @@ export const applyTimelineKeyframeShift = (options: Options): Timeline => {
       if (timelineSelection.keyframes[keyframe.id]) {
         return {
           ...keyframe,
-          index: keyframe.index + keyframeShift.x,
+          index: Math.round(keyframe.index + keyframeShift.x),
           value: keyframe.value + keyframeShift.y,
         };
       }
@@ -50,8 +47,20 @@ export const applyTimelineKeyframeShift = (options: Options): Timeline => {
     })
     .sort((a, b) => a.index - b.index);
 
-  return {
-    ...timeline,
-    keyframes,
-  };
+  // If two keyframes with fractional indices round to the same index, moving them may
+  // result in them landing on the same index.
+  //
+  // Filter out duplicate keyframes.
+  const indicesEncountered = new Set();
+  for (let i = 0; i < keyframes.length; i++) {
+    const k = keyframes[i];
+    if (indicesEncountered.has(k.index)) {
+      keyframes.splice(i, 1);
+      i--;
+      continue;
+    }
+    indicesEncountered.add(k.index);
+  }
+
+  return { ...timeline, keyframes };
 };
