@@ -248,11 +248,6 @@ export const Test = () => {
           });
           break;
         }
-
-        case "mouse_wheel": {
-          /** @todo */
-          break;
-        }
       }
     };
 
