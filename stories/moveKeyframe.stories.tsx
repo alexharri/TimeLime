@@ -221,7 +221,8 @@ export const Test = () => {
   };
 
   useEffect(() => {
-    if (!ref.current) {
+    const canvas = ref.current;
+    if (!canvas) {
       return;
     }
 
@@ -251,11 +252,10 @@ export const Test = () => {
       }
     };
 
-    const el = ref.current;
-    el.addEventListener("wheel", listener, { passive: false });
+    canvas.addEventListener("wheel", listener, { passive: false });
 
     return () => {
-      el.removeEventListener("wheel", listener);
+      canvas.removeEventListener("wheel", listener);
     };
   }, [ref.current]);
 
