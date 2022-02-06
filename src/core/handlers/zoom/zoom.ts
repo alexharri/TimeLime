@@ -22,9 +22,7 @@ export function onZoom(actionOptions: ActionOptions, options: Options) {
     const { primary, view, ephemeral } = params;
     const { viewport, viewBounds, allowExceedViewBounds, length } = view.state;
 
-    const mousePos = Vec2.fromEvent(e)
-      .subX(viewport.left)
-      .subX(CANVAS_END_START_BUFFER);
+    const mousePos = Vec2.fromEvent(e).subX(viewport.left).subX(CANVAS_END_START_BUFFER);
     const t = mousePos.x / (viewport.width - CANVAS_END_START_BUFFER * 2);
 
     let nextViewBounds: [number, number];
@@ -40,10 +38,7 @@ export function onZoom(actionOptions: ActionOptions, options: Options) {
       ];
     } else {
       const remove = Math.abs(viewBounds[0] - viewBounds[1]) * ZOOM_FAC;
-      nextViewBounds = [
-        viewBounds[0] + remove * t,
-        viewBounds[1] - remove * (1 - t),
-      ];
+      nextViewBounds = [viewBounds[0] + remove * t, viewBounds[1] - remove * (1 - t)];
     }
 
     const yBounds = getGraphEditorYBounds({
@@ -66,12 +61,8 @@ export function onZoom(actionOptions: ActionOptions, options: Options) {
         lerp(viewBounds[0], nextViewBounds[0], t),
         lerp(viewBounds[1], nextViewBounds[1], t),
       ];
-      ephemeral.dispatch((actions) =>
-        actions.setFields({ yBounds: currYBounds })
-      );
-      view.dispatch((actions) =>
-        actions.setFields({ viewBounds: currViewBounds })
-      );
-    }).then(() => params.submit({ name: "Zoom" }));
+      ephemeral.dispatch((actions) => actions.setFields({ yBounds: currYBounds }));
+      view.dispatch((actions) => actions.setFields({ viewBounds: currViewBounds }));
+    }).then(() => params.submitView());
   });
 }

@@ -76,8 +76,7 @@ export function onPan(actionOptions: ActionOptions, options: Options) {
         params.cancel();
         return;
       }
-
-      params.submit({ name: "Pan" });
+      params.submitView();
     },
   });
 }

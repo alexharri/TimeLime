@@ -14,7 +14,7 @@ import { timelineSelectionActions } from "~/core/state/timelineSelection/timelin
 import { useStateManager } from "~/core/state/StateManager/useStateManager";
 import { RequestActionParams } from "~/core/state/StateManager/StateManager";
 import { onPan } from "~/core/handlers/pan/pan";
-import { onZoom } from "~/core/handlers/zoom";
+import { onZoom } from "~/core/handlers/zoom/zoom";
 import { useIsomorphicLayoutEffect } from "~/core/utils/hook/useIsomorphicLayoutEffect";
 import { useRenderCursor } from "~/core/utils/hook/useRenderCursor";
 import { onMousedownControlPoint } from "~/core/handlers/mousedownControlPoint";
