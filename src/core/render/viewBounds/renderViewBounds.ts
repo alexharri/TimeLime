@@ -82,11 +82,21 @@ export function renderViewBounds(options: RenderOptions) {
     { top: 0, left: 0, width: viewport.width, height: viewBoundsHeight },
     { fillColor: theme.viewBoundsBackground },
   );
+  renderRect(
+    ctx,
+    { top: 0, left: 0, width: viewport.width, height: 1 },
+    { fillColor: colors.dark200 },
+  );
+  renderRect(
+    ctx,
+    { top: viewBoundsHeight - 1, left: 0, width: viewport.width, height: 1 },
+    { fillColor: colors.dark200 },
+  );
 
   const w = viewport.width - VIEW_BOUNDS_HANDLE_WIDTH * 2;
 
-  const firstLeft = viewBounds[0] * w;
-  const secondLeft = VIEW_BOUNDS_HANDLE_WIDTH + viewBounds[1] * w;
+  const firstLeft = Math.floor(viewBounds[0] * w);
+  const secondLeft = Math.ceil(VIEW_BOUNDS_HANDLE_WIDTH + viewBounds[1] * w);
 
   traceLeftRoundedRect(
     ctx,
@@ -119,6 +129,16 @@ export function renderViewBounds(options: RenderOptions) {
       height: 22,
       width: secondLeft - firstLeft - VIEW_BOUNDS_HANDLE_WIDTH,
     },
-    { fillColor: colors.gray400 },
+    { fillColor: colors.gray300 },
+  );
+  renderRect(
+    ctx,
+    {
+      left: firstLeft + VIEW_BOUNDS_HANDLE_WIDTH,
+      top: 1,
+      height: 1,
+      width: secondLeft - firstLeft - VIEW_BOUNDS_HANDLE_WIDTH,
+    },
+    { fillColor: colors.gray600 },
   );
 }

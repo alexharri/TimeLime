@@ -26,7 +26,7 @@ export const theme = {
   keyframeFill: colors.dark200,
   keyframeShadow: colors.dark600,
 
-  viewBoundsBackground: colors.dark200,
+  viewBoundsBackground: colors.dark400,
 
   controlPointColor: colors.yellow900,
 
