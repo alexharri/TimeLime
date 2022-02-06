@@ -100,7 +100,7 @@ export function onMousedownKeyframe(actionOptions: ActionOptions, options: Optio
         }
       }
 
-      const keyframeShift = Vec2.new(Math.round(x), y);
+      const keyframeShift = Vec2.new(x, y);
       ephemeral.dispatch((actions) => actions.setFields({ keyframeShift }));
     },
     mouseUp: (params) => {
