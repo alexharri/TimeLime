@@ -1,16 +1,17 @@
 /**
- * Copyright (c) 2015, Facebook, Inc. All rights reserved.
- *
- * BSD License
- *
- * For FixedDataTable software
- *
- * LICENSE file: https://github.com/facebookarchive/fixed-data-table/blob/master/LICENSE
- */
-
-/**
  * This is a modified version of:
  * https://github.com/facebookarchive/fixed-data-table/blob/master/src/vendor_upstream/dom/normalizeWheel.js
+ *
+ * Original copyright notice:
+ *
+ *    Copyright (c) 2015, Facebook, Inc.
+ *    All rights reserved.
+ *
+ *    This source code is licensed under the BSD-style license found in the
+ *    LICENSE file in the root directory of this source tree. An additional grant
+ *    of patent rights can be found in the PATENTS file in the same directory.
+ *
+ * LICENSE file: https://github.com/facebookarchive/fixed-data-table/blob/master/LICENSE
  */
 
 const isSafari = /^((?!chrome|android).)*safari/i.test(navigator.userAgent);
