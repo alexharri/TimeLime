@@ -19,11 +19,6 @@ export function onWheelZoom(actionOptions: ActionOptions, options: Options) {
   const mousePos = Vec2.fromEvent(e).subX(viewport.left);
   const t = mousePos.x / viewport.width;
 
-  if (t < 0) {
-    // User is pinch zooming on layer list. We just ignore this.
-    return;
-  }
-
   const remove = Math.abs(viewBounds[0] - viewBounds[1]) * (1 - fac);
   let newBounds: [number, number] = [viewBounds[0] + remove * t, viewBounds[1] - remove * (1 - t)];
 
