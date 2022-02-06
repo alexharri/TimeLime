@@ -1,18 +1,18 @@
 import { requestAction } from "~/core/state/requestAction";
 import { ActionOptions } from "~/core/state/stateTypes";
-import { capToRange, lerp } from "~/core/utils/math/math";
 import { Vec2 } from "~/core/utils/math/Vec2";
 
 interface Options {
   e: WheelEvent;
-  impact: number;
 }
 
 export function onWheelZoom(actionOptions: ActionOptions, options: Options) {
-  const { e, impact } = options;
+  const { e } = options;
   const { deltaY } = e;
 
-  const fac = lerp(1, -deltaY < 0 ? 1.15 : 0.85, capToRange(0, 2, impact));
+  const speed = Math.min(1, Math.abs(e.deltaY) / 14);
+  const direction = deltaY > 0 ? 1 : -1;
+  const fac = 1 + speed * 0.3 * direction;
 
   const { viewBounds, viewport, allowExceedViewBounds } = actionOptions.initialState.view;
 

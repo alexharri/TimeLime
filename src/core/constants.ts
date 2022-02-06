@@ -20,5 +20,3 @@ export const MOVE_ACTION_PAN_FAC = 0.1;
 
 export const TIMELINE_CP_TX_MIN = 0.0001;
 export const TIMELINE_CP_TX_MAX = 1 - TIMELINE_CP_TX_MIN;
-
-export const TRACKPAD_ZOOM_DELTA_FAC = 1 / 7;

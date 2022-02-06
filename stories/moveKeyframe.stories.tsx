@@ -22,7 +22,6 @@ import { onMousedownEmpty } from "~/core/handlers/mousedownEmpty";
 import { onAltMousedownKeyframe } from "~/core/handlers/altMousedownKeyframe";
 import { parseWheelEvent } from "~/core/utils/wheelEvent";
 import { onWheelZoom } from "~/core/handlers/zoom/wheelZoom";
-import { TRACKPAD_ZOOM_DELTA_FAC } from "~/core/constants";
 
 const initialTimelineState: TimelineState = {
   timelines: {
@@ -235,7 +234,7 @@ export const Test = () => {
         case "pinch_zoom": {
           stateManager.requestAction((params) => {
             const actionOptions = createActionOptions(params);
-            onWheelZoom(actionOptions, { e, impact: Math.abs(e.deltaY) * TRACKPAD_ZOOM_DELTA_FAC });
+            onWheelZoom(actionOptions, { e });
           });
           break;
         }
