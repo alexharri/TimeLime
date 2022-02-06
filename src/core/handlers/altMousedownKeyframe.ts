@@ -6,6 +6,7 @@ import { applyNewControlPointShift } from "~/core/timeline/applyNewControlPointS
 import { createGlobalToNormalFnFromActionOptions } from "~/core/utils/coords/globalToNormal";
 import { Vec2 } from "~/core/utils/math/Vec2";
 import { getViewportXUpperLower, getViewportYUpperLower } from "~/core/utils/viewportUtils";
+import { shiftViewBoundsByX } from "~/core/utils/viewUtils";
 import { SomeMouseEvent } from "~/types/commonTypes";
 import { NewControlPointShift, TimelineKeyframe } from "~/types/timelineTypes";
 
@@ -106,7 +107,7 @@ export function onAltMousedownKeyframe(actionOptions: ActionOptions, options: Op
       ephemeral.dispatch((actions) => actions.setFields({ newControlPointShift }));
     },
     mouseUp: (params) => {
-      const { primary, ephemeral } = params;
+      const { primary, view, ephemeral } = params;
       const { newControlPointShift } = ephemeral.state;
 
       const timeline = primary.state.timelines[timelineId];
@@ -130,6 +131,12 @@ export function onAltMousedownKeyframe(actionOptions: ActionOptions, options: Op
 
       const newTimeline = applyNewControlPointShift(timeline, newControlPointShift);
       primary.dispatch((actions) => actions.setTimeline(newTimeline));
+
+      const { pan = Vec2.ORIGIN } = ephemeral.state;
+
+      view.dispatch((actions) =>
+        actions.setFields({ viewBounds: shiftViewBoundsByX(view.state, pan.x) }),
+      );
 
       params.submit({ name: "Create control points", allowSelectionShift: true });
     },
