@@ -90,6 +90,21 @@ export function timelineReducer(
       };
     }
 
+    case "tl/remove-keyframe-control-points": {
+      const { timelineId, keyframeIndex } = action;
+      return {
+        ...state,
+        timelines: mergeInMap(state.timelines, timelineId, {
+          keyframes: (keyframes) =>
+            keyframes.map((keyframe, index) => {
+              return keyframeIndex !== index
+                ? keyframe
+                : { ...keyframe, controlPointLeft: null, controlPointRight: null };
+            }),
+        }),
+      };
+    }
+
     case "tl/set-keyframe-reflect-control-points": {
       const { timelineId, keyframeIndex, reflectControlPoints } = action;
 

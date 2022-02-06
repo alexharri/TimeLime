@@ -19,6 +19,7 @@ import { useIsomorphicLayoutEffect } from "~/core/utils/hook/useIsomorphicLayout
 import { useRenderCursor } from "~/core/utils/hook/useRenderCursor";
 import { onMousedownControlPoint } from "~/core/handlers/mousedownControlPoint";
 import { onMousedownEmpty } from "~/core/handlers/mousedownEmpty";
+import { onAltMousedownKeyframe } from "~/core/handlers/altMousedownKeyframe";
 
 const initialTimelineState: TimelineState = {
   timelines: {
@@ -177,6 +178,13 @@ export const Test = () => {
         stateManager.requestAction((params) => {
           const actionOptions = createActionOptions(params);
           onMousedownKeyframe(actionOptions, { e, ...actionToPerform });
+        });
+        break;
+      }
+      case "alt_mousedown_keyframe": {
+        stateManager.requestAction((params) => {
+          const actionOptions = createActionOptions(params);
+          onAltMousedownKeyframe(actionOptions, { e, ...actionToPerform });
         });
         break;
       }

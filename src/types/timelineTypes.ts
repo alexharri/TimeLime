@@ -39,3 +39,10 @@ export interface ControlPointShift {
   yFac: number;
   shiftKeyDown: boolean;
 }
+
+export interface NewControlPointShift {
+  shiftVector: Vec2;
+  timelineId: string;
+  keyframeId: string;
+  direction: "left" | "right";
+}

@@ -25,6 +25,7 @@ import { applyTimelineKeyframeShift } from "~/core/timeline/applyTimelineKeyfram
 import { RenderState } from "~/core/state/stateTypes";
 import { applyControlPointShift } from "~/core/timeline/applyControlPointShift";
 import { theme } from "~/core/theme";
+import { applyNewControlPointShift } from "~/core/timeline/applyNewControlPointShift";
 
 interface RenderOptions {
   ctx: CanvasRenderingContext2D;
@@ -336,8 +337,14 @@ export function renderGraphEditorWithRenderState(
 ) {
   const timelineSelectionState = renderState.selection;
   const { length, viewport, viewBounds } = renderState.view;
-  const { keyframeShift, controlPointShift, yBounds, pan, dragSelectionRect } =
-    renderState.ephemeral;
+  const {
+    keyframeShift,
+    controlPointShift,
+    yBounds,
+    pan,
+    dragSelectionRect,
+    newControlPointShift,
+  } = renderState.ephemeral;
 
   let { timelines } = renderState.primary;
 
@@ -358,6 +365,14 @@ export function renderGraphEditorWithRenderState(
         timelineSelection: renderState.selection[timeline.id],
         controlPointShift,
       }),
+    );
+  }
+
+  if (newControlPointShift) {
+    timelines = mapMap(timelines, (timeline) =>
+      timeline.id === newControlPointShift.timelineId
+        ? applyNewControlPointShift(timeline, newControlPointShift)
+        : timeline,
     );
   }
 

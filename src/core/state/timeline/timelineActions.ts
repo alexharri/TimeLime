@@ -44,6 +44,12 @@ export const timelineActions = {
     direction,
   }),
 
+  removeKeyframeControlPoints: (timelineId: string, keyframeIndex: number) => ({
+    type: <const>"tl/remove-keyframe-control-points",
+    timelineId,
+    keyframeIndex,
+  }),
+
   setKeyframeReflectControlPoints: (
     timelineId: string,
     keyframeIndex: number,
