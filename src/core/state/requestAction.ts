@@ -20,10 +20,7 @@ import { timelineSelectionActions } from "~/core/state/timelineSelection/timelin
 import { timelineSelectionReducer } from "~/core/state/timelineSelection/timelineSelectionReducer";
 import { ActionCollection, ActionsReturnType } from "~/types/commonTypes";
 
-export type ShouldAddToStackFn = (
-  prevState: TrackedState,
-  nextState: TrackedState
-) => boolean;
+export type ShouldAddToStackFn = (prevState: TrackedState, nextState: TrackedState) => boolean;
 
 interface SubmitOptions {
   name: string;
@@ -45,6 +42,7 @@ export interface RequestActionParams {
 
   cancel: () => void;
   submit: (options: SubmitOptions) => void;
+  submitView: () => void;
   addListener: typeof _addListener;
   removeListener: typeof _removeListener;
   done: boolean;
@@ -65,10 +63,7 @@ let _actionId: string | null;
 
 const getActionId = () => _actionId;
 
-const performRequestedAction = (
-  options: RequestActionOptions,
-  callback: RequestActionCallback
-) => {
+const performRequestedAction = (options: RequestActionOptions, callback: RequestActionCallback) => {
   const { shouldAddToStack, userActionOptions } = options;
 
   const actionId = (++_n).toString();
@@ -78,21 +73,18 @@ const performRequestedAction = (
 
   const done = () => actionId !== getActionId();
 
-  const addListener = Object.keys(_addListener).reduce<typeof _addListener>(
-    (obj, key) => {
-      (obj as any)[key] = (...args: any[]) => {
-        if (done()) {
-          return;
-        }
+  const addListener = Object.keys(_addListener).reduce<typeof _addListener>((obj, key) => {
+    (obj as any)[key] = (...args: any[]) => {
+      if (done()) {
+        return;
+      }
 
-        const cancelToken = (_addListener as any)[key](...args);
-        cancelTokens.push(cancelToken);
-        return cancelToken;
-      };
-      return obj;
-    },
-    {} as any
-  );
+      const cancelToken = (_addListener as any)[key](...args);
+      cancelTokens.push(cancelToken);
+      return cancelToken;
+    };
+    return obj;
+  }, {} as any);
 
   let onCompleteCallback: (() => void) | null = null;
 
@@ -114,7 +106,7 @@ const performRequestedAction = (
   }
 
   const createStateStore = <T, A extends ActionCollection>(
-    options: CreateStateStoreOptions<T, A>
+    options: CreateStateStoreOptions<T, A>,
   ): StateStore<T, A> => {
     const obj: StateStore<T, A> = {
       state: options.initialState,
@@ -137,8 +129,7 @@ const performRequestedAction = (
   };
 
   const initialPrimaryState = options.userActionOptions.initialState.primary;
-  const initialSelectionState =
-    options.userActionOptions.initialState.selection;
+  const initialSelectionState = options.userActionOptions.initialState.selection;
   const initialViewState = options.userActionOptions.initialState.view;
   const initialEphemeralState = {};
 
@@ -304,6 +295,25 @@ const performRequestedAction = (
       });
     },
 
+    submitView: () => {
+      if (!getActionId()) {
+        console.warn("Attempted to submit an action that does not exist.");
+        return;
+      }
+
+      if (getActionId() !== actionId) {
+        console.warn("Attempted to submit with the wrong action id.");
+        return;
+      }
+
+      ephemeral.reset();
+      primary.reset();
+      selection.reset();
+      _sendRenderState();
+      onComplete();
+      userActionOptions.onSubmitView({ viewState: view.state });
+    },
+
     addListener,
 
     removeListener: _removeListener,
@@ -318,7 +328,7 @@ const performRequestedAction = (
 
 export const requestAction = (
   options: RequestActionOptions,
-  callback: RequestActionCallback
+  callback: RequestActionCallback,
 ): void => {
   if (!getActionId()) {
     performRequestedAction(options, callback);

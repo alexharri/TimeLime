@@ -44,6 +44,10 @@ interface SubmitActionOptions {
   state: TrackedState;
 }
 
+interface SubmitViewActionOptions {
+  viewState: ViewState;
+}
+
 export interface ActionOptions {
   initialState: TrackedState;
 
@@ -59,4 +63,5 @@ export interface ActionOptions {
 
   onCancel: () => void;
   onSubmit: (options: SubmitActionOptions) => void;
+  onSubmitView: (options: SubmitViewActionOptions) => void;
 }

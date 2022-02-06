@@ -14,12 +14,14 @@ import { timelineSelectionActions } from "~/core/state/timelineSelection/timelin
 import { useStateManager } from "~/core/state/StateManager/useStateManager";
 import { RequestActionParams } from "~/core/state/StateManager/StateManager";
 import { onPan } from "~/core/handlers/pan/pan";
-import { onZoom } from "~/core/handlers/zoom";
+import { onZoom } from "~/core/handlers/zoom/zoom";
 import { useIsomorphicLayoutEffect } from "~/core/utils/hook/useIsomorphicLayoutEffect";
 import { useRenderCursor } from "~/core/utils/hook/useRenderCursor";
 import { onMousedownControlPoint } from "~/core/handlers/mousedownControlPoint";
 import { onMousedownEmpty } from "~/core/handlers/mousedownEmpty";
 import { onAltMousedownKeyframe } from "~/core/handlers/altMousedownKeyframe";
+import { parseWheelEvent } from "~/core/utils/wheelEvent";
+import { onWheelZoom } from "~/core/handlers/zoom/wheelZoom";
 
 const initialTimelineState: TimelineState = {
   timelines: {
@@ -145,6 +147,10 @@ export const Test = () => {
         viewRef.current = state.view;
         params.submitAction({ name, allowSelectionShift });
       },
+      onSubmitView: ({ viewState }) => {
+        viewRef.current = viewState;
+        params.cancelAction();
+      },
 
       onCancel: ifNotDone(() => {
         viewRef.current = initialViewState;
@@ -213,6 +219,45 @@ export const Test = () => {
       return;
     }
   };
+
+  useEffect(() => {
+    const canvas = ref.current;
+    if (!canvas) {
+      return;
+    }
+
+    const listener = (e: WheelEvent) => {
+      e.preventDefault();
+
+      const parsed = parseWheelEvent(e);
+
+      switch (parsed.type) {
+        case "pinch_zoom": {
+          stateManager.requestAction((params) => {
+            const actionOptions = createActionOptions(params);
+            onWheelZoom(actionOptions, { e });
+          });
+          break;
+        }
+
+        case "pan": {
+          /** @todo */
+          break;
+        }
+
+        case "mouse_wheel": {
+          /** @todo */
+          break;
+        }
+      }
+    };
+
+    canvas.addEventListener("wheel", listener, { passive: false });
+
+    return () => {
+      canvas.removeEventListener("wheel", listener);
+    };
+  }, [ref.current]);
 
   return <canvas ref={ref} width={800} height={400} onMouseDown={onMouseDown} />;
 };
