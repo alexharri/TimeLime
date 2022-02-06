@@ -22,6 +22,7 @@ import { onMousedownEmpty } from "~/core/handlers/mousedownEmpty";
 import { onAltMousedownKeyframe } from "~/core/handlers/altMousedownKeyframe";
 import { parseWheelEvent } from "~/core/utils/wheelEvent";
 import { onWheelZoom } from "~/core/handlers/zoom/wheelZoom";
+import { onWheelPan } from "~/core/handlers/pan/wheelPan";
 
 const initialTimelineState: TimelineState = {
   timelines: {
@@ -241,12 +242,10 @@ export const Test = () => {
         }
 
         case "pan": {
-          /** @todo */
-          break;
-        }
-
-        case "mouse_wheel": {
-          /** @todo */
+          stateManager.requestAction((params) => {
+            const actionOptions = createActionOptions(params);
+            onWheelPan(actionOptions, { e });
+          });
           break;
         }
       }
