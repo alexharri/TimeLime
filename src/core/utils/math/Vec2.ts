@@ -150,20 +150,13 @@ export class Vec2 {
     return new Vec2(this.x, a.y + (this.y - a.y) * scale);
   }
 
-  public scaleXY(
-    scaleX: number,
-    scaleY: number,
-    anchor: InputVec2 = Vec2.ORIGIN
-  ): Vec2 {
+  public scaleXY(scaleX: number, scaleY: number, anchor: InputVec2 = Vec2.ORIGIN): Vec2 {
     if (scaleX === 1 && scaleY === 1) {
       return this;
     }
 
     const a = resolveVec2(anchor);
-    return new Vec2(
-      a.x + (this.x - a.x) * scaleX,
-      a.y + (this.y - a.y) * scaleY
-    );
+    return new Vec2(a.x + (this.x - a.x) * scaleX, a.y + (this.y - a.y) * scaleY);
   }
 
   public rotate(rad: number, anchor: InputVec2 = Vec2.new(0, 0)): Vec2 {
@@ -187,6 +180,10 @@ export class Vec2 {
 
   public round(): Vec2 {
     return Vec2.new(Math.round(this.x), Math.round(this.y));
+  }
+
+  public floor(): Vec2 {
+    return Vec2.new(Math.floor(this.x), Math.floor(this.y));
   }
 
   public apply(fn: (vec: Vec2) => InputVec2): Vec2 {

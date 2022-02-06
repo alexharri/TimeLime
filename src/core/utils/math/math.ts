@@ -69,6 +69,21 @@ export const transformRectWithVecTransformation = (
 export const capToRange = (low: number, high: number, value: number) =>
   Math.min(high, Math.max(low, value));
 
+export const translateRect = (rect: Rect, vec: Vec2) => {
+  const { width, height, top, left } = rect;
+  return { top: top + vec.y, left: left + vec.x, width, height };
+};
+
+export const roundRect = (rect: Rect) => {
+  const { width, height, top, left } = rect;
+  return {
+    top: Math.round(top),
+    left: Math.round(left),
+    width: Math.round(width),
+    height: Math.round(height),
+  };
+};
+
 /**
  * @returns the bounding rect around two vectors `a` and `b`.
  */
