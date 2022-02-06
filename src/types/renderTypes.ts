@@ -7,11 +7,7 @@ export interface RenderOptions {
   timelines: TimelineMap;
   length: number;
 
-  /** @default canvas.width */
-  width?: number;
-
-  /** @default canvas.height */
-  height?: number;
+  viewport: Rect;
 
   /**
    * `start` and `end` should be numbers from 0 to 1. `start` should always be lower than `end`.

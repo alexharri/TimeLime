@@ -105,3 +105,14 @@ export const isVecInRect = (vec: Vec2, rect: Rect) =>
   vec.x <= rect.left + rect.width &&
   vec.y >= rect.top &&
   vec.y <= rect.top + rect.height;
+
+export const contractRect = (rect: Rect, contractBy: number): Rect => {
+  return {
+    left: rect.left + contractBy,
+    top: rect.top + contractBy,
+    width: rect.width - contractBy * 2,
+    height: rect.height - contractBy * 2,
+  };
+};
+
+export const expandRect = (rect: Rect, expandBy: number): Rect => contractRect(rect, expandBy * -1);

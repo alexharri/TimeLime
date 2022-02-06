@@ -27,13 +27,7 @@ import { theme } from "~/core/theme";
 import { applyNewControlPointShift } from "~/core/timeline/applyNewControlPointShift";
 import { getGraphEditorViewport } from "~/core/utils/viewportUtils";
 import { RenderOptions } from "~/types/renderTypes";
-
-const getWidth = (options: RenderOptions): number => options.width ?? options.ctx.canvas.width;
-const getHeight = (options: RenderOptions): number => options.height ?? options.ctx.canvas.height;
-const getDimensions = (options: RenderOptions) => ({
-  width: getWidth(options),
-  height: getHeight(options),
-});
+import { renderViewBounds } from "~/core/render/viewBounds/renderViewBounds";
 
 export function renderGraphEditor(options: RenderOptions) {
   const {
@@ -41,21 +35,13 @@ export function renderGraphEditor(options: RenderOptions) {
     timelines,
     viewBounds = [0, 1],
     viewBoundsHeight = 0,
+    viewport,
     length,
     yBounds,
     pan = Vec2.ORIGIN,
     timelineSelectionState = {},
   } = options;
-  const { width, height } = getDimensions(options);
-
-  const viewport: Rect = { width, height, left: 0, top: 0 };
-
-  ctx.clearRect(viewport.left, viewport.top, width, height);
-
-  ctx.beginPath();
-  ctx.rect(viewport.left, viewport.top, width, height);
-  ctx.fillStyle = theme.background;
-  ctx.fill();
+  const { width, height } = viewport;
 
   const timelineList = Object.values(timelines);
 
@@ -67,6 +53,23 @@ export function renderGraphEditor(options: RenderOptions) {
   const timelineCurves = timelineList.map((timeline) => keyframesToCurves(timeline.keyframes));
 
   const graphEditorViewport = getGraphEditorViewport({ viewport, viewBoundsHeight });
+
+  ctx.clearRect(
+    graphEditorViewport.left,
+    graphEditorViewport.top,
+    graphEditorViewport.width,
+    graphEditorViewport.height,
+  );
+
+  ctx.beginPath();
+  ctx.rect(
+    graphEditorViewport.left,
+    graphEditorViewport.top,
+    graphEditorViewport.width,
+    graphEditorViewport.height,
+  );
+  ctx.fillStyle = theme.background;
+  ctx.fill();
 
   const toViewportY = createNormalToViewportYFn({
     graphEditorViewport,
@@ -298,10 +301,7 @@ export function renderGraphEditor(options: RenderOptions) {
     });
   }
 
-  ctx.beginPath();
-  ctx.rect(0, 0, width, viewBoundsHeight);
-  ctx.fillStyle = "red";
-  ctx.fill();
+  renderViewBounds(options);
 }
 
 export function renderGraphEditorWithRenderState(
@@ -353,8 +353,7 @@ export function renderGraphEditorWithRenderState(
     ctx,
     length,
     timelines,
-    width: viewport.width,
-    height: viewport.height,
+    viewport,
     viewBoundsHeight,
     timelineSelectionState,
     viewBounds,
