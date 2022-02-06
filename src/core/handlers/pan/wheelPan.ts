@@ -13,7 +13,7 @@ export function onWheelPan(actionOptions: ActionOptions, options: Options) {
 
   requestAction({ userActionOptions: actionOptions }, (params) => {
     const { view } = params;
-    const { length, viewBounds } = view.state;
+    const { length, viewBounds, allowExceedViewBounds } = view.state;
 
     const globalToNormal = createGlobalToNormalFnFromActionOptions(actionOptions);
 
@@ -27,10 +27,10 @@ export function onWheelPan(actionOptions: ActionOptions, options: Options) {
 
     let newBounds = [viewBounds[0], viewBounds[1]] as [number, number];
 
-    if (tChange > rightShiftMax) {
+    if (!allowExceedViewBounds && tChange > rightShiftMax) {
       newBounds[1] = 1;
       newBounds[0] += rightShiftMax;
-    } else if (tChange < leftShiftMax) {
+    } else if (!allowExceedViewBounds && tChange < leftShiftMax) {
       newBounds[0] = 0;
       newBounds[1] += leftShiftMax;
     } else {
