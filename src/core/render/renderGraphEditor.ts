@@ -1,4 +1,3 @@
-import { colors } from "~/core/colors";
 import {
   renderCircle,
   renderDiamond,
@@ -198,7 +197,7 @@ export function renderGraphEditor(options: RenderOptions) {
     }
 
     for (const [c, yOff] of <const>[
-      [colors.dark400, 1],
+      [theme.timelineShadow, 1],
       [color, 0],
     ]) {
       ctx.beginPath();
@@ -284,12 +283,12 @@ export function renderGraphEditor(options: RenderOptions) {
       const selected = timelineSelection && timelineSelection.keyframes[k.id];
 
       if (selected) {
-        renderDiamond(ctx, vec, { fillColor: colors.dark600, width: 18, height: 18 });
+        renderDiamond(ctx, vec, { fillColor: theme.keyframeShadow, width: 18, height: 18 });
         renderDiamond(ctx, vec, { fillColor: theme.keyframeColor, width: 15, height: 15 });
         renderDiamond(ctx, vec, { fillColor: theme.keyframeFill, width: 11, height: 11 });
         renderDiamond(ctx, vec, { fillColor: theme.keyframeColor, width: 7, height: 7 });
       } else {
-        renderDiamond(ctx, vec, { fillColor: colors.dark600, width: 14, height: 14 });
+        renderDiamond(ctx, vec, { fillColor: theme.keyframeShadow, width: 14, height: 14 });
         renderDiamond(ctx, vec, { fillColor: theme.keyframeColor, width: 11, height: 11 });
         renderDiamond(ctx, vec, { fillColor: theme.keyframeFill, width: 7.5, height: 7.5 });
       }
