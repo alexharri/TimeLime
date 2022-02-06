@@ -233,7 +233,6 @@ export const Test = () => {
 
       switch (parsed.type) {
         case "pinch_zoom": {
-          console.log("pinch zoom");
           stateManager.requestAction((params) => {
             const actionOptions = createActionOptions(params);
             onWheelZoom(actionOptions, { e, impact: Math.abs(e.deltaY) * TRACKPAD_ZOOM_DELTA_FAC });
