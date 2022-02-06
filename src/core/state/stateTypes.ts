@@ -2,7 +2,7 @@ import { TimelineState } from "~/core/state/timeline/timelineReducer";
 import { TimelineSelectionState } from "~/core/state/timelineSelection/timelineSelectionReducer";
 import { Vec2 } from "~/core/utils/math/Vec2";
 import { Rect, ViewBounds, YBounds } from "~/types/commonTypes";
-import { ControlPointShift } from "~/types/timelineTypes";
+import { ControlPointShift, NewControlPointShift } from "~/types/timelineTypes";
 
 export type PrimaryState = TimelineState;
 
@@ -20,6 +20,7 @@ export interface EphemeralState {
   pan?: Vec2;
   keyframeShift?: Vec2;
   controlPointShift?: ControlPointShift;
+  newControlPointShift?: NewControlPointShift;
   cursor?: string;
   dragSelectionRect?: Rect;
 }
