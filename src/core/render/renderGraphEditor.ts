@@ -12,7 +12,11 @@ import {
 } from "~/core/utils/coords/normalToViewport";
 import { getGraphEditorYBounds } from "~/core/render/yBounds";
 import { keyframesToCurves } from "~/core/transform/keyframesToCurves";
-import { transformRectWithVecTransformation, translateRect } from "~/core/utils/math/math";
+import {
+  roundRect,
+  transformRectWithVecTransformation,
+  translateRect,
+} from "~/core/utils/math/math";
 import { Vec2 } from "~/core/utils/math/Vec2";
 import { generateGraphEditorYTicksFromBounds } from "~/core/utils/yTicks";
 import { Curve, Rect, YBounds } from "~/types/commonTypes";
@@ -187,7 +191,7 @@ export function renderGraphEditor(options: RenderOptions) {
 
     const transformedCurves = curves.map((curve) => curve.map((vec) => toViewport(vec))) as Curve[];
 
-    let color = theme.timelines[i % theme.timelines.length];
+    let color = theme.timelineColors[i % theme.timelineColors.length];
 
     if (options.colors?.[timeline.id]) {
       color = options.colors[timeline.id]!;
@@ -264,7 +268,7 @@ export function renderGraphEditor(options: RenderOptions) {
       }
     }
     ctx.setLineDash([]);
-    ctx.strokeStyle = "yellow";
+    ctx.strokeStyle = theme.controlPointColor;
     ctx.lineWidth = 1;
     ctx.stroke();
     ctx.closePath();
@@ -273,16 +277,22 @@ export function renderGraphEditor(options: RenderOptions) {
      * Keyframes
      */
     keyframes.forEach((k) => {
-      const vec = toViewport(Vec2.new(k.index, k.value));
+      // Flooring and adding (0.5, 0.5) makes the keyframe hit the middle of the pixel, which
+      // makes it render in a crisp manner when the diamond width is an odd number.
+      const vec = toViewport(Vec2.new(k.index, k.value)).floor().addXY(0.5, 0.5);
       const timelineSelection = timelineSelectionState[timeline.id];
       const selected = timelineSelection && timelineSelection.keyframes[k.id];
-      renderDiamond(ctx, vec, {
-        fillColor: selected ? "#2f9eff" : "#333",
-        width: 7.5,
-        height: 7.5,
-        strokeColor: "#2f9eff",
-        strokeWidth: 1,
-      });
+
+      if (selected) {
+        renderDiamond(ctx, vec, { fillColor: colors.dark600, width: 18, height: 18 });
+        renderDiamond(ctx, vec, { fillColor: theme.keyframeColor, width: 15, height: 15 });
+        renderDiamond(ctx, vec, { fillColor: theme.keyframeFill, width: 11, height: 11 });
+        renderDiamond(ctx, vec, { fillColor: theme.keyframeColor, width: 7, height: 7 });
+      } else {
+        renderDiamond(ctx, vec, { fillColor: colors.dark600, width: 14, height: 14 });
+        renderDiamond(ctx, vec, { fillColor: theme.keyframeColor, width: 11, height: 11 });
+        renderDiamond(ctx, vec, { fillColor: theme.keyframeFill, width: 7.5, height: 7.5 });
+      }
     });
 
     /**
@@ -299,21 +309,24 @@ export function renderGraphEditor(options: RenderOptions) {
       const k1 = keyframes[i + 1];
 
       if (k0.controlPointRight) {
-        renderCircle(ctx, path[1], { color: "yellow", radius: 2 });
+        renderCircle(ctx, path[1], { color: theme.controlPointColor, radius: 2 });
       }
 
       if (k1.controlPointLeft) {
-        renderCircle(ctx, path[2], { color: "yellow", radius: 2 });
+        renderCircle(ctx, path[2], { color: theme.controlPointColor, radius: 2 });
       }
     }
   });
 
   if (options.dragSelectionRect) {
-    const rect = transformRectWithVecTransformation(options.dragSelectionRect, toViewport);
+    const rect = translateRect(
+      roundRect(transformRectWithVecTransformation(options.dragSelectionRect, toViewport)),
+      Vec2.new(0.5, 0.5),
+    );
     renderRect(ctx, rect, {
-      strokeColor: colors.red500,
+      strokeColor: theme.selectionRectBorder,
       strokeWidth: 1,
-      fillColor: "rgba(255, 0, 0, .1)",
+      fillColor: theme.selectionRectFill,
     });
   }
 }
