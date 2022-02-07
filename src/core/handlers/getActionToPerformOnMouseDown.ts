@@ -3,7 +3,9 @@ import { getGraphEditorYBounds } from "~/core/render/yBounds";
 import { createGlobalToNormalFn as createGlobalToNormalFn } from "~/core/utils/coords/globalToNormal";
 import { createNormalToViewportFn } from "~/core/utils/coords/normalToViewport";
 import { getGraphEditorTargetObject } from "~/core/utils/getGraphEditorTargetObject";
+import { expandRect, isVecInRect } from "~/core/utils/math/math";
 import { Vec2 } from "~/core/utils/math/Vec2";
+import { getViewBoundHandleRects } from "~/core/utils/viewBoundsUtils";
 import { getGraphEditorViewport } from "~/core/utils/viewportUtils";
 import { MousePosition, Rect, SomeMouseEvent, ViewBounds } from "~/types/commonTypes";
 import { TimelineKeyframe, TimelineMap } from "~/types/timelineTypes";
@@ -39,6 +41,10 @@ type ActionToPerform =
     }
   | {
       type: "pan_view_bounds";
+    }
+  | {
+      type: "mousedown_view_bounds_handle";
+      which: "left" | "right";
     };
 
 interface ActionToPerformOptions {
@@ -64,6 +70,14 @@ export const getActionToPerformOnMouseDown = (options: ActionToPerformOptions): 
   const globalMousePosition = Vec2.fromEvent(e);
 
   const viewportMousePosition = globalMousePosition.subXY(viewport.left, viewport.top);
+
+  const handleRects = getViewBoundHandleRects({ viewport, viewBounds, viewBoundsHeight });
+
+  for (const which of <const>["left", "right"]) {
+    if (isVecInRect(viewportMousePosition, expandRect(handleRects[which], 2))) {
+      return { type: "mousedown_view_bounds_handle", which };
+    }
+  }
 
   if (viewBoundsHeight > 0 && viewportMousePosition.y <= viewBoundsHeight) {
     return { type: "pan_view_bounds" };
