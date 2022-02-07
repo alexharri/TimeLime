@@ -71,16 +71,25 @@ export const getActionToPerformOnMouseDown = (options: ActionToPerformOptions): 
 
   const viewportMousePosition = globalMousePosition.subXY(viewport.left, viewport.top);
 
-  const handleRects = getViewBoundHandleRects({ viewport, viewBounds, viewBoundsHeight });
+  if (viewBoundsHeight > 0) {
+    const handleRects = getViewBoundHandleRects({ viewport, viewBounds, viewBoundsHeight });
 
-  for (const which of <const>["left", "right"]) {
-    if (isVecInRect(viewportMousePosition, expandRect(handleRects[which], 2))) {
-      return { type: "mousedown_view_bounds_handle", which };
+    for (const which of <const>["left", "right"]) {
+      if (isVecInRect(viewportMousePosition, expandRect(handleRects[which], 2))) {
+        return { type: "mousedown_view_bounds_handle", which };
+      }
     }
-  }
 
-  if (viewBoundsHeight > 0 && viewportMousePosition.y <= viewBoundsHeight) {
-    return { type: "pan_view_bounds" };
+    const viewBoundsBarRect: Rect = {
+      left: handleRects.left.left,
+      top: 0,
+      height: handleRects.left.height,
+      width: handleRects.right.left + handleRects.right.width - handleRects.left.left,
+    };
+
+    if (isVecInRect(viewportMousePosition, viewBoundsBarRect)) {
+      return { type: "pan_view_bounds" };
+    }
   }
 
   const graphEditorViewport = getGraphEditorViewport(options);
