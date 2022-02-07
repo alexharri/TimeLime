@@ -1,4 +1,3 @@
-import { colors } from "~/core/colors";
 import { VIEW_BOUNDS_HANDLE_WIDTH } from "~/core/constants";
 import { renderRect } from "~/core/render/renderPrimitives";
 import { theme } from "~/core/theme";
@@ -84,7 +83,7 @@ export function renderViewBounds(options: RenderOptions) {
       { fillColor: theme.viewBoundsBackground },
     );
     for (const top of [0, viewBoundsHeight - 1]) {
-      renderRect(ctx, { ...rectBase, top, height: 1 }, { fillColor: colors.dark200 });
+      renderRect(ctx, { ...rectBase, top, height: 1 }, { fillColor: theme.viewBoundsBorder });
     }
   }
 
@@ -100,8 +99,8 @@ export function renderViewBounds(options: RenderOptions) {
   ctx.beginPath();
   traceLeftRoundedRect(ctx, contractRect(rectLeft, 0.5), true);
   traceRightRoundedRect(ctx, contractRect(rectRight, 0.5), true);
-  ctx.fillStyle = colors.light200;
-  ctx.strokeStyle = colors.dark200;
+  ctx.fillStyle = theme.viewBoundsHandleFill;
+  ctx.strokeStyle = theme.viewBoundsHandleBorder;
   ctx.lineWidth = 1;
   ctx.fill();
   ctx.stroke();
@@ -109,7 +108,7 @@ export function renderViewBounds(options: RenderOptions) {
   ctx.beginPath();
   traceLeftRoundedRect(ctx, contractRect(rectLeft, 1.5), false);
   traceRightRoundedRect(ctx, contractRect(rectRight, 1.5), false);
-  ctx.strokeStyle = colors.light400;
+  ctx.strokeStyle = theme.viewBoundsHandleHighlight;
   ctx.lineWidth = 1;
   ctx.stroke();
 
@@ -120,8 +119,8 @@ export function renderViewBounds(options: RenderOptions) {
     renderRect(
       ctx,
       { left, top, width, height: viewBoundsHeight - 2 },
-      { fillColor: colors.gray300 },
+      { fillColor: theme.viewBoundsBarFill },
     );
-    renderRect(ctx, { left, top, width, height: 1 }, { fillColor: colors.gray600 });
+    renderRect(ctx, { left, top, width, height: 1 }, { fillColor: theme.viewBoundsBarHighlight });
   }
 }
