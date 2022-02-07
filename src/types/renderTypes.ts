@@ -1,19 +1,13 @@
 import { Vec2 } from "~/core/utils/math/Vec2";
-import { Rect, YBounds } from "~/types/commonTypes";
+import { Rect, ViewBounds, YBounds } from "~/types/commonTypes";
 import { TimelineMap, TimelineSelectionMap } from "~/types/timelineTypes";
 
 export interface RenderOptions {
   ctx: CanvasRenderingContext2D;
   timelines: TimelineMap;
   length: number;
-
   viewport: Rect;
-
-  /**
-   * `start` and `end` should be numbers from 0 to 1. `start` should always be lower than `end`.
-   */
-  viewBounds: [start: number, end: number];
-
+  viewBounds: ViewBounds;
   viewBoundsHeight: number;
 
   /**
@@ -26,7 +20,7 @@ export interface RenderOptions {
 
   yBounds?: YBounds;
 
-  /** @default Vec2.ORIGIN */
+  /** @default Vec2.new(0, 0) */
   pan?: Vec2;
 
   dragSelectionRect?: Rect;
