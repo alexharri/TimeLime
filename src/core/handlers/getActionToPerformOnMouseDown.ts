@@ -65,7 +65,7 @@ export const getActionToPerformOnMouseDown = (options: ActionToPerformOptions): 
 
   const viewportMousePosition = globalMousePosition.subXY(viewport.left, viewport.top);
 
-  if (viewportMousePosition.y <= viewBoundsHeight) {
+  if (viewBoundsHeight > 0 && viewportMousePosition.y <= viewBoundsHeight) {
     return { type: "pan_view_bounds" };
   }
 
