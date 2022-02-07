@@ -9,20 +9,15 @@ import { TimelineMap } from "~/types/timelineTypes";
 
 interface Options {
   viewport: Rect;
-
   graphEditorViewport: Rect;
-
   length: number;
-
   viewBounds: ViewBounds;
-
   timelines: TimelineMap;
-
   yBounds?: YBounds;
 }
 
 export const createGlobalToNormalFn = (options: Options) => {
-  const { timelines, viewBounds = [0, 1], viewport, graphEditorViewport, length } = options;
+  const { timelines, viewBounds, viewport, graphEditorViewport, length } = options;
 
   const yBounds =
     options.yBounds ||
