@@ -28,6 +28,7 @@ import {
   onMoveViewBoundsEdgeLeft,
   onMoveViewBoundsEdgeRight,
 } from "~/core/handlers/pan/moveViewBoundsEdge";
+import { Vec2 } from "~/core/utils/math/Vec2";
 
 const initialTimelineState: TimelineState = {
   timelines: {
@@ -172,7 +173,7 @@ export const Test = () => {
     const { viewport, viewBounds, viewBoundsHeight, length } = viewRef.current;
 
     const actionToPerform = getActionToPerformOnMouseDown({
-      e,
+      globalMousePosition: Vec2.fromEvent(e),
       length,
       timelines: stateManager.getActionState().state.timelines,
       viewport,

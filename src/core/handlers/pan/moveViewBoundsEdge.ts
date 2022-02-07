@@ -4,6 +4,7 @@ import { Vec2 } from "~/core/utils/math/Vec2";
 
 function createMoveViewBoundsEdgeHandler(which: "left" | "right") {
   return createPanHandler({
+    cursor: "ew-resize",
     getNextViewBounds: ({ viewport, viewState, mousePosition, initialMousePosition }) => {
       const getMousePositionT = (viewportMousePosition: Vec2) => {
         const w = viewport.width - VIEW_BOUNDS_HANDLE_WIDTH * 2;

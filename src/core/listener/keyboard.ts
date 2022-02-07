@@ -91,13 +91,12 @@ if (typeof window !== "undefined") {
   });
 }
 
-export const isKeyCodeOf = (key: Key, keyCode: number): boolean =>
-  keys[key] === keyCode;
+export const isKeyCodeOf = (key: Key, keyCode: number): boolean => keys[key] === keyCode;
 
 export const addKeyDownChangeListener = (
   key: Key,
   options: { allowRepeated: boolean },
-  fn: (isKeyDown: boolean) => void
+  fn: (isKeyDown: boolean) => void,
 ): void => {
   let _down = false;
   const listener = (isKeyDown: boolean) => {
@@ -116,10 +115,7 @@ export const addKeyDownChangeListener = (
   _listeners[key].push(listener);
 };
 
-export const removeKeyDownChangeListener = (
-  key: Key,
-  fn: (isKeyDown: boolean) => void
-): void => {
+export const removeKeyDownChangeListener = (key: Key, fn: (isKeyDown: boolean) => void): void => {
   if (!_listeners[key]) {
     return;
   }
@@ -130,4 +126,13 @@ export const removeKeyDownChangeListener = (
 
     return _fn !== fn;
   });
+};
+
+export const _MockKey = {
+  down: (key: Key) => {
+    keyPressMap[keys[key]] = true;
+  },
+  up: (key: Key) => {
+    keyPressMap[keys[key]] = false;
+  },
 };

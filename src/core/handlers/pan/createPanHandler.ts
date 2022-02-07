@@ -21,6 +21,7 @@ interface GetNextViewBoundsOptions {
 }
 
 interface CreateOptions {
+  cursor?: string;
   getNextViewBounds: (options: GetNextViewBoundsOptions) => ViewBounds;
 }
 
@@ -51,7 +52,7 @@ export function createPanHandler(createOptions: CreateOptions) {
         if (ANIMATE_Y_BOUNDS_ON_PAN) {
           startPanActionYBoundsAnimation(params, yBoundsAnimationReference);
         }
-        const cursor = base64Cursors.grabbing;
+        const cursor = createOptions.cursor || base64Cursors.grabbing;
         params.ephemeral.dispatch((actions) => actions.setFields({ cursor }));
       },
       mouseMove: (params, { mousePosition, initialMousePosition }) => {
