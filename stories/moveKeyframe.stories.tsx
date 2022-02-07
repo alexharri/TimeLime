@@ -23,6 +23,7 @@ import { onAltMousedownKeyframe } from "~/core/handlers/altMousedownKeyframe";
 import { parseWheelEvent } from "~/core/utils/wheelEvent";
 import { onWheelZoom } from "~/core/handlers/zoom/wheelZoom";
 import { onWheelPan } from "~/core/handlers/pan/wheelPan";
+import { onPanViewBounds } from "~/core/handlers/pan/panViewBounds";
 
 const initialTimelineState: TimelineState = {
   timelines: {
@@ -214,6 +215,12 @@ export const Test = () => {
       case "zoom_in": {
         stateManager.requestAction((params) => {
           onZoom(createActionOptions(params), { ...actionToPerform, e });
+        });
+        break;
+      }
+      case "pan_view_bounds": {
+        stateManager.requestAction((params) => {
+          onPanViewBounds(createActionOptions(params), { e });
         });
         break;
       }
