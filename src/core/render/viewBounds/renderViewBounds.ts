@@ -7,8 +7,6 @@ import { shiftViewBoundsByX } from "~/core/utils/viewUtils";
 import { Rect } from "~/types/commonTypes";
 import { RenderOptions } from "~/types/renderTypes";
 
-const { PI } = Math;
-
 // For reference:
 //
 //    Top left:      ctx.arc(x, y, radius, -Math.PI * 0.5,  Math.PI,       true);
@@ -17,6 +15,7 @@ const { PI } = Math;
 //    Bottom right:  ctx.arc(x, y, radius, 0,               Math.PI * 0.5, false);
 //
 
+const { PI } = Math;
 const br = 4; // Border radius
 
 const getCoords = (rect: Rect) => {
@@ -39,6 +38,7 @@ function traceLeftRoundedRect(ctx: CanvasRenderingContext2D, rect: Rect, full: b
     ctx.lineTo(x1, y1);
     ctx.closePath();
   } else {
+    // We're drawing the "highlight" of the rounded rect
     ctx.arc(x0 + br, y1 - br, br, PI, PI * 0.75, true);
   }
 }
@@ -54,6 +54,7 @@ function traceRightRoundedRect(ctx: CanvasRenderingContext2D, rect: Rect, full: 
     ctx.arc(x1 - br, y1 - br, br, 0, PI * 0.5, false);
     ctx.closePath();
   } else {
+    // We're drawing the "highlight" of the rounded rect
     ctx.arc(x1 - br, y0 + br, br, -PI * 0.5, -PI * 0.2, false);
   }
 }
@@ -99,9 +100,9 @@ export function renderViewBounds(options: RenderOptions) {
   traceLeftRoundedRect(ctx, contractRect(rectLeft, 0.5), true);
   traceRightRoundedRect(ctx, contractRect(rectRight, 0.5), true);
   ctx.fillStyle = colors.light200;
-  ctx.fill();
   ctx.strokeStyle = colors.dark200;
   ctx.lineWidth = 1;
+  ctx.fill();
   ctx.stroke();
 
   ctx.beginPath();
@@ -111,24 +112,11 @@ export function renderViewBounds(options: RenderOptions) {
   ctx.lineWidth = 1;
   ctx.stroke();
 
-  renderRect(
-    ctx,
-    {
-      left: firstLeft + VIEW_BOUNDS_HANDLE_WIDTH,
-      top: 1,
-      height: 22,
-      width: secondLeft - firstLeft - VIEW_BOUNDS_HANDLE_WIDTH,
-    },
-    { fillColor: colors.gray300 },
-  );
-  renderRect(
-    ctx,
-    {
-      left: firstLeft + VIEW_BOUNDS_HANDLE_WIDTH,
-      top: 1,
-      height: 1,
-      width: secondLeft - firstLeft - VIEW_BOUNDS_HANDLE_WIDTH,
-    },
-    { fillColor: colors.gray600 },
-  );
+  {
+    const left = firstLeft + VIEW_BOUNDS_HANDLE_WIDTH;
+    const width = secondLeft - firstLeft - VIEW_BOUNDS_HANDLE_WIDTH;
+    const top = 1;
+    renderRect(ctx, { left, top, width, height: 22 }, { fillColor: colors.gray300 });
+    renderRect(ctx, { left, top, width, height: 1 }, { fillColor: colors.gray600 });
+  }
 }
