@@ -13,7 +13,7 @@ export const theme = {
   background: colors.dark700,
   backgroundOutside: colors.dark500,
 
-  yTickLabel: colors.light500,
+  yTickLabel: colors.light700,
   yTickLine: colors.gray500,
   yTickLineShadow: colors.dark500,
   yTickLineOutside: colors.dark800,
