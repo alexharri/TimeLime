@@ -6,7 +6,7 @@ import { mockMouseEvent } from "~/mock/mockMouseEvent";
 import { Rect, ViewBounds } from "~/types/commonTypes";
 import { Timeline } from "~/types/timelineTypes";
 
-const viewBounds: ViewBounds = [0, 0];
+const viewBounds: ViewBounds = [0, 1];
 const viewBoundsHeight = 0;
 
 describe("getActionToPerformOnMouseDown", () => {
