@@ -75,21 +75,18 @@ export function renderViewBounds(options: RenderOptions) {
 
   ctx.clearRect(0, 0, viewport.width, viewBoundsHeight);
 
-  renderRect(
-    ctx,
-    { top: 0, left: 0, width: viewport.width, height: viewBoundsHeight },
-    { fillColor: theme.viewBoundsBackground },
-  );
-  renderRect(
-    ctx,
-    { top: 0, left: 0, width: viewport.width, height: 1 },
-    { fillColor: colors.dark200 },
-  );
-  renderRect(
-    ctx,
-    { top: viewBoundsHeight - 1, left: 0, width: viewport.width, height: 1 },
-    { fillColor: colors.dark200 },
-  );
+  {
+    // Render the background track
+    const rectBase = { width: viewport.width, top: 0, left: 0 };
+    renderRect(
+      ctx,
+      { ...rectBase, height: viewBoundsHeight },
+      { fillColor: theme.viewBoundsBackground },
+    );
+    for (const top of [0, viewBoundsHeight - 1]) {
+      renderRect(ctx, { ...rectBase, top, height: 1 }, { fillColor: colors.dark200 });
+    }
+  }
 
   const w = viewport.width - VIEW_BOUNDS_HANDLE_WIDTH * 2;
 
