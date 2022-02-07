@@ -36,6 +36,9 @@ type ActionToPerform =
     }
   | {
       type: "zoom_in";
+    }
+  | {
+      type: "pan_view_bounds";
     };
 
 interface ActionToPerformOptions {
@@ -48,7 +51,7 @@ interface ActionToPerformOptions {
 }
 
 export const getActionToPerformOnMouseDown = (options: ActionToPerformOptions): ActionToPerform => {
-  const { e, timelines, viewBounds, length, viewport } = options;
+  const { e, timelines, viewBounds, length, viewport, viewBoundsHeight } = options;
 
   if (isKeyDown("Space")) {
     return { type: "pan" };
@@ -59,6 +62,12 @@ export const getActionToPerformOnMouseDown = (options: ActionToPerformOptions): 
   }
 
   const globalMousePosition = Vec2.fromEvent(e);
+
+  const viewportMousePosition = globalMousePosition.subXY(viewport.left, viewport.top);
+
+  if (viewportMousePosition.y <= viewBoundsHeight) {
+    return { type: "pan_view_bounds" };
+  }
 
   const graphEditorViewport = getGraphEditorViewport(options);
 
