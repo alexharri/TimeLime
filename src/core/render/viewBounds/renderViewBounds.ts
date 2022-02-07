@@ -62,6 +62,10 @@ function traceRightRoundedRect(ctx: CanvasRenderingContext2D, rect: Rect, full: 
 export function renderViewBounds(options: RenderOptions) {
   const { ctx, viewBoundsHeight, viewport, pan, length } = options;
 
+  if (viewBoundsHeight < 1) {
+    return;
+  }
+
   const viewBounds = pan
     ? shiftViewBoundsByX(
         { allowExceedViewBounds: true, length, viewBounds: options.viewBounds },
