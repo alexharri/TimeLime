@@ -1,8 +1,8 @@
-import React, { useCallback, useEffect, useRef } from "react";
-import { PrimaryState, ViewState } from "~/core/state/stateTypes";
+import React from "react";
+import { PrimaryState } from "~/core/state/stateTypes";
 import { curvesToKeyframes } from "~/core/transform/curvesToKeyframes";
 import { Canvas } from "~/css-keyframes/Canvas";
-import { CSSKeyframesStateManagerProvider } from "~/css-keyframes/state";
+import { useTimelines } from "~/core/utils/hook/useTimelines";
 
 const xTranslateKeyframes = curvesToKeyframes([
   [
@@ -24,9 +24,11 @@ const initialState: PrimaryState = {
 };
 
 export const CSSKeyframes: React.FC = () => {
+  const { canvasRef } = useTimelines({ initialState });
+
   return (
-    <CSSKeyframesStateManagerProvider initialState={initialState}>
-      <Canvas />
-    </CSSKeyframesStateManagerProvider>
+    <div>
+      <Canvas ref={canvasRef} />
+    </div>
   );
 };

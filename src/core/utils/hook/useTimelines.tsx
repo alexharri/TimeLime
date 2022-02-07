@@ -1,10 +1,10 @@
 import React, { useCallback, useMemo, useRef } from "react";
+import { attachHandlers } from "~/core/handlers/attachHandlers";
 import { renderGraphEditorWithRenderState } from "~/core/render/renderGraphEditor";
 import { StateManager } from "~/core/state/StateManager/StateManager";
 import { useStateManager } from "~/core/state/StateManager/useStateManager";
 import {
   ActionOptions,
-  PrimaryState,
   RenderState,
   SelectionState,
   TrackedState,
@@ -21,28 +21,28 @@ import { useIsomorphicLayoutEffect } from "~/core/utils/hook/useIsomorphicLayout
 import { useRefRect } from "~/core/utils/hook/useRefRect";
 import { useRenderCursor } from "~/core/utils/hook/useRenderCursor";
 import { TimelineAction, TimelineSelectionAction } from "~/types/reducerTypes";
+import { TimelineMap } from "~/types/timelineTypes";
 
-interface ContextValue {
+interface UseTimelinesResult {
   getState: () => TrackedState;
   requestAction: (callback: (actionOptions: ActionOptions) => void) => void;
-  state: { primary: PrimaryState; selection: SelectionState; view: ViewState };
+  timelines: TimelineMap;
+  selection: SelectionState;
   stateManager: StateManager<
     TimelineState,
     TimelineSelectionState,
     TimelineAction,
     TimelineSelectionAction
   >;
-  canvasRef: React.RefObject<HTMLCanvasElement>;
+  canvasRef: React.Ref<HTMLCanvasElement>;
 }
 
-export const CSSKeyframesStateContext = React.createContext<ContextValue>(null!);
-
-interface Props {
+interface Options {
   initialState: TimelineState;
   initialSelectionState?: TimelineSelectionState;
 }
 
-export const CSSKeyframesStateManagerProvider: React.FC<Props> = (props) => {
+export const useTimelines = (props: Options) => {
   const { state, stateManager } = useStateManager({
     initialState: props.initialState,
     initialSelectionState: props.initialSelectionState || {},
@@ -59,7 +59,7 @@ export const CSSKeyframesStateManagerProvider: React.FC<Props> = (props) => {
     viewport: null!,
   });
 
-  const canvasRef = useRef<HTMLCanvasElement>(null);
+  const canvasRef = useRef<HTMLCanvasElement | null>(null);
   const canvasRect = useRefRect(canvasRef);
 
   const { renderCursor } = useRenderCursor({
@@ -161,23 +161,30 @@ export const CSSKeyframesStateManagerProvider: React.FC<Props> = (props) => {
 
   const getState = useCallback(() => renderStateRef.current, []);
 
-  const value = useMemo((): ContextValue => {
+  const detachRef = useRef<(() => void) | null>(null);
+
+  const onCanvasOrNull = useCallback((el: HTMLCanvasElement | null): void => {
+    canvasRef.current = el;
+
+    if (!el) {
+      detachRef.current?.(); // Detach if listeners have been attached
+      return;
+    }
+
+    const { detach } = attachHandlers({ el, requestAction, getState });
+    detachRef.current = detach;
+  }, []);
+
+  const value = useMemo((): UseTimelinesResult => {
     return {
       getState,
       requestAction,
-      state: {
-        primary: state.state,
-        selection: state.selection,
-        view: viewRef.current,
-      },
+      timelines: state.state.timelines,
+      selection: state.selection,
       stateManager,
-      canvasRef,
+      canvasRef: onCanvasOrNull,
     };
   }, [state]);
 
-  return (
-    <CSSKeyframesStateContext.Provider value={value}>
-      {props.children}
-    </CSSKeyframesStateContext.Provider>
-  );
+  return value;
 };
