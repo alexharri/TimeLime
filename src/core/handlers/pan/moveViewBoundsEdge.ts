@@ -10,20 +10,18 @@ function createMoveViewBoundsEdgeHandler(which: "left" | "right") {
         return viewportMousePosition.subX(VIEW_BOUNDS_HANDLE_WIDTH).x / w;
       };
 
-      const prevT = getMousePositionT(initialMousePosition.viewport);
-      const currT = getMousePositionT(mousePosition.viewport);
+      const initialT = getMousePositionT(initialMousePosition.viewport);
+      const t = getMousePositionT(mousePosition.viewport);
+      const tChange = t - initialT;
 
-      const tChange = currT - prevT;
+      const minDifference = MIN_VIEW_BOUNDS_INDEX_DIFFERENCE / viewState.length;
 
-      const tPerFrame = 1 / viewState.length;
       let [t0, t1] = viewState.viewBounds;
 
       if (which === "left") {
-        t0 += tChange;
-        t0 = Math.min(t0, t1 - tPerFrame * MIN_VIEW_BOUNDS_INDEX_DIFFERENCE);
+        t0 = Math.min(t0 + tChange, t1 - minDifference);
       } else {
-        t1 += tChange;
-        t1 = Math.max(t1, t0 + tPerFrame * MIN_VIEW_BOUNDS_INDEX_DIFFERENCE);
+        t1 = Math.max(t1 + tChange, t0 + minDifference);
       }
 
       return [t0, t1];
