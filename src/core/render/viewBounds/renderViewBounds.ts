@@ -93,8 +93,8 @@ export function renderViewBounds(options: RenderOptions) {
   const secondLeft = Math.ceil(VIEW_BOUNDS_HANDLE_WIDTH + viewBounds[1] * w);
 
   const width = VIEW_BOUNDS_HANDLE_WIDTH;
-  const rectLeft: Rect = { width, height: 24, top: 0, left: firstLeft };
-  const rectRight: Rect = { width, height: 24, top: 0, left: secondLeft };
+  const rectLeft: Rect = { width, height: viewBoundsHeight, top: 0, left: firstLeft };
+  const rectRight: Rect = { width, height: viewBoundsHeight, top: 0, left: secondLeft };
 
   ctx.beginPath();
   traceLeftRoundedRect(ctx, contractRect(rectLeft, 0.5), true);
@@ -116,7 +116,11 @@ export function renderViewBounds(options: RenderOptions) {
     const left = firstLeft + VIEW_BOUNDS_HANDLE_WIDTH;
     const width = secondLeft - firstLeft - VIEW_BOUNDS_HANDLE_WIDTH;
     const top = 1;
-    renderRect(ctx, { left, top, width, height: 22 }, { fillColor: colors.gray300 });
+    renderRect(
+      ctx,
+      { left, top, width, height: viewBoundsHeight - 2 },
+      { fillColor: colors.gray300 },
+    );
     renderRect(ctx, { left, top, width, height: 1 }, { fillColor: colors.gray600 });
   }
 }
