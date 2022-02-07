@@ -9,8 +9,8 @@ export type PrimaryState = TimelineState;
 export type SelectionState = TimelineSelectionState;
 
 export interface ViewState {
-  viewBoundsHeight: number;
   viewBounds: ViewBounds;
+  viewBoundsHeight: number;
   viewport: Rect;
   length: number;
   allowExceedViewBounds: boolean;
