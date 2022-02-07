@@ -1,8 +1,8 @@
 import { CANVAS_END_START_BUFFER, CANVAS_UPPER_LOWER_BUFFER_FACTOR } from "~/core/constants";
 import { getActionToPerformOnMouseDown } from "~/core/handlers/getActionToPerformOnMouseDown";
+import { _MockKey } from "~/core/listener/keyboard";
 import { curvesToKeyframes } from "~/core/transform/curvesToKeyframes";
 import { Vec2 } from "~/core/utils/math/Vec2";
-import { mockMouseEvent } from "~/mock/mockMouseEvent";
 import { Rect, ViewBounds } from "~/types/commonTypes";
 import { Timeline } from "~/types/timelineTypes";
 
@@ -41,7 +41,7 @@ describe("getActionToPerformOnMouseDown", () => {
       y_fac * (CANVAS_UPPER_LOWER_BUFFER_FACTOR * viewport.height + viewport.height * t);
 
     const k0_action = getActionToPerformOnMouseDown({
-      e: mockMouseEvent(Vec2.new(getX(0), getY(1))),
+      globalMousePosition: Vec2.new(getX(0), getY(1)),
       length,
       timelines,
       viewport,
@@ -55,7 +55,7 @@ describe("getActionToPerformOnMouseDown", () => {
     });
 
     const k1_action = getActionToPerformOnMouseDown({
-      e: mockMouseEvent(Vec2.new(getX(0.85), getY(0.1))),
+      globalMousePosition: Vec2.new(getX(0.85), getY(0.1)),
       length,
       timelines,
       viewport,
@@ -69,7 +69,7 @@ describe("getActionToPerformOnMouseDown", () => {
     });
 
     const cp0_action = getActionToPerformOnMouseDown({
-      e: mockMouseEvent(Vec2.new(getX(0.2), getY(1))),
+      globalMousePosition: Vec2.new(getX(0.2), getY(1)),
       length,
       timelines,
       viewport,
@@ -84,7 +84,7 @@ describe("getActionToPerformOnMouseDown", () => {
     });
 
     const cp1_action = getActionToPerformOnMouseDown({
-      e: mockMouseEvent(Vec2.new(getX(0.6), getY(0))),
+      globalMousePosition: Vec2.new(getX(0.6), getY(0)),
       length,
       timelines,
       viewport,
@@ -99,14 +99,17 @@ describe("getActionToPerformOnMouseDown", () => {
     });
 
     // Check that the alt key is propogated correctly
+    _MockKey.down("Alt");
     const k0_action_alt = getActionToPerformOnMouseDown({
-      e: mockMouseEvent(Vec2.new(getX(0), getY(1)), { altKey: true }),
+      globalMousePosition: Vec2.new(getX(0), getY(1)),
       length,
       timelines,
       viewport,
       viewBounds,
       viewBoundsHeight,
     });
+    _MockKey.up("Alt");
+
     expect(k0_action_alt).toEqual({
       type: "alt_mousedown_keyframe",
       timelineId: "test",
@@ -115,7 +118,7 @@ describe("getActionToPerformOnMouseDown", () => {
 
     // Check behavior for click on empty space
     const empty_action = getActionToPerformOnMouseDown({
-      e: mockMouseEvent(Vec2.new(getX(0.5), getY(0.5))),
+      globalMousePosition: Vec2.new(getX(0.5), getY(0.5)),
       length,
       timelines,
       viewport,
