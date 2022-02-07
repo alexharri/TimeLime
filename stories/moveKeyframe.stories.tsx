@@ -23,7 +23,7 @@ import { onAltMousedownKeyframe } from "~/core/handlers/altMousedownKeyframe";
 import { parseWheelEvent } from "~/core/utils/wheelEvent";
 import { onWheelZoom } from "~/core/handlers/zoom/wheelZoom";
 import { onWheelPan } from "~/core/handlers/pan/wheelPan";
-import { onPanViewBounds } from "~/core/handlers/pan/onPanViewBounds";
+import { onPanViewBounds } from "~/core/handlers/pan/panViewBounds";
 
 const initialTimelineState: TimelineState = {
   timelines: {
