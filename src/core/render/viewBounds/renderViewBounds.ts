@@ -7,6 +7,8 @@ import { shiftViewBoundsByX } from "~/core/utils/viewUtils";
 import { Rect } from "~/types/commonTypes";
 import { RenderOptions } from "~/types/renderTypes";
 
+const { PI } = Math;
+
 // For reference:
 //
 //    Top left:      ctx.arc(x, y, radius, -Math.PI * 0.5,  Math.PI,       true);
@@ -15,100 +17,45 @@ import { RenderOptions } from "~/types/renderTypes";
 //    Bottom right:  ctx.arc(x, y, radius, 0,               Math.PI * 0.5, false);
 //
 
-function traceLeftRoundedRectHighlight(
-  ctx: CanvasRenderingContext2D,
-  rect: Rect,
-  borderRadius: number,
-) {
+const br = 4; // Border radius
+
+const getCoords = (rect: Rect) => {
+  const x0 = rect.left;
+  const x1 = rect.left + rect.width;
+  const y0 = rect.top;
+  const y1 = rect.top + rect.height;
+  return [x0, x1, y0, y1];
+};
+
+function traceLeftRoundedRect(ctx: CanvasRenderingContext2D, rect: Rect, full: boolean) {
+  const [x0, x1, y0, y1] = getCoords(rect);
   ctx.beginPath();
-  ctx.moveTo(rect.left + rect.width, rect.top);
-  ctx.lineTo(rect.left + borderRadius, rect.top);
-  ctx.arc(
-    rect.left + borderRadius,
-    rect.top + borderRadius,
-    borderRadius,
-    -Math.PI * 0.5,
-    Math.PI,
-    true,
-  );
-  ctx.lineTo(rect.left, rect.top + borderRadius);
-  ctx.arc(
-    rect.left + borderRadius,
-    rect.top + rect.height - borderRadius,
-    borderRadius,
-    Math.PI,
-    Math.PI * 0.75,
-    true,
-  );
+  ctx.moveTo(x1, y0);
+  ctx.lineTo(x0 + br, y0);
+  ctx.arc(x0 + br, y0 + br, br, -PI * 0.5, PI, true);
+  ctx.lineTo(x0, y0 + br);
+  if (full) {
+    ctx.arc(x0 + br, y1 - br, br, PI, PI * 0.5, true);
+    ctx.lineTo(x1, y1);
+    ctx.closePath();
+  } else {
+    ctx.arc(x0 + br, y1 - br, br, PI, PI * 0.75, true);
+  }
 }
 
-function traceLeftRoundedRect(ctx: CanvasRenderingContext2D, rect: Rect, borderRadius: number) {
-  ctx.beginPath();
-  ctx.moveTo(rect.left + rect.width, rect.top);
-  ctx.lineTo(rect.left + borderRadius, rect.top);
-  ctx.arc(
-    rect.left + borderRadius,
-    rect.top + borderRadius,
-    borderRadius,
-    -Math.PI * 0.5,
-    Math.PI,
-    true,
-  );
-  ctx.lineTo(rect.left, rect.top + borderRadius);
-  ctx.arc(
-    rect.left + borderRadius,
-    rect.top + rect.height - borderRadius,
-    borderRadius,
-    Math.PI,
-    Math.PI * 0.5,
-    true,
-  );
-  ctx.lineTo(rect.left + rect.width, rect.top + rect.height);
-  ctx.closePath();
-}
-
-function traceRightRoundedRectHighlight(
-  ctx: CanvasRenderingContext2D,
-  rect: Rect,
-  borderRadius: number,
-) {
-  ctx.beginPath();
-  ctx.moveTo(rect.left, rect.top + rect.height);
-  ctx.lineTo(rect.left, rect.top);
-  ctx.lineTo(rect.left + rect.width - borderRadius, rect.top);
-  ctx.arc(
-    rect.left + rect.width - borderRadius,
-    rect.top + borderRadius,
-    borderRadius,
-    -Math.PI * 0.5,
-    -Math.PI * 0.2,
-    false,
-  );
-}
-
-function traceRightRoundedRect(ctx: CanvasRenderingContext2D, rect: Rect, borderRadius: number) {
-  ctx.beginPath();
-  ctx.moveTo(rect.left, rect.top + rect.height);
-  ctx.lineTo(rect.left, rect.top);
-  ctx.lineTo(rect.left + rect.width - borderRadius, rect.top);
-  ctx.arc(
-    rect.left + rect.width - borderRadius,
-    rect.top + borderRadius,
-    borderRadius,
-    -Math.PI * 0.5,
-    0,
-    false,
-  );
-  ctx.lineTo(rect.left + rect.width, rect.top + borderRadius);
-  ctx.arc(
-    rect.left + rect.width - borderRadius,
-    rect.top + rect.height - borderRadius,
-    borderRadius,
-    0,
-    Math.PI * 0.5,
-    false,
-  );
-  ctx.closePath();
+function traceRightRoundedRect(ctx: CanvasRenderingContext2D, rect: Rect, full: boolean) {
+  const [x0, x1, y0, y1] = getCoords(rect);
+  ctx.moveTo(x0, y1);
+  ctx.lineTo(x0, y0);
+  ctx.lineTo(x1 - br, y0);
+  if (full) {
+    ctx.arc(x1 - br, y0 + br, br, -PI * 0.5, 0, false);
+    ctx.lineTo(x1, y0 + br);
+    ctx.arc(x1 - br, y1 - br, br, 0, PI * 0.5, false);
+    ctx.closePath();
+  } else {
+    ctx.arc(x1 - br, y0 + br, br, -PI * 0.5, -PI * 0.2, false);
+  }
 }
 
 export function renderViewBounds(options: RenderOptions) {
@@ -144,42 +91,22 @@ export function renderViewBounds(options: RenderOptions) {
   const firstLeft = Math.floor(viewBounds[0] * w);
   const secondLeft = Math.ceil(VIEW_BOUNDS_HANDLE_WIDTH + viewBounds[1] * w);
 
-  traceLeftRoundedRect(
-    ctx,
-    contractRect({ width: VIEW_BOUNDS_HANDLE_WIDTH, height: 24, top: 0, left: firstLeft }, 0.5),
-    4,
-  );
+  const width = VIEW_BOUNDS_HANDLE_WIDTH;
+  const rectLeft: Rect = { width, height: 24, top: 0, left: firstLeft };
+  const rectRight: Rect = { width, height: 24, top: 0, left: secondLeft };
+
+  ctx.beginPath();
+  traceLeftRoundedRect(ctx, contractRect(rectLeft, 0.5), true);
+  traceRightRoundedRect(ctx, contractRect(rectRight, 0.5), true);
   ctx.fillStyle = colors.light200;
   ctx.fill();
   ctx.strokeStyle = colors.dark200;
   ctx.lineWidth = 1;
   ctx.stroke();
 
-  traceLeftRoundedRectHighlight(
-    ctx,
-    contractRect({ width: VIEW_BOUNDS_HANDLE_WIDTH, height: 24, top: 0, left: firstLeft }, 1.5),
-    4,
-  );
-  ctx.strokeStyle = colors.light400;
-  ctx.lineWidth = 1;
-  ctx.stroke();
-
-  traceRightRoundedRect(
-    ctx,
-    contractRect({ width: VIEW_BOUNDS_HANDLE_WIDTH, height: 24, top: 0, left: secondLeft }, 0.5),
-    4,
-  );
-  ctx.fillStyle = colors.light200;
-  ctx.fill();
-  ctx.strokeStyle = colors.dark200;
-  ctx.lineWidth = 1;
-  ctx.stroke();
-
-  traceRightRoundedRectHighlight(
-    ctx,
-    contractRect({ width: VIEW_BOUNDS_HANDLE_WIDTH, height: 24, top: 0, left: secondLeft }, 1.5),
-    4,
-  );
+  ctx.beginPath();
+  traceLeftRoundedRect(ctx, contractRect(rectLeft, 1.5), false);
+  traceRightRoundedRect(ctx, contractRect(rectRight, 1.5), false);
   ctx.strokeStyle = colors.light400;
   ctx.lineWidth = 1;
   ctx.stroke();
