@@ -3,18 +3,19 @@ import { getGraphEditorYBounds } from "~/core/render/yBounds";
 import { ActionOptions } from "~/core/state/stateTypes";
 import { lerp, lerpInCanvasRange } from "~/core/utils/math/math";
 import { Vec2 } from "~/core/utils/math/Vec2";
+import { getGraphEditorViewport } from "~/core/utils/viewportUtils";
 import { Rect, ViewBounds, YBounds } from "~/types/commonTypes";
 import { TimelineMap } from "~/types/timelineTypes";
 
 export const createNormalToViewportXFn = (options: {
   length: number;
   viewBounds: ViewBounds;
-  viewport: Rect;
+  graphEditorViewport: Rect;
   pan?: Vec2;
 }): ((value: number) => number) => {
-  const { viewBounds, length, viewport, pan = Vec2.ORIGIN } = options;
+  const { viewBounds, length, graphEditorViewport, pan = Vec2.ORIGIN } = options;
 
-  const realWidth = viewport.width;
+  const realWidth = graphEditorViewport.width;
   const renderWidth = realWidth;
   const canvasWidth = realWidth - CANVAS_END_START_BUFFER * 2;
 
@@ -35,18 +36,25 @@ export const createNormalToViewportYFn = (options: {
   viewBounds: ViewBounds;
   length: number;
   timelines: TimelineMap;
-  viewport: Rect;
+  graphEditorViewport: Rect;
   yBounds?: YBounds;
   pan?: Vec2;
 }): ((value: number) => number) => {
-  const { timelines, viewport, viewBounds, length, yBounds, pan = Vec2.ORIGIN } = options;
+  const {
+    timelines,
+    graphEditorViewport,
+    viewBounds,
+    length,
+    yBounds,
+    pan = Vec2.ORIGIN,
+  } = options;
 
   const [yUpper, yLower] = yBounds || getGraphEditorYBounds({ viewBounds, length, timelines });
   const yUpLowDiff = yUpper - yLower;
 
   return (value: number) => {
     const t = (value - pan.y - yLower) / yUpLowDiff;
-    return lerp(viewport.height, 0, t);
+    return graphEditorViewport.top + lerp(graphEditorViewport.height, 0, t);
   };
 };
 
@@ -54,7 +62,7 @@ export const createNormalToViewportFn = (options: {
   viewBounds: ViewBounds;
   length: number;
   timelines: TimelineMap;
-  viewport: Rect;
+  graphEditorViewport: Rect;
   yBounds?: YBounds;
   pan?: Vec2;
 }) => {
@@ -68,7 +76,9 @@ export const createNormalToViewportFnFromActionOptions = (options: ActionOptions
   const { initialState } = options;
 
   const { timelines } = initialState.primary;
-  const { viewport, viewBounds, length } = initialState.view;
+  const { viewBounds, length, viewBoundsHeight, viewport } = initialState.view;
 
-  return createNormalToViewportFn({ viewport, viewBounds, timelines, length });
+  const graphEditorViewport = getGraphEditorViewport({ viewBoundsHeight, viewport });
+
+  return createNormalToViewportFn({ graphEditorViewport, viewBounds, timelines, length });
 };

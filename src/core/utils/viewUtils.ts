@@ -1,10 +1,11 @@
-import { ViewState } from "~/core/state/stateTypes";
 import { ViewBounds } from "~/types/commonTypes";
 
-export function shiftViewBoundsByT(
-  viewState: ViewState,
-  tChange: number
-): ViewBounds {
+interface ShiftByTOptions {
+  allowExceedViewBounds: boolean;
+  viewBounds: ViewBounds;
+}
+
+export function shiftViewBoundsByT(viewState: ShiftByTOptions, tChange: number): ViewBounds {
   const { allowExceedViewBounds, viewBounds } = viewState;
 
   const rightShiftMax = 1 - viewBounds[1];
@@ -25,14 +26,15 @@ export function shiftViewBoundsByT(
   return newBounds;
 }
 
+interface ShiftByXOptions extends ShiftByTOptions {
+  length: number;
+}
+
 /**
  * Returns new `ViewBounds` that have been shifted by N normal units,
  * specified by the `shiftByX` argument.
  */
-export function shiftViewBoundsByX(
-  viewState: ViewState,
-  shiftByX: number
-): ViewBounds {
-  const { length } = viewState;
-  return shiftViewBoundsByT(viewState, shiftByX / length);
+export function shiftViewBoundsByX(options: ShiftByXOptions, shiftByX: number): ViewBounds {
+  const { length } = options;
+  return shiftViewBoundsByT(options, shiftByX / length);
 }

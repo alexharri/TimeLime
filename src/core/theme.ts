@@ -13,7 +13,7 @@ export const theme = {
   background: colors.dark700,
   backgroundOutside: colors.dark500,
 
-  yTickLabel: colors.light500,
+  yTickLabel: colors.light700,
   yTickLine: colors.gray500,
   yTickLineShadow: colors.dark500,
   yTickLineOutside: colors.dark800,
@@ -25,6 +25,14 @@ export const theme = {
   keyframeColor: colors.blue700,
   keyframeFill: colors.dark200,
   keyframeShadow: colors.dark600,
+
+  viewBoundsBackground: colors.dark400,
+  viewBoundsBorder: colors.dark200,
+  viewBoundsHandleFill: colors.light200,
+  viewBoundsHandleBorder: colors.dark200,
+  viewBoundsHandleHighlight: colors.light400,
+  viewBoundsBarFill: colors.gray300,
+  viewBoundsBarHighlight: colors.gray600,
 
   controlPointColor: colors.yellow900,
 

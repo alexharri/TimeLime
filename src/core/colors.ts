@@ -22,8 +22,10 @@ export const colors = {
 
   white500: "#f3f3f3",
 
-  light500: "#adadad",
-  light400: "#989898",
+  light700: "#adadad",
+  light600: "#989898",
+  light500: "#989898",
+  light400: "#888",
   light300: "#777",
   light200: "#676767",
 

@@ -1,13 +1,13 @@
-import {
-  CANVAS_END_START_BUFFER,
-  CANVAS_UPPER_LOWER_BUFFER_FACTOR,
-} from "~/core/constants";
+import { CANVAS_END_START_BUFFER, CANVAS_UPPER_LOWER_BUFFER_FACTOR } from "~/core/constants";
 import { getActionToPerformOnMouseDown } from "~/core/handlers/getActionToPerformOnMouseDown";
 import { curvesToKeyframes } from "~/core/transform/curvesToKeyframes";
 import { Vec2 } from "~/core/utils/math/Vec2";
 import { mockMouseEvent } from "~/mock/mockMouseEvent";
-import { Rect } from "~/types/commonTypes";
+import { Rect, ViewBounds } from "~/types/commonTypes";
 import { Timeline } from "~/types/timelineTypes";
+
+const viewBounds: ViewBounds = [0, 1];
+const viewBoundsHeight = 0;
 
 describe("getActionToPerformOnMouseDown", () => {
   it("returns the expected action to perform", () => {
@@ -33,22 +33,20 @@ describe("getActionToPerformOnMouseDown", () => {
     };
     const length = 100;
 
-    const x_fac =
-      viewport.width / (viewport.width + CANVAS_END_START_BUFFER * 2);
+    const x_fac = viewport.width / (viewport.width + CANVAS_END_START_BUFFER * 2);
     const y_fac = 1 / (CANVAS_UPPER_LOWER_BUFFER_FACTOR * 2 + 1);
 
-    const getX = (t: number) =>
-      CANVAS_END_START_BUFFER + t * viewport.width * x_fac;
+    const getX = (t: number) => CANVAS_END_START_BUFFER + t * viewport.width * x_fac;
     const getY = (t: number) =>
-      y_fac *
-      (CANVAS_UPPER_LOWER_BUFFER_FACTOR * viewport.height +
-        viewport.height * t);
+      y_fac * (CANVAS_UPPER_LOWER_BUFFER_FACTOR * viewport.height + viewport.height * t);
 
     const k0_action = getActionToPerformOnMouseDown({
       e: mockMouseEvent(Vec2.new(getX(0), getY(1))),
       length,
       timelines,
       viewport,
+      viewBounds,
+      viewBoundsHeight,
     });
     expect(k0_action).toEqual({
       type: "mousedown_keyframe",
@@ -61,6 +59,8 @@ describe("getActionToPerformOnMouseDown", () => {
       length,
       timelines,
       viewport,
+      viewBounds,
+      viewBoundsHeight,
     });
     expect(k1_action).toEqual({
       type: "mousedown_keyframe",
@@ -73,6 +73,8 @@ describe("getActionToPerformOnMouseDown", () => {
       length,
       timelines,
       viewport,
+      viewBounds,
+      viewBoundsHeight,
     });
     expect(cp0_action).toEqual({
       keyframe: keyframes[0],
@@ -86,6 +88,8 @@ describe("getActionToPerformOnMouseDown", () => {
       length,
       timelines,
       viewport,
+      viewBounds,
+      viewBoundsHeight,
     });
     expect(cp1_action).toEqual({
       keyframe: keyframes[1],
@@ -100,6 +104,8 @@ describe("getActionToPerformOnMouseDown", () => {
       length,
       timelines,
       viewport,
+      viewBounds,
+      viewBoundsHeight,
     });
     expect(k0_action_alt).toEqual({
       type: "alt_mousedown_keyframe",
@@ -113,6 +119,8 @@ describe("getActionToPerformOnMouseDown", () => {
       length,
       timelines,
       viewport,
+      viewBounds,
+      viewBoundsHeight,
     });
     expect(empty_action).toEqual({ type: "mousedown_empty" });
   });

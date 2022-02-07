@@ -6,6 +6,7 @@ import { createNormalToViewportFn } from "~/core/utils/coords/normalToViewport";
 import { base64Cursors } from "~/core/utils/cursor/base64Cursors";
 import { getGraphEditorTargetObject } from "~/core/utils/getGraphEditorTargetObject";
 import { Vec2 } from "~/core/utils/math/Vec2";
+import { getGraphEditorViewport } from "~/core/utils/viewportUtils";
 import { Rect, ViewBounds, YBounds } from "~/types/commonTypes";
 import { TimelineMap } from "~/types/timelineTypes";
 
@@ -13,7 +14,7 @@ interface Options {
   yBounds?: YBounds;
   length: number;
   viewBounds: ViewBounds;
-  viewport: Rect;
+  graphEditorViewport: Rect;
   viewportMousePosition: Vec2;
   timelines: TimelineMap;
   pan?: Vec2;
@@ -28,13 +29,22 @@ const getCursor = (options: Options): string => {
     return isKeyDown("Alt") ? base64Cursors.zoom_out : base64Cursors.zoom_in;
   }
 
-  const { viewportMousePosition, yBounds, length, viewBounds, timelines, viewport, pan } = options;
+  const {
+    viewportMousePosition,
+    yBounds,
+    length,
+    viewBounds,
+    timelines,
+    graphEditorViewport,
+    pan,
+  } = options;
+
   const normalToViewport = createNormalToViewportFn({
     yBounds,
     viewBounds,
     length,
     timelines,
-    viewport,
+    graphEditorViewport,
     pan,
   });
 
@@ -78,7 +88,7 @@ export const getGraphEditorCursor = (globalMousePosition: Vec2, renderState: Ren
   }
 
   let { timelines } = primary;
-  const { viewBounds, length, viewport } = view;
+  const { viewBounds, viewBoundsHeight, length, viewport } = view;
   const { yBounds, pan, keyframeShift } = ephemeral;
 
   if (keyframeShift) {
@@ -91,13 +101,15 @@ export const getGraphEditorCursor = (globalMousePosition: Vec2, renderState: Ren
     );
   }
 
+  const graphEditorViewport = getGraphEditorViewport({ viewport, viewBoundsHeight });
+
   const viewportMousePosition = globalMousePosition.subXY(viewport.left, viewport.top);
 
   const cursor = getCursor({
     timelines,
     length,
     viewBounds,
-    viewport,
+    graphEditorViewport,
     viewportMousePosition,
     yBounds,
     pan,

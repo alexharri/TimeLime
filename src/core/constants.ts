@@ -1,5 +1,5 @@
 export const VIEW_BOUNDS_HANDLE_WIDTH = 8;
-export const CANVAS_END_START_BUFFER = VIEW_BOUNDS_HANDLE_WIDTH;
+export const CANVAS_END_START_BUFFER = 8;
 
 /** Applies when all keyframes in timeline are at same Y value */
 export const CANVAS_NO_DIFF_UPPER_LOWER_BUFFER = 8;

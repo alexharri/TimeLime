@@ -18,74 +18,30 @@ import {
 } from "~/core/utils/math/math";
 import { Vec2 } from "~/core/utils/math/Vec2";
 import { generateGraphEditorYTicksFromBounds } from "~/core/utils/yTicks";
-import { Curve, Rect, YBounds } from "~/types/commonTypes";
-import { TimelineMap, TimelineSelectionMap } from "~/types/timelineTypes";
+import { Curve, Rect } from "~/types/commonTypes";
 import { mapMap } from "map-fns";
 import { applyTimelineKeyframeShift } from "~/core/timeline/applyTimelineKeyframeShift";
 import { RenderState } from "~/core/state/stateTypes";
 import { applyControlPointShift } from "~/core/timeline/applyControlPointShift";
 import { theme } from "~/core/theme";
 import { applyNewControlPointShift } from "~/core/timeline/applyNewControlPointShift";
-
-interface RenderOptions {
-  ctx: CanvasRenderingContext2D;
-  timelines: TimelineMap;
-  length: number;
-
-  /** @default canvas.width */
-  width?: number;
-
-  /** @default canvas.height */
-  height?: number;
-
-  /**
-   * `start` and `end` should be numbers from 0 to 1. `start` should always be lower than `end`.
-   *
-   * @default [0, 1]
-   */
-  viewBounds?: [start: number, end: number];
-
-  /**
-   * If not provided, colors will be based on the order of the timelines.
-   */
-  colors?: Partial<{ [timelineId: string]: string }>;
-
-  /** @default {} */
-  timelineSelectionState?: TimelineSelectionMap;
-
-  yBounds?: YBounds;
-
-  /** @default Vec2.ORIGIN */
-  pan?: Vec2;
-
-  dragSelectionRect?: Rect;
-}
-
-const getWidth = (options: RenderOptions): number => options.width ?? options.ctx.canvas.width;
-const getHeight = (options: RenderOptions): number => options.height ?? options.ctx.canvas.height;
-const getDimensions = (options: RenderOptions) => ({
-  width: getWidth(options),
-  height: getHeight(options),
-});
+import { getGraphEditorViewport } from "~/core/utils/viewportUtils";
+import { RenderOptions } from "~/types/renderTypes";
+import { renderViewBounds } from "~/core/render/viewBounds/renderViewBounds";
 
 export function renderGraphEditor(options: RenderOptions) {
   const {
     ctx,
     timelines,
     viewBounds = [0, 1],
+    viewBoundsHeight = 0,
+    viewport,
     length,
     yBounds,
     pan = Vec2.ORIGIN,
     timelineSelectionState = {},
   } = options;
-  const { width, height } = getDimensions(options);
-
-  ctx.clearRect(0, 0, width, height);
-
-  ctx.beginPath();
-  ctx.rect(0, 0, width, height);
-  ctx.fillStyle = theme.background;
-  ctx.fill();
+  const { width, height } = viewport;
 
   const timelineList = Object.values(timelines);
 
@@ -96,16 +52,27 @@ export function renderGraphEditor(options: RenderOptions) {
 
   const timelineCurves = timelineList.map((timeline) => keyframesToCurves(timeline.keyframes));
 
-  /** @todo - take viewport as argument */
-  const viewport: Rect = {
-    width,
-    height,
-    left: 0,
-    top: 0,
-  };
+  const graphEditorViewport = getGraphEditorViewport({ viewport, viewBoundsHeight });
+
+  ctx.clearRect(
+    graphEditorViewport.left,
+    graphEditorViewport.top,
+    graphEditorViewport.width,
+    graphEditorViewport.height,
+  );
+
+  ctx.beginPath();
+  ctx.rect(
+    graphEditorViewport.left,
+    graphEditorViewport.top,
+    graphEditorViewport.width,
+    graphEditorViewport.height,
+  );
+  ctx.fillStyle = theme.background;
+  ctx.fill();
 
   const toViewportY = createNormalToViewportYFn({
-    viewport,
+    graphEditorViewport,
     length,
     timelines,
     viewBounds,
@@ -115,7 +82,7 @@ export function renderGraphEditor(options: RenderOptions) {
   const toViewportX = createNormalToViewportXFn({
     length,
     viewBounds,
-    viewport,
+    graphEditorViewport,
     pan,
   });
   const toViewport = (vec: Vec2) => Vec2.new(toViewportX(vec.x), toViewportY(vec.y));
@@ -126,17 +93,17 @@ export function renderGraphEditor(options: RenderOptions) {
   if (atZero >= 0) {
     renderRect(
       ctx,
-      { left: 0, width: atZero, top: 0, height },
+      { left: 0, width: atZero, top: viewBoundsHeight, height },
       { fillColor: theme.backgroundOutside },
     );
     renderRect(
       ctx,
-      { left: atZero - 1, top: 0, width: 1, height },
+      { left: atZero - 1, top: viewBoundsHeight, width: 1, height },
       { fillColor: theme.outsideBorder },
     );
     renderRect(
       ctx,
-      { left: atZero, top: 0, width: 1, height },
+      { left: atZero, top: viewBoundsHeight, width: 1, height },
       { fillColor: theme.insideHighlight },
     );
   }
@@ -144,13 +111,17 @@ export function renderGraphEditor(options: RenderOptions) {
   if (atEnd <= width) {
     renderRect(
       ctx,
-      { left: atEnd, width: width - atEnd + 1, top: 0, height },
+      { left: atEnd, width: width - atEnd + 1, top: viewBoundsHeight, height },
       { fillColor: theme.backgroundOutside },
     );
-    renderRect(ctx, { left: atEnd, top: 0, width: 1, height }, { fillColor: theme.outsideBorder });
     renderRect(
       ctx,
-      { left: atEnd - 1, top: 0, width: 1, height },
+      { left: atEnd, top: viewBoundsHeight, width: 1, height },
+      { fillColor: theme.outsideBorder },
+    );
+    renderRect(
+      ctx,
+      { left: atEnd - 1, top: viewBoundsHeight, width: 1, height },
       { fillColor: theme.insideHighlight },
     );
   }
@@ -329,6 +300,8 @@ export function renderGraphEditor(options: RenderOptions) {
       fillColor: theme.selectionRectFill,
     });
   }
+
+  renderViewBounds(options);
 }
 
 export function renderGraphEditorWithRenderState(
@@ -336,7 +309,7 @@ export function renderGraphEditorWithRenderState(
   renderState: RenderState,
 ) {
   const timelineSelectionState = renderState.selection;
-  const { length, viewport, viewBounds } = renderState.view;
+  const { length, viewport, viewBounds, viewBoundsHeight } = renderState.view;
   const {
     keyframeShift,
     controlPointShift,
@@ -380,8 +353,8 @@ export function renderGraphEditorWithRenderState(
     ctx,
     length,
     timelines,
-    width: viewport.width,
-    height: viewport.height,
+    viewport,
+    viewBoundsHeight,
     timelineSelectionState,
     viewBounds,
     yBounds,
