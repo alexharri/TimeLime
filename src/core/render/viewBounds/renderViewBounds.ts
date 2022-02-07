@@ -2,6 +2,7 @@ import { VIEW_BOUNDS_HANDLE_WIDTH } from "~/core/constants";
 import { renderRect } from "~/core/render/renderPrimitives";
 import { theme } from "~/core/theme";
 import { contractRect } from "~/core/utils/math/math";
+import { getViewBoundHandleRects } from "~/core/utils/viewBoundsUtils";
 import { shiftViewBoundsByX } from "~/core/utils/viewUtils";
 import { Rect } from "~/types/commonTypes";
 import { RenderOptions } from "~/types/renderTypes";
@@ -92,13 +93,11 @@ export function renderViewBounds(options: RenderOptions) {
   const firstLeft = Math.floor(viewBounds[0] * w);
   const secondLeft = Math.ceil(VIEW_BOUNDS_HANDLE_WIDTH + viewBounds[1] * w);
 
-  const width = VIEW_BOUNDS_HANDLE_WIDTH;
-  const rectLeft: Rect = { width, height: viewBoundsHeight, top: 0, left: firstLeft };
-  const rectRight: Rect = { width, height: viewBoundsHeight, top: 0, left: secondLeft };
+  const handleRects = getViewBoundHandleRects({ viewBounds, viewport, viewBoundsHeight });
 
   ctx.beginPath();
-  traceLeftRoundedRect(ctx, contractRect(rectLeft, 0.5), true);
-  traceRightRoundedRect(ctx, contractRect(rectRight, 0.5), true);
+  traceLeftRoundedRect(ctx, contractRect(handleRects.left, 0.5), true);
+  traceRightRoundedRect(ctx, contractRect(handleRects.right, 0.5), true);
   ctx.fillStyle = theme.viewBoundsHandleFill;
   ctx.strokeStyle = theme.viewBoundsHandleBorder;
   ctx.lineWidth = 1;
@@ -106,8 +105,8 @@ export function renderViewBounds(options: RenderOptions) {
   ctx.stroke();
 
   ctx.beginPath();
-  traceLeftRoundedRect(ctx, contractRect(rectLeft, 1.5), false);
-  traceRightRoundedRect(ctx, contractRect(rectRight, 1.5), false);
+  traceLeftRoundedRect(ctx, contractRect(handleRects.left, 1.5), false);
+  traceRightRoundedRect(ctx, contractRect(handleRects.right, 1.5), false);
   ctx.strokeStyle = theme.viewBoundsHandleHighlight;
   ctx.lineWidth = 1;
   ctx.stroke();

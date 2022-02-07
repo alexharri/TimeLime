@@ -24,6 +24,10 @@ import { parseWheelEvent } from "~/core/utils/wheelEvent";
 import { onWheelZoom } from "~/core/handlers/zoom/wheelZoom";
 import { onWheelPan } from "~/core/handlers/pan/wheelPan";
 import { onPanViewBounds } from "~/core/handlers/pan/panViewBounds";
+import {
+  onMoveViewBoundsEdgeLeft,
+  onMoveViewBoundsEdgeRight,
+} from "~/core/handlers/pan/moveViewBoundsEdge";
 
 const initialTimelineState: TimelineState = {
   timelines: {
@@ -221,6 +225,16 @@ export const Test = () => {
       case "pan_view_bounds": {
         stateManager.requestAction((params) => {
           onPanViewBounds(createActionOptions(params), { e });
+        });
+        break;
+      }
+      case "mousedown_view_bounds_handle": {
+        stateManager.requestAction((params) => {
+          if (actionToPerform.which === "left") {
+            onMoveViewBoundsEdgeLeft(createActionOptions(params), { e });
+          } else {
+            onMoveViewBoundsEdgeRight(createActionOptions(params), { e });
+          }
         });
         break;
       }
