@@ -14,7 +14,6 @@ export const onPanViewBounds = createPanHandler({
     const t = getMousePositionT(mousePosition.viewport);
     const tChange = t - initialT;
 
-    const viewBounds = shiftViewBoundsByT(viewState, tChange);
-    return viewBounds;
+    return shiftViewBoundsByT(viewState, tChange);
   },
 });
