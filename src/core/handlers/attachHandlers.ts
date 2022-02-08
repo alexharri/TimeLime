@@ -117,5 +117,8 @@ export function attachHandlers(options: Options): { detach: () => void } {
     el.removeEventListener("wheel", onWheel);
   }
 
+  // Prevent mouse down + drag events from modifying current selection.
+  el.style.userSelect = "none";
+
   return { detach };
 }

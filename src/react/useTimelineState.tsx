@@ -15,6 +15,7 @@ import { TimelineSelectionState } from "~/core/state/timelineSelection/timelineS
 import { useIsomorphicLayoutEffect } from "~/core/utils/hook/useIsomorphicLayoutEffect";
 import { useRefRect } from "~/core/utils/hook/useRefRect";
 import { useRenderCursor } from "~/core/utils/hook/useRenderCursor";
+import { TimelineStateProvider } from "~/react/stateContext";
 import { TimelineMap } from "~/types/timelineTypes";
 
 interface UseTimelineStateResult {
@@ -26,6 +27,7 @@ interface UseTimelineStateResult {
   selection: SelectionState;
   stateManager: StateManager<TimelineState, TimelineSelectionState>;
   canvasRef: React.Ref<HTMLCanvasElement>;
+  Provider: React.ComponentType;
 }
 
 interface Options {
@@ -179,8 +181,20 @@ export const useTimelineState = (options: Options) => {
     setView((view) => ({ ...view, ...partialView }));
   }, []);
 
+  const Provider = useMemo(() => {
+    const Provider: React.FC = (props) => {
+      return (
+        <TimelineStateProvider stateManager={stateManager} renderStateRef={renderStateRef}>
+          {props.children}
+        </TimelineStateProvider>
+      );
+    };
+    return Provider;
+  }, []);
+
   const value = useMemo((): UseTimelineStateResult => {
     return {
+      Provider,
       getState,
       requestAction,
       view,

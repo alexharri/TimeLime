@@ -25,7 +25,7 @@ const initialState: PrimaryState = {
 };
 
 export const CSSKeyframes: React.FC = () => {
-  const { canvasRef, timelines, selection, view, setView } = useTimelineState({
+  const { canvasRef, timelines, selection, view, setView, Provider } = useTimelineState({
     initialState,
     length: 120,
   });
@@ -51,14 +51,16 @@ export const CSSKeyframes: React.FC = () => {
         }}
         decimalPlaces={0}
       /> */}
-      <Timeline
-        timelines={timelines}
-        timelineSelectionMap={selection}
-        canvasRef={canvasRef}
-        length={view.length}
-        setLength={setLength}
-        frameIndex={view.frameIndex}
-      />
+      <Provider>
+        <Timeline
+          timelines={timelines}
+          timelineSelectionMap={selection}
+          canvasRef={canvasRef}
+          length={view.length}
+          setLength={setLength}
+          frameIndex={view.frameIndex}
+        />
+      </Provider>
     </div>
   );
 };

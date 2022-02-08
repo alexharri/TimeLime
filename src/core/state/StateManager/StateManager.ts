@@ -5,7 +5,7 @@ import {
   HistoryState,
 } from "~/core/state/StateManager/history/historyReducer";
 
-type ActionState<T, S> = {
+export type ActionState<T, S> = {
   state: T;
   selection: S;
 };
@@ -44,6 +44,9 @@ export class StateManager<T, S> {
   private reducer: (state: HistoryState<T>, action: HistoryAction) => HistoryState<T>;
   private selectionReducer: (state: HistoryState<S>, action: HistoryAction) => HistoryState<S>;
 
+  private listenerId = 0;
+  private listeners: Array<{ id: number; callback: (state: ActionState<T, S>) => void }> = [];
+
   private _n = 0;
 
   constructor(options: StateManagerOptions<T, S>) {
@@ -57,7 +60,15 @@ export class StateManager<T, S> {
   }
 
   private onStateChange() {
-    this.onStateChangeCallback?.(this.getActionState());
+    const actionState = this.getActionState();
+    this.onStateChangeCallback?.(actionState);
+    try {
+      for (const { callback } of this.listeners) {
+        callback(actionState);
+      }
+    } catch (e) {
+      console.log(e);
+    }
   }
 
   private getActionId(): string | undefined {
@@ -233,5 +244,20 @@ export class StateManager<T, S> {
 
     const nextIndex = state.index - 1;
     this.dispatchHistoryAction(historyActions.setHistoryIndex(nextIndex));
+  }
+
+  public subscribe(callback: (state: ActionState<T, S>) => void) {
+    const id = ++this.listenerId;
+    this.listeners.push({ callback, id });
+
+    return {
+      unsubscribe: () => {
+        const index = this.listeners.findIndex((listener) => listener.id === id);
+        if (index === -1) {
+          return;
+        }
+        this.listeners.splice(index, 1);
+      },
+    };
   }
 }

@@ -12,7 +12,7 @@ interface Props {
 }
 
 export const Properties: React.FC<Props> = (props) => {
-  const { timelines, timelineSelectionMap, frameIndex } = props;
+  const { timelines } = props;
 
   const propertyTimelines = propertyIdList
     .map((propertyId) => timelines[propertyId])
@@ -21,12 +21,7 @@ export const Properties: React.FC<Props> = (props) => {
   return (
     <div className={s("container")}>
       {propertyTimelines.map((timeline) => (
-        <Property
-          key={timeline.id}
-          timeline={timeline}
-          selection={timelineSelectionMap[timeline.id]}
-          frameIndex={frameIndex}
-        />
+        <Property key={timeline.id} timelineId={timeline.id} />
       ))}
     </div>
   );
