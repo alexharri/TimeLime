@@ -11,14 +11,19 @@ interface Props {
   canvasRef: React.Ref<HTMLCanvasElement>;
   length: number;
   setLength: (length: number) => void;
+  frameIndex: number;
 }
 
 export const Timeline: React.FC<Props> = (props) => {
-  const { timelines, timelineSelectionMap, canvasRef } = props;
+  const { timelines, timelineSelectionMap, canvasRef, frameIndex } = props;
 
   return (
     <div className={s("container")}>
-      <Properties timelines={timelines} timelineSelectionMap={timelineSelectionMap} />
+      <Properties
+        timelines={timelines}
+        timelineSelectionMap={timelineSelectionMap}
+        frameIndex={frameIndex}
+      />
       <Canvas ref={canvasRef} />
     </div>
   );

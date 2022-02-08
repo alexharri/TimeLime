@@ -57,6 +57,7 @@ export const CSSKeyframes: React.FC = () => {
         canvasRef={canvasRef}
         length={view.length}
         setLength={setLength}
+        frameIndex={view.frameIndex}
       />
     </div>
   );

@@ -8,10 +8,11 @@ import s from "~/css-keyframes/PropertyList.styles";
 interface Props {
   timelines: TimelineMap;
   timelineSelectionMap: TimelineSelectionState;
+  frameIndex: number;
 }
 
 export const Properties: React.FC<Props> = (props) => {
-  const { timelines, timelineSelectionMap } = props;
+  const { timelines, timelineSelectionMap, frameIndex } = props;
 
   const propertyTimelines = propertyIdList
     .map((propertyId) => timelines[propertyId])
@@ -24,6 +25,7 @@ export const Properties: React.FC<Props> = (props) => {
           key={timeline.id}
           timeline={timeline}
           selection={timelineSelectionMap[timeline.id]}
+          frameIndex={frameIndex}
         />
       ))}
     </div>
