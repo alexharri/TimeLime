@@ -60,7 +60,7 @@ export const useTimelines = (options: Options) => {
     viewBounds: [0, 1],
     viewBoundsHeight: 16,
     scrubberHeight: 20,
-    index: 33,
+    frameIndex: 33,
     viewport: null!,
   });
 

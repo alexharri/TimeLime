@@ -28,7 +28,7 @@ import { applyNewControlPointShift } from "~/core/timeline/applyNewControlPointS
 import { getGraphEditorViewport } from "~/core/utils/viewportUtils";
 import { RenderOptions } from "~/types/renderTypes";
 import { renderViewBounds } from "~/core/render/viewBounds/renderViewBounds";
-import { renderTimelineScrubber as renderScrubber } from "~/core/render/renderScrubber";
+import { renderScrubber as renderScrubber } from "~/core/render/renderScrubber";
 
 export function renderGraphEditor(options: RenderOptions) {
   const {

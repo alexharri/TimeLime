@@ -14,7 +14,7 @@ export interface ViewState {
   scrubberHeight: number;
   viewport: Rect;
   length: number;
-  index: number;
+  frameIndex: number;
   allowExceedViewBounds: boolean;
 }
 

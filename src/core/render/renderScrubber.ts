@@ -11,8 +11,12 @@ const { floor } = Math;
 const MIN_DIST_BETWEEN_TICKS = 46;
 const FRAME_INCREMENTS = [1, 2, 5, 10, 15, 30];
 
-export const renderTimelineScrubber = (options: RenderOptions): void => {
+export const renderScrubber = (options: RenderOptions): void => {
   const { ctx, length, viewBounds, viewBoundsHeight, viewport, scrubberHeight, pan } = options;
+
+  if (scrubberHeight < 1) {
+    return;
+  }
 
   const scrubberViewport = getScrubberViewport({ viewport, scrubberHeight, viewBoundsHeight });
   const graphEditorViewport = getGraphEditorViewport({
