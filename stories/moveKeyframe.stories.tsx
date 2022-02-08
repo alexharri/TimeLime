@@ -36,7 +36,6 @@ export default {
 export const Test = () => {
   const { canvasRef } = useTimelines({
     initialState: initialTimelineState,
-    initialSelectionState: {},
     length: 200,
   });
 
