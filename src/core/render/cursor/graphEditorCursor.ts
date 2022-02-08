@@ -43,6 +43,8 @@ const getCursor = (options: Options): string => {
       return base64Cursors.zoom_out;
     case "mousedown_empty":
       return base64Cursors.selection;
+    default:
+      return base64Cursors.selection;
   }
 };
 
