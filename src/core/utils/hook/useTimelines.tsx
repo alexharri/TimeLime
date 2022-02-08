@@ -1,4 +1,4 @@
-import React, { useCallback, useMemo, useRef } from "react";
+import React, { useCallback, useMemo, useRef, useState } from "react";
 import { attachHandlers } from "~/core/handlers/attachHandlers";
 import { renderGraphEditorWithRenderState } from "~/core/render/renderGraphEditor";
 import { StateManager } from "~/core/state/StateManager/StateManager";
@@ -26,6 +26,8 @@ import { TimelineMap } from "~/types/timelineTypes";
 interface UseTimelinesResult {
   getState: () => TrackedState;
   requestAction: (callback: (actionOptions: ActionOptions) => void) => void;
+  view: ViewState;
+  setView: (view: Partial<ViewState>) => void;
   timelines: TimelineMap;
   selection: SelectionState;
   stateManager: StateManager<
@@ -51,13 +53,16 @@ export const useTimelines = (props: Options) => {
     selectionReducer: timelineSelectionReducer,
   });
 
-  const viewRef = useRef<ViewState>({
+  const [view, setView] = useState<ViewState>({
     allowExceedViewBounds: true,
     length: 120,
     viewBounds: [0, 1],
     viewBoundsHeight: 24,
     viewport: null!,
   });
+
+  const viewRef = useRef(view);
+  viewRef.current = view;
 
   const canvasRef = useRef<HTMLCanvasElement | null>(null);
   const canvasRect = useRefRect(canvasRef);
@@ -77,7 +82,7 @@ export const useTimelines = (props: Options) => {
   };
 
   useIsomorphicLayoutEffect(() => {
-    if (!canvasRect) {
+    if (!view.viewport) {
       return;
     }
 
@@ -88,12 +93,18 @@ export const useTimelines = (props: Options) => {
     //
     // The `onStateChange.render` handler covers rendering during actions.
     //
-    viewRef.current.viewport = canvasRect!;
-    canvasRef.current!.width = canvasRect.width;
-    canvasRef.current!.height = canvasRect.height;
     render(renderStateRef.current);
     renderCursor(renderStateRef.current);
-  }, [canvasRect, state]);
+  }, [state, view]);
+
+  useIsomorphicLayoutEffect(() => {
+    if (!canvasRect) {
+      return;
+    }
+    setView((view) => ({ ...view, viewport: canvasRect }));
+    canvasRef.current!.width = canvasRect.width;
+    canvasRef.current!.height = canvasRect.height;
+  }, [canvasRect]);
 
   const getRenderState = (): RenderState => {
     const actionState = stateManager.getActionState();
@@ -112,7 +123,7 @@ export const useTimelines = (props: Options) => {
     stateManager.requestAction((params) => {
       const actionState = stateManager.getActionState();
 
-      const initialViewState = { ...viewRef.current };
+      const initialViewState = viewRef.current;
 
       function ifNotDone<F extends (...args: any[]) => void>(callback: F) {
         return ((...args) => {
@@ -140,16 +151,16 @@ export const useTimelines = (props: Options) => {
           const { name, allowSelectionShift, state } = options;
           params.dispatch(timelineActions.setState(state.primary));
           params.dispatch(timelineSelectionActions.setState(state.selection));
-          viewRef.current = state.view;
+          setView(state.view);
           params.submitAction({ name, allowSelectionShift });
         },
         onSubmitView: ({ viewState }) => {
-          viewRef.current = viewState;
+          setView(viewState);
           params.cancelAction();
         },
 
         onCancel: ifNotDone(() => {
-          viewRef.current = initialViewState;
+          setView(initialViewState);
           params.cancelAction();
         }),
 
@@ -175,16 +186,22 @@ export const useTimelines = (props: Options) => {
     detachRef.current = detach;
   }, []);
 
+  const setPartialView = useCallback((partialView: Partial<ViewState>) => {
+    setView((view) => ({ ...view, ...partialView }));
+  }, []);
+
   const value = useMemo((): UseTimelinesResult => {
     return {
       getState,
       requestAction,
+      view,
+      setView: setPartialView,
       timelines: state.state.timelines,
       selection: state.selection,
       stateManager,
       canvasRef: onCanvasOrNull,
     };
-  }, [state]);
+  }, [state, view]);
 
   return value;
 };

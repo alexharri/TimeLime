@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React from "react";
 import { PrimaryState } from "~/core/state/stateTypes";
 import { curvesToKeyframes } from "~/core/transform/curvesToKeyframes";
 import { Canvas } from "~/css-keyframes/Canvas";
@@ -25,14 +25,20 @@ const initialState: PrimaryState = {
 };
 
 export const CSSKeyframes: React.FC = () => {
-  const { canvasRef } = useTimelines({ initialState });
-
-  const [length, setLength] = useState(50);
+  const { canvasRef, view, setView } = useTimelines({ initialState });
 
   return (
     <div>
       <Canvas ref={canvasRef} />
-      <NumberInput value={length} setValue={setLength} decimalPlaces={0} />
+      <NumberInput
+        value={view.length}
+        setValue={(length) => {
+          const t = view.length / length;
+          const [low, high] = view.viewBounds.map((x) => x * t);
+          setView({ length, viewBounds: [low, high] });
+        }}
+        decimalPlaces={0}
+      />
     </div>
   );
 };
