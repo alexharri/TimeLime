@@ -40,14 +40,15 @@ interface UseTimelinesResult {
 }
 
 interface Options {
+  length: number;
   initialState: TimelineState;
   initialSelectionState?: TimelineSelectionState;
 }
 
-export const useTimelines = (props: Options) => {
+export const useTimelines = (options: Options) => {
   const { state, stateManager } = useStateManager({
-    initialState: props.initialState,
-    initialSelectionState: props.initialSelectionState || {},
+    initialState: options.initialState,
+    initialSelectionState: options.initialSelectionState || {},
 
     reducer: timelineReducer,
     selectionReducer: timelineSelectionReducer,
@@ -55,7 +56,7 @@ export const useTimelines = (props: Options) => {
 
   const [view, setView] = useState<ViewState>({
     allowExceedViewBounds: true,
-    length: 120,
+    length: options.length,
     viewBounds: [0, 1],
     viewBoundsHeight: 24,
     viewport: null!,
