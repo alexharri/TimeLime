@@ -6,45 +6,8 @@ import { expandRect, isVecInRect } from "~/core/utils/math/math";
 import { Vec2 } from "~/core/utils/math/Vec2";
 import { getViewBoundHandleRects } from "~/core/utils/viewBoundsUtils";
 import { getGraphEditorViewport } from "~/core/utils/viewportUtils";
-import { Rect, ViewBounds } from "~/types/commonTypes";
-import { TimelineKeyframe, TimelineMap } from "~/types/timelineTypes";
-
-type ActionToPerform =
-  | {
-      type: "alt_mousedown_keyframe";
-      timelineId: string;
-      keyframe: TimelineKeyframe;
-    }
-  | {
-      type: "mousedown_keyframe";
-      timelineId: string;
-      keyframe: TimelineKeyframe;
-    }
-  | {
-      type: "mousedown_control_point";
-      timelineId: string;
-      keyframe: TimelineKeyframe;
-      which: "left" | "right";
-    }
-  | {
-      type: "mousedown_empty";
-    }
-  | {
-      type: "pan";
-    }
-  | {
-      type: "zoom_out";
-    }
-  | {
-      type: "zoom_in";
-    }
-  | {
-      type: "pan_view_bounds";
-    }
-  | {
-      type: "mousedown_view_bounds_handle";
-      which: "left" | "right";
-    };
+import { ActionToPerform, Rect, ViewBounds } from "~/types/commonTypes";
+import { TimelineMap } from "~/types/timelineTypes";
 
 interface ActionToPerformOptions {
   globalMousePosition: Vec2;

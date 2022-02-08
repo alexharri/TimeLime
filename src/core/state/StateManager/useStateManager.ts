@@ -1,9 +1,6 @@
 import { useEffect, useMemo, useState } from "react";
 import { isKeyCodeOf } from "~/core/listener/keyboard";
-import {
-  StateManager,
-  StateManagerOptions,
-} from "~/core/state/StateManager/StateManager";
+import { StateManager, StateManagerOptions } from "~/core/state/StateManager/StateManager";
 import { Action } from "~/types/commonTypes";
 
 interface Options {
@@ -11,8 +8,7 @@ interface Options {
 }
 
 export function useStateManager<T, S, AT extends Action, AS extends Action>(
-  options: Omit<StateManagerOptions<T, S, AT, AS>, "onStateChangeCallback"> &
-    Options
+  options: Omit<StateManagerOptions<T, S, AT, AS>, "onStateChangeCallback"> & Options,
 ) {
   const [n, setN] = useState(0);
 
