@@ -37,6 +37,10 @@ export function getTimelineValueAtIndex(options: GetTimelineValueAtIndexOptions)
       return keyframes[i].value;
     }
 
+    if (index > keyframes[i + 1].index) {
+      continue;
+    }
+
     const k0 = keyframes[i];
     const k1 = keyframes[i + 1];
 
