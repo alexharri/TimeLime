@@ -32,6 +32,7 @@ export function useMonitorRenderState(options: Options) {
       if (state === prevState) {
         return; // Render state did not update
       }
+      console.log("updated");
 
       if (state.view.frameIndex !== prevState.view.frameIndex) {
         for (const listener of listeners) {

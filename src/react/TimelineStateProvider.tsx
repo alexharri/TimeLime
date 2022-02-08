@@ -24,10 +24,9 @@ export const TimelineStateProvider: React.FC<Props> = (props) => {
   const listeners = useMemo<UseTimelineStateListener[]>(() => [], []);
 
   const currStateRef = props.renderStateRef;
-  const prevStateRef = useRef<RenderState>(currStateRef.current);
 
   const getUseTimelineResult = useCallback((timelineId: string): UseTimelineResult => {
-    const { primary, selection, view, ephemeral } = prevStateRef.current;
+    const { primary, selection, view, ephemeral } = currStateRef.current;
 
     const { frameIndex } = view;
     const { keyframeShift, controlPointShift, newControlPointShift } = ephemeral;
