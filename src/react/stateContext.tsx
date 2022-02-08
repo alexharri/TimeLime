@@ -147,15 +147,6 @@ export const TimelineStateProvider: React.FC<Props> = (props) => {
     };
   }, []);
 
-  // useEffect(() => {
-  //   props.onRenderStateChange((renderState) => {
-  //     prevStateRef.current = renderState;
-  //     for (const listener of listeners) {
-  //       executeListener(listener);
-  //     }
-  //   });
-  // }, []);
-
   const executeListener = useCallback(({ callback: listener, timelineId }: Listener) => {
     listener(getTimelineValue(timelineId));
   }, []);
