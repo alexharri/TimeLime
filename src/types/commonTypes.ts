@@ -75,6 +75,9 @@ export type ActionToPerform =
       type: "zoom_in";
     }
   | {
+      type: "scrub";
+    }
+  | {
       type: "pan_view_bounds";
     }
   | {

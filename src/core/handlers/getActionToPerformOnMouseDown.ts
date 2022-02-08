@@ -5,7 +5,7 @@ import { getGraphEditorTargetObject } from "~/core/utils/getGraphEditorTargetObj
 import { expandRect, isVecInRect } from "~/core/utils/math/math";
 import { Vec2 } from "~/core/utils/math/Vec2";
 import { getViewBoundHandleRects } from "~/core/utils/viewBoundsUtils";
-import { getGraphEditorViewport } from "~/core/utils/viewportUtils";
+import { getGraphEditorViewport, getScrubberViewport } from "~/core/utils/viewportUtils";
 import { ActionToPerform, Rect, ViewBounds } from "~/types/commonTypes";
 import { TimelineMap } from "~/types/timelineTypes";
 
@@ -20,8 +20,15 @@ interface ActionToPerformOptions {
 }
 
 export const getActionToPerformOnMouseDown = (options: ActionToPerformOptions): ActionToPerform => {
-  const { globalMousePosition, timelines, viewBounds, length, viewport, viewBoundsHeight } =
-    options;
+  const {
+    globalMousePosition,
+    timelines,
+    viewBounds,
+    length,
+    viewport,
+    viewBoundsHeight,
+    scrubberHeight,
+  } = options;
 
   if (isKeyDown("Space")) {
     return { type: "pan" };
@@ -52,6 +59,15 @@ export const getActionToPerformOnMouseDown = (options: ActionToPerformOptions): 
     if (isVecInRect(viewportMousePosition, viewBoundsBarRect)) {
       return { type: "pan_view_bounds" };
     }
+  }
+
+  const scrubberViewport = getScrubberViewport({
+    scrubberHeight,
+    viewBoundsHeight,
+    viewport,
+  });
+  if (scrubberHeight > 0 && isVecInRect(viewportMousePosition, scrubberViewport)) {
+    return { type: "scrub" };
   }
 
   const graphEditorViewport = getGraphEditorViewport(options);

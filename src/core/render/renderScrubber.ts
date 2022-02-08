@@ -11,8 +11,12 @@ const { floor } = Math;
 const MIN_DIST_BETWEEN_TICKS = 46;
 const FRAME_INCREMENTS = [1, 2, 5, 10, 15, 30];
 
-export const renderTimelineScrubber = (options: RenderOptions): void => {
+export const renderScrubber = (options: RenderOptions): void => {
   const { ctx, length, viewBounds, viewBoundsHeight, viewport, scrubberHeight, pan } = options;
+
+  if (scrubberHeight < 1) {
+    return;
+  }
 
   const scrubberViewport = getScrubberViewport({ viewport, scrubberHeight, viewBoundsHeight });
   const graphEditorViewport = getGraphEditorViewport({
@@ -88,4 +92,58 @@ export const renderTimelineScrubber = (options: RenderOptions): void => {
   ctx.rect(left, top + height - 1, width, 1);
   ctx.fillStyle = theme.scrubberBorderBottom;
   ctx.fill();
+
+  renderScrubHead(options);
 };
+
+function renderScrubHead(options: RenderOptions) {
+  const { ctx, viewport, viewBounds, pan, scrubberHeight, viewBoundsHeight, frameIndex, length } =
+    options;
+
+  const scrubberViewport = getScrubberViewport({ viewport, scrubberHeight, viewBoundsHeight });
+  const graphEditorViewport = getGraphEditorViewport({
+    viewport,
+    scrubberHeight,
+    viewBoundsHeight,
+  });
+  const normalToViewportX = createNormalToViewportXFn({
+    graphEditorViewport,
+    viewBounds,
+    length,
+    pan,
+  });
+
+  const left = Math.floor(normalToViewportX(frameIndex)) + 0.5;
+
+  const DISTANCE_FROM_TOP = 8;
+  const TOP_W = 13;
+  const LOW_W = 3;
+  const TOP = scrubberViewport.top + DISTANCE_FROM_TOP;
+  const HEIGHT = scrubberViewport.height - DISTANCE_FROM_TOP;
+
+  const tx0 = left - TOP_W / 2;
+  const tx1 = left + TOP_W / 2;
+
+  const lx0 = left - LOW_W / 2;
+  const lx1 = left + LOW_W / 2;
+
+  const y0 = TOP;
+  const y2 = TOP + HEIGHT;
+  const y1 = y2 - 5;
+
+  // Trace scrub head
+  ctx.beginPath();
+  ctx.moveTo(tx0, y0);
+  ctx.lineTo(tx0, y1);
+  ctx.lineTo(lx0, y2);
+  ctx.lineTo(lx1, y2);
+  ctx.lineTo(tx1, y1);
+  ctx.lineTo(tx1, y0);
+  ctx.closePath();
+  ctx.fillStyle = theme.scubHead;
+  ctx.fill();
+
+  const lineHeight = viewport.height - TOP;
+  const line: Line = [Vec2.new(left, TOP), Vec2.new(left, TOP + lineHeight)];
+  renderLine(ctx, line, { color: theme.scubHead, strokeWidth: 1 });
+}

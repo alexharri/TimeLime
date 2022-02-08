@@ -10,6 +10,7 @@ import {
 import { onPan } from "~/core/handlers/pan/pan";
 import { onPanViewBounds } from "~/core/handlers/pan/panViewBounds";
 import { onWheelPan } from "~/core/handlers/pan/wheelPan";
+import { onScrub } from "~/core/handlers/scrub";
 import { onWheelZoom } from "~/core/handlers/zoom/wheelZoom";
 import { onZoom } from "~/core/handlers/zoom/zoom";
 import { ActionOptions, TrackedState } from "~/core/state/stateTypes";
@@ -72,6 +73,10 @@ export function attachHandlers(options: Options): { detach: () => void } {
       case "zoom_out":
       case "zoom_in":
         requestAction((actionOptions) => onZoom(actionOptions, { ...actionToPerform, e }));
+        break;
+
+      case "scrub":
+        requestAction((actionOptions) => onScrub(actionOptions, { e }));
         break;
 
       case "pan_view_bounds": {

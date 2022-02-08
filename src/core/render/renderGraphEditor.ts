@@ -28,7 +28,7 @@ import { applyNewControlPointShift } from "~/core/timeline/applyNewControlPointS
 import { getGraphEditorViewport } from "~/core/utils/viewportUtils";
 import { RenderOptions } from "~/types/renderTypes";
 import { renderViewBounds } from "~/core/render/viewBounds/renderViewBounds";
-import { renderTimelineScrubber as renderScrubber } from "~/core/render/renderScrubber";
+import { renderScrubber } from "~/core/render/renderScrubber";
 
 export function renderGraphEditor(options: RenderOptions) {
   const {
@@ -317,7 +317,8 @@ export function renderGraphEditorWithRenderState(
   renderState: RenderState,
 ) {
   const timelineSelectionState = renderState.selection;
-  const { length, viewport, viewBounds, scrubberHeight, viewBoundsHeight } = renderState.view;
+  const { length, viewport, viewBounds, scrubberHeight, viewBoundsHeight, frameIndex } =
+    renderState.view;
   const {
     keyframeShift,
     controlPointShift,
@@ -369,5 +370,6 @@ export function renderGraphEditorWithRenderState(
     yBounds,
     pan,
     dragSelectionRect,
+    frameIndex,
   });
 }

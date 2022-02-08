@@ -38,6 +38,7 @@ export const theme = {
   scrubberTickLine: colors.light500,
   scrubberTickTextColor: colors.light500,
   scrubberBorderBottom: colors.dark200,
+  scubHead: colors.blue500,
 
   controlPointColor: colors.yellow900,
 
