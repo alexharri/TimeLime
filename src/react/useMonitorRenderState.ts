@@ -3,6 +3,46 @@ import { useEffect, useRef } from "react";
 import { RenderState } from "~/core/state/stateTypes";
 import { UseTimelineStateListener } from "~/react/types";
 
+function didTimelineChange(prevState: RenderState, currState: RenderState, timelineId: string) {
+  if (currState.primary.timelines[timelineId] !== prevState.primary.timelines[timelineId]) {
+    // The timeline was directly modified.
+    return true;
+  }
+
+  const currSelection = currState.selection[timelineId];
+  const prevSelection = prevState.selection[timelineId];
+  if (!!currSelection !== !!prevState) {
+    // The timeline's selection changed.
+    return true;
+  }
+
+  if (currSelection && prevSelection && !areMapsShallowEqual(currSelection, prevSelection)) {
+    // The timeline's selection changed.
+    return true;
+  }
+
+  if (currSelection) {
+    const { newControlPointShift, controlPointShift, keyframeShift } = currState.ephemeral;
+
+    // Check if the timeline is affected by the ephemeral state.
+    //
+    // If the timeline is affected by the ephemeral state, we consider it to have changed
+    // if the ephemeral state has changed.
+    if (
+      // Check that the ephemeral state would affect this timeline.
+      Object.keys(currSelection.keyframes).length > 0 &&
+      // Check that some shifts are present.
+      (newControlPointShift || controlPointShift || keyframeShift) &&
+      // Check that the ephemeral state changed.
+      currState.ephemeral !== prevState.ephemeral
+    ) {
+      return true;
+    }
+  }
+
+  return false;
+}
+
 interface Options {
   getCurrentState: () => RenderState;
   listeners: UseTimelineStateListener[];
@@ -26,58 +66,25 @@ export function useMonitorRenderState(options: Options) {
       requestAnimationFrame(tick);
 
       const prevState = prevStateRef.current;
-      const state = options.getCurrentState();
-      prevStateRef.current = state;
+      const currState = options.getCurrentState();
+      prevStateRef.current = currState;
 
-      if (state === prevState) {
-        return; // Render state did not update
+      if (currState === prevState) {
+        return; // Render state did not update in the previous frame.
       }
-      console.log("updated");
 
-      if (state.view.frameIndex !== prevState.view.frameIndex) {
+      // If the frame index changed between frames, all timelines will be affected.
+      if (currState.view.frameIndex !== prevState.view.frameIndex) {
         for (const listener of listeners) {
           executeCallback(listener);
         }
         return;
       }
 
-      prevStateRef.current = state;
-      const { ephemeral } = state;
-      const { newControlPointShift, controlPointShift, keyframeShift } = ephemeral;
-
       for (const listener of listeners) {
-        const { timelineId } = listener;
-        let updated = false;
-
-        if (state.primary.timelines[timelineId] !== prevState.primary.timelines[timelineId]) {
-          updated = true;
-        }
-
-        const currSelection = state.selection[timelineId];
-        const prevSelection = prevState.selection[timelineId];
-        if (!!currSelection !== !!prevState) {
-          updated = true;
-        }
-
-        if (currSelection && prevSelection && !areMapsShallowEqual(currSelection, prevSelection)) {
-          updated = true;
-        }
-
-        if (currSelection) {
-          const nSelected = Object.keys(currSelection.keyframes);
-
-          if (
-            nSelected.length > 0 &&
-            (newControlPointShift || controlPointShift || keyframeShift)
-          ) {
-            updated = true;
-          }
-        }
-
-        if (!updated) {
+        if (!didTimelineChange(prevState, currState, listener.timelineId)) {
           continue;
         }
-
         executeCallback(listener);
       }
     };
