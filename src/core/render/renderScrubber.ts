@@ -25,19 +25,6 @@ export const renderTimelineScrubber = (options: RenderOptions): void => {
 
   const MIN_DIST = 46;
 
-  // For frames
-  const potentialNBetween = [1, 2, 5, 10, 15, 30];
-  let betweenIndex = 0;
-
-  while (
-    normalToViewportX(potentialNBetween[betweenIndex]) - normalToViewportX(0) < MIN_DIST &&
-    betweenIndex < potentialNBetween.length
-  ) {
-    betweenIndex++;
-  }
-
-  const nBetween = potentialNBetween[betweenIndex];
-
   ctx.beginPath();
   ctx.rect(left, top, width, height);
   ctx.fillStyle = theme.scrubberBackground;
@@ -49,10 +36,6 @@ export const renderTimelineScrubber = (options: RenderOptions): void => {
   ctx.font = `10px sans-serif`;
   ctx.fillStyle = theme.scrubberTickTextColor;
 
-  const textY = top + 12;
-  const lineY0 = top + 14;
-  const lineY1 = height + top;
-
   const renderSeconds = normalToViewportX(60) - normalToViewportX(0) < MIN_DIST * 2;
   let framesBetweenTicks = 60;
 
@@ -60,34 +43,35 @@ export const renderTimelineScrubber = (options: RenderOptions): void => {
     while (normalToViewportX(framesBetweenTicks) - normalToViewportX(0) < MIN_DIST) {
       framesBetweenTicks *= 2;
     }
+  } else {
+    const between = [1, 2, 5, 10, 15, 30, 60];
+    let i = 0;
 
-    for (
-      let i = Math.floor(start / framesBetweenTicks - 1);
-      i <= end / framesBetweenTicks + 1;
-      i++
-    ) {
-      const x = normalToViewportX(i * framesBetweenTicks);
-
-      const t = `${Number(i.toFixed(2))}s`;
-      const w = ctx.measureText(t).width;
-      ctx.fillText(t, x - w / 2, textY);
-
-      renderLine(ctx, [Vec2.new(x, lineY0), Vec2.new(x, lineY1)], {
-        color: theme.scrubberTickLine,
-        strokeWidth: 1,
-      });
+    const atZero = normalToViewportX(0);
+    while (normalToViewportX(between[i]) - atZero < MIN_DIST && i < between.length) {
+      i++;
     }
-    return;
+    framesBetweenTicks = between[i];
   }
 
-  const fStart = start - (start % nBetween);
-  for (let i = fStart; i <= end; i += nBetween) {
-    const x = Math.floor(normalToViewportX(i)) + 0.5;
-    const d = i % 60;
+  const textY = top + 12;
+  const lineY0 = top + 14;
+  const lineY1 = height + top;
 
-    const t = d === 0 ? `${i / 60}:00f` : `${d}f`;
-    const w = ctx.measureText(t).width;
-    ctx.fillText(t, x - w / 2, textY);
+  for (let i = Math.floor(start / framesBetweenTicks - 1); i <= end / framesBetweenTicks + 1; i++) {
+    let text: string;
+
+    if (renderSeconds) {
+      text = `${Number((i * (framesBetweenTicks / 60)).toFixed(2))}s`;
+    } else {
+      const frameCount = (i * framesBetweenTicks) % 60;
+      text = frameCount === 0 ? `${i}:00f` : `${frameCount}f`;
+    }
+
+    const x = normalToViewportX(i * framesBetweenTicks);
+
+    const textWidth = ctx.measureText(text).width;
+    ctx.fillText(text, x - textWidth / 2, textY);
 
     renderLine(ctx, [Vec2.new(x, lineY0), Vec2.new(x, lineY1)], {
       color: theme.scrubberTickLine,
