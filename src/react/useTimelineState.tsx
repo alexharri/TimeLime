@@ -10,32 +10,21 @@ import {
   TrackedState,
   ViewState,
 } from "~/core/state/stateTypes";
-import { timelineActions } from "~/core/state/timeline/timelineActions";
-import { timelineReducer, TimelineState } from "~/core/state/timeline/timelineReducer";
-import { timelineSelectionActions } from "~/core/state/timelineSelection/timelineSelectionActions";
-import {
-  timelineSelectionReducer,
-  TimelineSelectionState,
-} from "~/core/state/timelineSelection/timelineSelectionReducer";
+import { TimelineState } from "~/core/state/timeline/timelineReducer";
+import { TimelineSelectionState } from "~/core/state/timelineSelection/timelineSelectionReducer";
 import { useIsomorphicLayoutEffect } from "~/core/utils/hook/useIsomorphicLayoutEffect";
 import { useRefRect } from "~/core/utils/hook/useRefRect";
 import { useRenderCursor } from "~/core/utils/hook/useRenderCursor";
-import { TimelineAction, TimelineSelectionAction } from "~/types/reducerTypes";
 import { TimelineMap } from "~/types/timelineTypes";
 
-interface UseTimelinesResult {
+interface UseTimelineStateResult {
   getState: () => TrackedState;
   requestAction: (callback: (actionOptions: ActionOptions) => void) => void;
   view: ViewState;
   setView: (view: Partial<ViewState>) => void;
   timelines: TimelineMap;
   selection: SelectionState;
-  stateManager: StateManager<
-    TimelineState,
-    TimelineSelectionState,
-    TimelineAction,
-    TimelineSelectionAction
-  >;
+  stateManager: StateManager<TimelineState, TimelineSelectionState>;
   canvasRef: React.Ref<HTMLCanvasElement>;
 }
 
@@ -45,13 +34,10 @@ interface Options {
   initialSelectionState?: TimelineSelectionState;
 }
 
-export const useTimelines = (options: Options) => {
+export const useTimelineState = (options: Options) => {
   const { state, stateManager } = useStateManager({
     initialState: options.initialState,
     initialSelectionState: options.initialSelectionState || {},
-
-    reducer: timelineReducer,
-    selectionReducer: timelineSelectionReducer,
   });
 
   const [view, setView] = useState<ViewState>({
@@ -152,8 +138,8 @@ export const useTimelines = (options: Options) => {
 
         onSubmit: (options) => {
           const { name, allowSelectionShift, state } = options;
-          params.dispatch(timelineActions.setState(state.primary));
-          params.dispatch(timelineSelectionActions.setState(state.selection));
+          params.setState(state.primary);
+          params.setSelection(state.selection);
           setView(state.view);
           params.submitAction({ name, allowSelectionShift });
         },
@@ -193,7 +179,7 @@ export const useTimelines = (options: Options) => {
     setView((view) => ({ ...view, ...partialView }));
   }, []);
 
-  const value = useMemo((): UseTimelinesResult => {
+  const value = useMemo((): UseTimelineStateResult => {
     return {
       getState,
       requestAction,

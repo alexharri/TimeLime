@@ -1,42 +1,9 @@
 import { StateManager } from "~/core/state/StateManager/StateManager";
 
-interface State {
-  value: number;
-}
-interface SelectionState {
-  value: string;
-}
-
-export const actions = {
-  setValue: (value: number) => ({ type: "set-value", value }),
-  setSelection: (value: string) => ({ type: "set-selection", value }),
-};
-
-function reducer(state: State, action: any): State {
-  switch (action.type) {
-    case "set-value":
-      return { ...state, value: action.value };
-    default:
-      return state;
-  }
-}
-
-function selectionReducer(state: SelectionState, action: any): SelectionState {
-  switch (action.type) {
-    case "set-selection":
-      return { ...state, value: action.value };
-    default:
-      return state;
-  }
-}
-
 const stateManagerFactory = () =>
   new StateManager({
     initialState: { value: 1 },
     initialSelectionState: { value: "a" },
-
-    reducer,
-    selectionReducer,
   });
 
 describe("StateManager", () => {
@@ -71,8 +38,8 @@ describe("StateManager", () => {
     state.requestAction((params) => {
       fn();
 
-      params.dispatch(actions.setValue(2));
-      params.dispatch(actions.setSelection("b"));
+      params.setState({ value: 2 });
+      params.setSelection({ value: "b" });
 
       const currState = state.getCurrentState();
       const actionState = state.getActionState();
@@ -100,8 +67,8 @@ describe("StateManager", () => {
     const state = stateManagerFactory();
 
     state.requestAction((params) => {
-      params.dispatch(actions.setValue(2));
-      params.dispatch(actions.setSelection("b"));
+      params.setState({ value: 2 });
+      params.setSelection({ value: "b" });
 
       expect(state.getCurrentState().state.value).toEqual(1);
       expect(state.getActionState().state.value).toEqual(2);
@@ -119,16 +86,16 @@ describe("StateManager", () => {
     const state = stateManagerFactory();
 
     state.requestAction((params) => {
-      params.dispatch(actions.setValue(2));
-      params.dispatch(actions.setSelection("b"));
+      params.setState({ value: 2 });
+      params.setSelection({ value: "b" });
       params.submitAction({ name: "Action" });
     });
 
     expect(state.getCurrentState().state.value).toEqual(2);
 
     state.requestAction((params) => {
-      params.dispatch(actions.setValue(3));
-      params.dispatch(actions.setSelection("c"));
+      params.setState({ value: 3 });
+      params.setSelection({ value: "c" });
       params.submitAction({ name: "Action" });
     });
 
@@ -167,7 +134,7 @@ describe("StateManager", () => {
     });
 
     state.requestAction((params) => {
-      params.dispatch(actions.setValue(2));
+      params.setState({ value: 2 });
       params.submitAction({ name: "Action" });
     });
 
@@ -184,12 +151,12 @@ describe("StateManager", () => {
     });
 
     state.requestAction((params) => {
-      params.dispatch(actions.setSelection("b"));
+      params.setSelection({ value: "b" });
       params.submitAction({ name: "Action" });
     });
 
     state.requestAction((params) => {
-      params.dispatch(actions.setSelection("c"));
+      params.setSelection({ value: "c" });
       params.submitAction({ name: "Action" });
     });
 

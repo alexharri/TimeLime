@@ -1,7 +1,7 @@
 import React, { useCallback } from "react";
 import { PrimaryState } from "~/core/state/stateTypes";
 import { curvesToKeyframes } from "~/core/transform/curvesToKeyframes";
-import { useTimelines } from "~/core/utils/hook/useTimelines";
+import { useTimelineState } from "~/react/useTimelineState";
 import { PropertyIds } from "~/css-keyframes/cssKeyframeConstants";
 import { Timeline } from "~/css-keyframes/Timeline";
 
@@ -25,7 +25,7 @@ const initialState: PrimaryState = {
 };
 
 export const CSSKeyframes: React.FC = () => {
-  const { canvasRef, timelines, selection, view, setView } = useTimelines({
+  const { canvasRef, timelines, selection, view, setView } = useTimelineState({
     initialState,
     length: 120,
   });
