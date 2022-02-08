@@ -184,7 +184,7 @@ export const useTimelineState = (options: Options) => {
   const Provider = useMemo(() => {
     const Provider: React.FC = (props) => {
       return (
-        <TimelineStateProvider stateManager={stateManager} renderStateRef={renderStateRef}>
+        <TimelineStateProvider renderStateRef={renderStateRef}>
           {props.children}
         </TimelineStateProvider>
       );

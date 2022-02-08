@@ -1,8 +1,5 @@
 import React, { useCallback, useMemo, useRef } from "react";
-import { StateManager } from "~/core/state/StateManager/StateManager";
 import { RenderState } from "~/core/state/stateTypes";
-import { TimelineState } from "~/core/state/timeline/timelineReducer";
-import { TimelineSelectionState } from "~/core/state/timelineSelection/timelineSelectionReducer";
 import { applyControlPointShift } from "~/core/timeline/applyControlPointShift";
 import { applyNewControlPointShift } from "~/core/timeline/applyNewControlPointShift";
 import { applyTimelineKeyframeShift } from "~/core/timeline/applyTimelineKeyframeShift";
@@ -16,7 +13,6 @@ import { UseTimelineStateListener } from "~/react/types";
 import { useMonitorRenderState } from "~/react/useMonitorRenderState";
 
 interface Props {
-  stateManager: StateManager<TimelineState, TimelineSelectionState>;
   /**
    * A reference to the always-up-to-date current RenderState.
    */
