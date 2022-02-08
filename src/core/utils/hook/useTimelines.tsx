@@ -58,7 +58,9 @@ export const useTimelines = (options: Options) => {
     allowExceedViewBounds: true,
     length: options.length,
     viewBounds: [0, 1],
-    viewBoundsHeight: 24,
+    viewBoundsHeight: 16,
+    scrubberHeight: 20,
+    index: 33,
     viewport: null!,
   });
 

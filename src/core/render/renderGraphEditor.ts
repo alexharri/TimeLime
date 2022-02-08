@@ -28,6 +28,7 @@ import { applyNewControlPointShift } from "~/core/timeline/applyNewControlPointS
 import { getGraphEditorViewport } from "~/core/utils/viewportUtils";
 import { RenderOptions } from "~/types/renderTypes";
 import { renderViewBounds } from "~/core/render/viewBounds/renderViewBounds";
+import { renderTimelineScrubber as renderScrubber } from "~/core/render/renderScrubber";
 
 export function renderGraphEditor(options: RenderOptions) {
   const {
@@ -35,6 +36,7 @@ export function renderGraphEditor(options: RenderOptions) {
     timelines,
     viewBounds = [0, 1],
     viewBoundsHeight = 0,
+    scrubberHeight,
     viewport,
     length,
     yBounds,
@@ -52,7 +54,11 @@ export function renderGraphEditor(options: RenderOptions) {
 
   const timelineCurves = timelineList.map((timeline) => keyframesToCurves(timeline.keyframes));
 
-  const graphEditorViewport = getGraphEditorViewport({ viewport, viewBoundsHeight });
+  const graphEditorViewport = getGraphEditorViewport({
+    viewport,
+    viewBoundsHeight,
+    scrubberHeight,
+  });
 
   ctx.clearRect(
     graphEditorViewport.left,
@@ -302,6 +308,8 @@ export function renderGraphEditor(options: RenderOptions) {
   }
 
   renderViewBounds(options);
+
+  renderScrubber(options);
 }
 
 export function renderGraphEditorWithRenderState(
@@ -309,7 +317,7 @@ export function renderGraphEditorWithRenderState(
   renderState: RenderState,
 ) {
   const timelineSelectionState = renderState.selection;
-  const { length, viewport, viewBounds, viewBoundsHeight } = renderState.view;
+  const { length, viewport, viewBounds, scrubberHeight, viewBoundsHeight } = renderState.view;
   const {
     keyframeShift,
     controlPointShift,
@@ -355,6 +363,7 @@ export function renderGraphEditorWithRenderState(
     timelines,
     viewport,
     viewBoundsHeight,
+    scrubberHeight,
     timelineSelectionState,
     viewBounds,
     yBounds,

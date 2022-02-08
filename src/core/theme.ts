@@ -34,6 +34,11 @@ export const theme = {
   viewBoundsBarFill: colors.gray300,
   viewBoundsBarHighlight: colors.gray600,
 
+  scrubberBackground: colors.dark300,
+  scrubberTickLine: colors.light500,
+  scrubberTickTextColor: colors.light500,
+  scrubberBorderBottom: colors.dark200,
+
   controlPointColor: colors.yellow900,
 
   selectionRectFill: `rgba(122, 183, 255, 0.125)`,

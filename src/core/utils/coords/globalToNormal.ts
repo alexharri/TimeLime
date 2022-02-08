@@ -48,9 +48,13 @@ export const createGlobalToNormalFnFromActionOptions = (options: ActionOptions) 
   const { initialState } = options;
 
   const { timelines } = initialState.primary;
-  const { viewport, viewBounds, viewBoundsHeight, length } = initialState.view;
+  const { viewport, viewBounds, viewBoundsHeight, scrubberHeight, length } = initialState.view;
 
-  const graphEditorViewport = getGraphEditorViewport({ viewport, viewBoundsHeight });
+  const graphEditorViewport = getGraphEditorViewport({
+    viewport,
+    viewBoundsHeight,
+    scrubberHeight,
+  });
 
   return createGlobalToNormalFn({ viewport, graphEditorViewport, viewBounds, timelines, length });
 };

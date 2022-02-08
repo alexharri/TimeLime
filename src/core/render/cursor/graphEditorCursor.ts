@@ -10,6 +10,7 @@ interface Options {
   length: number;
   viewBounds: ViewBounds;
   viewBoundsHeight: number;
+  scrubberHeight: number;
   globalMousePosition: Vec2;
   timelines: TimelineMap;
   viewport: Rect;
@@ -54,13 +55,14 @@ export const getGraphEditorCursor = (globalMousePosition: Vec2, renderState: Ren
   }
 
   let { timelines } = primary;
-  const { viewBounds, viewBoundsHeight, length, viewport } = view;
+  const { viewBounds, viewBoundsHeight, scrubberHeight, length, viewport } = view;
 
   const cursor = getCursor({
     timelines,
     length,
     viewBounds,
     viewBoundsHeight,
+    scrubberHeight,
     globalMousePosition,
     viewport,
   });

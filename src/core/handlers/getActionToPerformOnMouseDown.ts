@@ -16,6 +16,7 @@ interface ActionToPerformOptions {
   length: number;
   viewBounds: ViewBounds;
   viewBoundsHeight: number;
+  scrubberHeight: number;
 }
 
 export const getActionToPerformOnMouseDown = (options: ActionToPerformOptions): ActionToPerform => {

@@ -8,6 +8,7 @@ import { Timeline } from "~/types/timelineTypes";
 
 const viewBounds: ViewBounds = [0, 1];
 const viewBoundsHeight = 0;
+const scrubberHeight = 0;
 
 describe("getActionToPerformOnMouseDown", () => {
   it("returns the expected action to perform", () => {
@@ -47,6 +48,7 @@ describe("getActionToPerformOnMouseDown", () => {
       viewport,
       viewBounds,
       viewBoundsHeight,
+      scrubberHeight,
     });
     expect(k0_action).toEqual({
       type: "mousedown_keyframe",
@@ -61,6 +63,7 @@ describe("getActionToPerformOnMouseDown", () => {
       viewport,
       viewBounds,
       viewBoundsHeight,
+      scrubberHeight,
     });
     expect(k1_action).toEqual({
       type: "mousedown_keyframe",
@@ -75,6 +78,7 @@ describe("getActionToPerformOnMouseDown", () => {
       viewport,
       viewBounds,
       viewBoundsHeight,
+      scrubberHeight,
     });
     expect(cp0_action).toEqual({
       keyframe: keyframes[0],
@@ -90,6 +94,7 @@ describe("getActionToPerformOnMouseDown", () => {
       viewport,
       viewBounds,
       viewBoundsHeight,
+      scrubberHeight,
     });
     expect(cp1_action).toEqual({
       keyframe: keyframes[1],
@@ -107,6 +112,7 @@ describe("getActionToPerformOnMouseDown", () => {
       viewport,
       viewBounds,
       viewBoundsHeight,
+      scrubberHeight,
     });
     _MockKey.up("Alt");
 
@@ -124,6 +130,7 @@ describe("getActionToPerformOnMouseDown", () => {
       viewport,
       viewBounds,
       viewBoundsHeight,
+      scrubberHeight,
     });
     expect(empty_action).toEqual({ type: "mousedown_empty" });
   });
