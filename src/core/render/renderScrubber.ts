@@ -25,8 +25,6 @@ export const renderTimelineScrubber = (options: RenderOptions): void => {
 
   const MIN_DIST = 46;
 
-  let useSec = false;
-
   // For frames
   const potentialNBetween = [1, 2, 5, 10, 15, 30];
   let betweenIndex = 0;
@@ -39,18 +37,6 @@ export const renderTimelineScrubber = (options: RenderOptions): void => {
   }
 
   const nBetween = potentialNBetween[betweenIndex];
-
-  let fac = 60;
-
-  while (normalToViewportX(fac) - normalToViewportX(0) < MIN_DIST) {
-    fac *= 2;
-  }
-
-  useSec = normalToViewportX(fac) - normalToViewportX(0) < MIN_DIST * 2;
-
-  let tickBy!: number;
-
-  tickBy = fac;
 
   ctx.beginPath();
   ctx.rect(left, top, width, height);
@@ -67,11 +53,22 @@ export const renderTimelineScrubber = (options: RenderOptions): void => {
   const lineY0 = top + 14;
   const lineY1 = height + top;
 
-  if (useSec) {
-    for (let i = start - (start % tickBy); i <= end; i += tickBy) {
-      const x = normalToViewportX(i);
+  const renderSeconds = normalToViewportX(60) - normalToViewportX(0) < MIN_DIST * 2;
+  let framesBetweenTicks = 60;
 
-      const t = `${Number((i / 60).toFixed(2))}s`;
+  if (renderSeconds) {
+    while (normalToViewportX(framesBetweenTicks) - normalToViewportX(0) < MIN_DIST) {
+      framesBetweenTicks *= 2;
+    }
+
+    for (
+      let i = Math.floor(start / framesBetweenTicks - 1);
+      i <= end / framesBetweenTicks + 1;
+      i++
+    ) {
+      const x = normalToViewportX(i * framesBetweenTicks);
+
+      const t = `${Number(i.toFixed(2))}s`;
       const w = ctx.measureText(t).width;
       ctx.fillText(t, x - w / 2, textY);
 
