@@ -25,7 +25,10 @@ const initialState: PrimaryState = {
 };
 
 export const CSSKeyframes: React.FC = () => {
-  const { canvasRef, timelines, selection, view, setView } = useTimelines({ initialState });
+  const { canvasRef, timelines, selection, view, setView } = useTimelines({
+    initialState,
+    length: 120,
+  });
 
   const setLength = useCallback(
     (length: number) => {
