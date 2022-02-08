@@ -76,9 +76,13 @@ export const createNormalToViewportFnFromActionOptions = (options: ActionOptions
   const { initialState } = options;
 
   const { timelines } = initialState.primary;
-  const { viewBounds, length, viewBoundsHeight, viewport } = initialState.view;
+  const { viewBounds, length, viewBoundsHeight, scrubberHeight, viewport } = initialState.view;
 
-  const graphEditorViewport = getGraphEditorViewport({ viewBoundsHeight, viewport });
+  const graphEditorViewport = getGraphEditorViewport({
+    viewBoundsHeight,
+    scrubberHeight,
+    viewport,
+  });
 
   return createNormalToViewportFn({ graphEditorViewport, viewBounds, timelines, length });
 };
