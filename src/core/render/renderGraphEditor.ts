@@ -317,7 +317,8 @@ export function renderGraphEditorWithRenderState(
   renderState: RenderState,
 ) {
   const timelineSelectionState = renderState.selection;
-  const { length, viewport, viewBounds, scrubberHeight, viewBoundsHeight } = renderState.view;
+  const { length, viewport, viewBounds, scrubberHeight, viewBoundsHeight, frameIndex } =
+    renderState.view;
   const {
     keyframeShift,
     controlPointShift,
@@ -369,5 +370,6 @@ export function renderGraphEditorWithRenderState(
     yBounds,
     pan,
     dragSelectionRect,
+    frameIndex,
   });
 }
