@@ -15,7 +15,7 @@ import { TimelineSelectionState } from "~/core/state/timelineSelection/timelineS
 import { useIsomorphicLayoutEffect } from "~/core/utils/hook/useIsomorphicLayoutEffect";
 import { useRefRect } from "~/core/utils/hook/useRefRect";
 import { useRenderCursor } from "~/core/utils/hook/useRenderCursor";
-import { TimelineStateProvider } from "~/react/stateContext";
+import { TimelineStateProvider } from "~/react/TimelineStateProvider";
 import { TimelineMap } from "~/types/timelineTypes";
 
 interface UseTimelineStateResult {
