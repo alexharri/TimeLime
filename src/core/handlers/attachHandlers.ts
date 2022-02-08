@@ -9,9 +9,12 @@ import {
 } from "~/core/handlers/pan/moveViewBoundsEdge";
 import { onPan } from "~/core/handlers/pan/pan";
 import { onPanViewBounds } from "~/core/handlers/pan/panViewBounds";
+import { onWheelPan } from "~/core/handlers/pan/wheelPan";
+import { onWheelZoom } from "~/core/handlers/zoom/wheelZoom";
 import { onZoom } from "~/core/handlers/zoom/zoom";
 import { ActionOptions, TrackedState } from "~/core/state/stateTypes";
 import { Vec2 } from "~/core/utils/math/Vec2";
+import { parseWheelEvent } from "~/core/utils/wheelEvent";
 
 interface Options {
   el: HTMLElement;
@@ -36,8 +39,6 @@ export function attachHandlers(options: Options): { detach: () => void } {
       viewBoundsHeight,
       viewport,
     });
-
-    console.log(actionToPerform);
 
     switch (actionToPerform.type) {
       case "mousedown_empty":
@@ -87,10 +88,27 @@ export function attachHandlers(options: Options): { detach: () => void } {
     }
   };
 
+  const onWheel = (e: WheelEvent) => {
+    e.preventDefault();
+    const parsed = parseWheelEvent(e);
+
+    switch (parsed.type) {
+      case "pinch_zoom":
+        requestAction((actionOptions) => onWheelZoom(actionOptions, { e }));
+        break;
+
+      case "pan":
+        requestAction((actionOptions) => onWheelPan(actionOptions, { e }));
+        break;
+    }
+  };
+
   el.addEventListener("mousedown", onMouseDown);
+  el.addEventListener("wheel", onWheel, { passive: false });
 
   function detach() {
     el.removeEventListener("mousedown", onMouseDown);
+    el.removeEventListener("wheel", onWheel);
   }
 
   return { detach };
