@@ -8,11 +8,10 @@ import { Timeline } from "~/types/timelineTypes";
 interface GetTimelineValueAtIndexOptions {
   timeline: Timeline;
   frameIndex: number;
-  layerIndex: number;
 }
 
 export function getTimelineValueAtIndex(options: GetTimelineValueAtIndexOptions): number {
-  const index = options.frameIndex - options.layerIndex;
+  const index = options.frameIndex;
   let timeline = options.timeline;
 
   const keyframes = timeline.keyframes;
