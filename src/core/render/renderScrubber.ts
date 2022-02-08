@@ -1,4 +1,3 @@
-import { colors } from "~/core/colors";
 import { renderLine } from "~/core/render/renderPrimitives";
 import { theme } from "~/core/theme";
 import { createNormalToViewportXFn } from "~/core/utils/coords/normalToViewport";
