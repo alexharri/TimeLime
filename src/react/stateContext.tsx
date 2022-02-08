@@ -92,7 +92,6 @@ export const TimelineStateProvider: React.FC<Props> = (props) => {
       if (state === prevState) {
         return; // Render state did not update
       }
-      console.log("updated");
 
       if (state.view.frameIndex !== prevState.view.frameIndex) {
         for (const { callback, timelineId } of listeners) {
