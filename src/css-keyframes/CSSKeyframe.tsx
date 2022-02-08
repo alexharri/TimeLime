@@ -1,11 +1,11 @@
-import React from "react";
+import React, { useCallback } from "react";
 import { PrimaryState } from "~/core/state/stateTypes";
 import { curvesToKeyframes } from "~/core/transform/curvesToKeyframes";
-import { Canvas } from "~/css-keyframes/Canvas";
 import { useTimelines } from "~/core/utils/hook/useTimelines";
-import { NumberInput } from "~/css-keyframes/NumberInput/NumberInput";
+import { PropertyIds } from "~/css-keyframes/cssKeyframeConstants";
+import { Timeline } from "~/css-keyframes/Timeline";
 
-const xTranslateKeyframes = curvesToKeyframes([
+const translateXKeyframes = curvesToKeyframes([
   [
     [0, 0],
     [50, 50],
@@ -17,19 +17,28 @@ const xTranslateKeyframes = curvesToKeyframes([
 ]);
 const initialState: PrimaryState = {
   timelines: {
-    xTranslate: {
-      id: "xTranslate",
-      keyframes: xTranslateKeyframes,
+    [PropertyIds.TranslateX]: {
+      id: PropertyIds.TranslateX,
+      keyframes: translateXKeyframes,
     },
   },
 };
 
 export const CSSKeyframes: React.FC = () => {
-  const { canvasRef, view, setView } = useTimelines({ initialState });
+  const { canvasRef, timelines, selection, view, setView } = useTimelines({ initialState });
+
+  const setLength = useCallback(
+    (length: number) => {
+      const t = view.length / length;
+      const [low, high] = view.viewBounds.map((x) => x * t);
+      setView({ length, viewBounds: [low, high] });
+    },
+    [view.length, view.viewBounds],
+  );
 
   return (
     <div>
-      <Canvas ref={canvasRef} />
+      {/* <Canvas ref={canvasRef} />
       <NumberInput
         value={view.length}
         setValue={(length) => {
@@ -38,6 +47,13 @@ export const CSSKeyframes: React.FC = () => {
           setView({ length, viewBounds: [low, high] });
         }}
         decimalPlaces={0}
+      /> */}
+      <Timeline
+        timelines={timelines}
+        timelineSelectionMap={selection}
+        canvasRef={canvasRef}
+        length={view.length}
+        setLength={setLength}
       />
     </div>
   );
