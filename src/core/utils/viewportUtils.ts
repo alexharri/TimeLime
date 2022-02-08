@@ -23,18 +23,36 @@ export const getViewportXUpperLower = (
   return [xUpper, xLower];
 };
 
-interface Options {
+interface GetGraphEditorViewportOptions {
   viewport: Rect;
   viewBoundsHeight: number;
+  scrubberHeight: number;
 }
 
-export function getGraphEditorViewport(options: Options): Rect {
-  const { viewport, viewBoundsHeight } = options;
+export function getGraphEditorViewport(options: GetGraphEditorViewportOptions): Rect {
+  const { viewport, viewBoundsHeight, scrubberHeight } = options;
+
+  return {
+    left: 0,
+    top: viewBoundsHeight + scrubberHeight,
+    height: viewport.height - viewBoundsHeight - scrubberHeight,
+    width: viewport.width,
+  };
+}
+
+interface GetScrubberViewportOptions {
+  viewport: Rect;
+  viewBoundsHeight: number;
+  scrubberHeight: number;
+}
+
+export function getScrubberViewport(options: GetScrubberViewportOptions): Rect {
+  const { viewport, viewBoundsHeight, scrubberHeight } = options;
 
   return {
     left: 0,
     top: viewBoundsHeight,
-    height: viewport.height - viewBoundsHeight,
+    height: scrubberHeight,
     width: viewport.width,
   };
 }

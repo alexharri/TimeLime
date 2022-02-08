@@ -9,6 +9,7 @@ export interface RenderOptions {
   viewport: Rect;
   viewBounds: ViewBounds;
   viewBoundsHeight: number;
+  scrubberHeight: number;
 
   /**
    * If not provided, colors will be based on the order of the timelines.
