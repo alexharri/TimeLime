@@ -1,12 +1,5 @@
 import { useContext, useEffect, useState } from "react";
-import { TimelineStateContext } from "~/react/stateContext";
-import { Timeline, TimelineSelection } from "~/types/timelineTypes";
-
-interface UseTimelineResult {
-  timeline: Timeline;
-  selection?: TimelineSelection;
-  value: number;
-}
+import { TimelineStateContext, UseTimelineResult } from "~/react/TimelineStateContext";
 
 interface Options {
   timelineId: string;

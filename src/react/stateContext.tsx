@@ -1,5 +1,4 @@
-import { areMapsShallowEqual } from "map-fns";
-import React, { useCallback, useEffect, useMemo, useRef } from "react";
+import React, { useCallback, useMemo, useRef } from "react";
 import { StateManager } from "~/core/state/StateManager/StateManager";
 import { RenderState } from "~/core/state/stateTypes";
 import { TimelineState } from "~/core/state/timeline/timelineReducer";
@@ -8,47 +7,30 @@ import { applyControlPointShift } from "~/core/timeline/applyControlPointShift";
 import { applyNewControlPointShift } from "~/core/timeline/applyNewControlPointShift";
 import { applyTimelineKeyframeShift } from "~/core/timeline/applyTimelineKeyframeShift";
 import { getTimelineValueAtIndex } from "~/core/timeline/timelineValueAtIndex";
-import { Timeline, TimelineSelection } from "~/types/timelineTypes";
-
-interface SingleTimelineState {
-  timeline: Timeline;
-  selection: TimelineSelection | undefined;
-  value: number;
-}
-
-type SubscribeCallback = (state: SingleTimelineState) => void;
-
-interface ITimelineStateContext {
-  getTimelineValue: (timelineId: string) => SingleTimelineState;
-  subscribeToTimeline: (
-    timelineId: string,
-    callback: SubscribeCallback,
-  ) => { unsubscribe: () => void };
-}
-
-export const TimelineStateContext = React.createContext<ITimelineStateContext | null>(null);
+import {
+  ITimelineStateContext,
+  TimelineStateContext,
+  UseTimelineResult,
+} from "~/react/TimelineStateContext";
+import { UseTimelineStateListener } from "~/react/types";
+import { useMonitorRenderState } from "~/react/useMonitorRenderState";
 
 interface Props {
   stateManager: StateManager<TimelineState, TimelineSelectionState>;
+  /**
+   * A reference to the always-up-to-date current RenderState.
+   */
   renderStateRef: React.MutableRefObject<RenderState>;
 }
 
-interface Listener {
-  id: number;
-  timelineId: string;
-  callback: SubscribeCallback;
-}
-
 export const TimelineStateProvider: React.FC<Props> = (props) => {
-  const { renderStateRef: currStateRef } = props;
-
   const idRef = useRef(0);
-  const listeners = useMemo<Listener[]>(() => [], []);
+  const listeners = useMemo<UseTimelineStateListener[]>(() => [], []);
 
+  const currStateRef = props.renderStateRef;
   const prevStateRef = useRef<RenderState>(currStateRef.current);
-  // const currStateRef = useRef<RenderState>(initialRenderState);
 
-  const getTimelineValue = useCallback((timelineId: string): SingleTimelineState => {
+  const getUseTimelineResult = useCallback((timelineId: string): UseTimelineResult => {
     const { primary, selection, view, ephemeral } = prevStateRef.current;
 
     const { frameIndex } = view;
@@ -77,83 +59,22 @@ export const TimelineStateProvider: React.FC<Props> = (props) => {
     return { timeline, selection: timelineSelection, value };
   }, []);
 
-  useEffect(() => {
-    let mounted = true;
-    const tick = () => {
-      if (!mounted) {
-        return;
-      }
-      requestAnimationFrame(tick);
+  useMonitorRenderState({
+    listeners,
+    getCurrentState: () => currStateRef.current,
+    executeCallback: (listener) => executeListener(listener),
+  });
 
-      const prevState = prevStateRef.current;
-      const state = currStateRef.current;
-      prevStateRef.current = state;
-
-      if (state === prevState) {
-        return; // Render state did not update
-      }
-
-      if (state.view.frameIndex !== prevState.view.frameIndex) {
-        for (const { callback, timelineId } of listeners) {
-          callback(getTimelineValue(timelineId));
-        }
-        return;
-      }
-
-      prevStateRef.current = state;
-      const { ephemeral } = state;
-      const { newControlPointShift, controlPointShift, keyframeShift } = ephemeral;
-
-      for (const listener of listeners) {
-        const { timelineId } = listener;
-        let updated = false;
-
-        if (state.primary.timelines[timelineId] !== prevState.primary.timelines[timelineId]) {
-          updated = true;
-        }
-
-        const currSelection = state.selection[timelineId];
-        const prevSelection = prevState.selection[timelineId];
-        if (!!currSelection !== !!prevState) {
-          updated = true;
-        }
-
-        if (currSelection && prevSelection && !areMapsShallowEqual(currSelection, prevSelection)) {
-          updated = true;
-        }
-
-        if (currSelection) {
-          const nSelected = Object.keys(currSelection.keyframes);
-
-          if (
-            nSelected.length > 0 &&
-            (newControlPointShift || controlPointShift || keyframeShift)
-          ) {
-            updated = true;
-          }
-        }
-
-        if (!updated) {
-          continue;
-        }
-
-        executeListener(listener);
-      }
-    };
-    requestAnimationFrame(tick);
-
-    return () => {
-      mounted = false;
-    };
-  }, []);
-
-  const executeListener = useCallback(({ callback: listener, timelineId }: Listener) => {
-    listener(getTimelineValue(timelineId));
-  }, []);
+  const executeListener = useCallback(
+    ({ callback: listener, timelineId }: UseTimelineStateListener) => {
+      listener(getUseTimelineResult(timelineId));
+    },
+    [],
+  );
 
   const value = useMemo<ITimelineStateContext>(() => {
     return {
-      getTimelineValue,
+      getTimelineValue: getUseTimelineResult,
       subscribeToTimeline: (timelineId, callback) => {
         const id = ++idRef.current;
         listeners.push({ id, timelineId, callback });
