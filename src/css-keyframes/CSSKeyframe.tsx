@@ -51,7 +51,7 @@ const initialState: PrimaryState = {
 };
 
 export const CSSKeyframes: React.FC = () => {
-  const { canvasRef, Provider } = useTimelineState({
+  const { Provider } = useTimelineState({
     initialState,
     length: 120,
   });
@@ -60,7 +60,7 @@ export const CSSKeyframes: React.FC = () => {
     <Provider>
       <Layout>
         <Preview />
-        <Timeline canvasRef={canvasRef} />
+        <Timeline />
       </Layout>
     </Provider>
   );
