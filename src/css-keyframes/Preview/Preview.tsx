@@ -12,7 +12,7 @@ export const Preview: React.FC = () => {
     <div className={s("container")}>
       <div
         className={s("box")}
-        style={{ transform: `translate(${translateX * 3}px, ${translateY * 3}px)` }}
+        style={{ transform: `translate(${translateX * 3}px, ${-translateY * 3}px)` }}
       />
     </div>
   );
