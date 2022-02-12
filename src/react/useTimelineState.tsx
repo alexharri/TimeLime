@@ -1,3 +1,4 @@
+import { mapMap } from "map-fns";
 import React, { useCallback, useEffect, useMemo, useRef } from "react";
 import { attachHandlers } from "~/core/handlers/attachHandlers";
 import { isKeyCodeOf } from "~/core/listener/keyboard";
@@ -12,7 +13,10 @@ import {
   ViewState,
 } from "~/core/state/stateTypes";
 import { TimelineState } from "~/core/state/timeline/timelineReducer";
-import { TimelineSelectionState } from "~/core/state/timelineSelection/timelineSelectionReducer";
+import {
+  TimelineSelection,
+  TimelineSelectionState,
+} from "~/core/state/timelineSelection/timelineSelectionReducer";
 import { useIsomorphicLayoutEffect } from "~/core/utils/hook/useIsomorphicLayoutEffect";
 import { useRefRect } from "~/core/utils/hook/useRefRect";
 import { useRenderCursor } from "~/core/utils/hook/useRenderCursor";
@@ -36,7 +40,9 @@ export const useTimelineState = (options: Options) => {
   const stateManager = useMemo(() => {
     return new StateManager<PrimaryState, SelectionState>({
       initialState: options.initialState,
-      initialSelectionState: options.initialSelectionState || {},
+      initialSelectionState:
+        options.initialSelectionState ||
+        mapMap(options.initialState.timelines, (): TimelineSelection => ({ keyframes: {} })),
     });
   }, []);
 
