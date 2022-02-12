@@ -4,6 +4,8 @@ import { curvesToKeyframes } from "~/core/transform/curvesToKeyframes";
 import { useTimelineState } from "~/react/useTimelineState";
 import { PropertyIds } from "~/css-keyframes/cssKeyframeConstants";
 import { Timeline } from "~/css-keyframes/Timeline";
+import { Preview } from "~/css-keyframes/Preview/Preview";
+import { Layout } from "~/css-keyframes/Layout/Layout";
 
 const translateXKeyframes = curvesToKeyframes([
   [
@@ -55,10 +57,11 @@ export const CSSKeyframes: React.FC = () => {
   });
 
   return (
-    <div>
-      <Provider>
+    <Provider>
+      <Layout>
+        <Preview />
         <Timeline canvasRef={canvasRef} />
-      </Provider>
-    </div>
+      </Layout>
+    </Provider>
   );
 };
