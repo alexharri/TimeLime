@@ -16,10 +16,11 @@ interface Props {
   renderStateRef: React.MutableRefObject<RenderState>;
   setLength: (length: number) => void;
   getActionOptions: (callback: (actionOptions: ActionOptions) => void) => void;
+  Canvas: React.ComponentType;
 }
 
 export const TimelineStateProvider: React.FC<Props> = (props) => {
-  const { renderStateRef, setLength, getActionOptions } = props;
+  const { renderStateRef, setLength, getActionOptions, Canvas } = props;
 
   const idRef = useRef(0);
   const timelineListeners = useMemo<UseTimelineStateListener[]>(() => [], []);
@@ -71,6 +72,7 @@ export const TimelineStateProvider: React.FC<Props> = (props) => {
         return { unsubscribe: createUnsubscribe(timelineLengthListeners, id) };
       },
 
+      Canvas,
       getActionOptions,
     };
     return value;

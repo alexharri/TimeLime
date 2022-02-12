@@ -1,8 +1,9 @@
-import { css } from "@emotion/css";
+import { createStylesheet } from "~/css-keyframes/utils/stylesheet";
 
-export default {
+export default createStylesheet(({ css }) => ({
   canvas: css`
-    width: 100%;
-    height: 400px;
+    flex-basis: 0;
+    flex-grow: 1;
+    position: relative;
   `,
-};
+}));

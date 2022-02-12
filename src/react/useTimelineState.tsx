@@ -22,7 +22,6 @@ import { useRenderCursor } from "~/core/utils/hook/useRenderCursor";
 import { TimelineStateProvider } from "~/react/TimelineStateProvider";
 
 interface UseTimelineStateResult {
-  canvasRef: React.Ref<HTMLCanvasElement>;
   Provider: React.ComponentType;
 }
 
@@ -72,8 +71,9 @@ export const useTimelineState = (options: Options) => {
     renderCursor(renderStateRef.current);
   }, []);
 
+  const canvasContainerRef = useRef<HTMLDivElement>(null);
   const canvasRef = useRef<HTMLCanvasElement | null>(null);
-  const canvasRect = useRefRect(canvasRef);
+  const canvasRect = useRefRect(canvasContainerRef);
 
   const { renderCursor } = useRenderCursor({
     canvasRef,
@@ -218,6 +218,17 @@ export const useTimelineState = (options: Options) => {
     });
   }, []);
 
+  const Canvas = useMemo(() => {
+    return () => (
+      <div
+        style={{ position: "absolute", top: 0, left: 0, right: 0, bottom: 0 }}
+        ref={canvasContainerRef}
+      >
+        <canvas ref={onCanvasOrNull} />
+      </div>
+    );
+  }, []);
+
   const Provider = useMemo(() => {
     const Provider: React.FC = (props) => {
       return (
@@ -225,6 +236,7 @@ export const useTimelineState = (options: Options) => {
           renderStateRef={renderStateRef}
           setLength={setLength}
           getActionOptions={getActionOptions}
+          Canvas={Canvas}
         >
           {props.children}
         </TimelineStateProvider>
@@ -236,7 +248,6 @@ export const useTimelineState = (options: Options) => {
   const value = useMemo((): UseTimelineStateResult => {
     return {
       Provider,
-      canvasRef: onCanvasOrNull,
     };
   }, []);
 

@@ -18,6 +18,8 @@ export interface ITimelineStateContext {
   getViewState: () => ViewState;
   setLength: (length: number) => void;
 
+  Canvas: React.ComponentType<{}>;
+
   getTimelineValue: (timelineId: string) => TimelineValue;
   subscribeToTimeline: (
     timelineId: string,

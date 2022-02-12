@@ -4,6 +4,8 @@ import { curvesToKeyframes } from "~/core/transform/curvesToKeyframes";
 import { useTimelineState } from "~/react/useTimelineState";
 import { PropertyIds } from "~/css-keyframes/cssKeyframeConstants";
 import { Timeline } from "~/css-keyframes/Timeline";
+import { Preview } from "~/css-keyframes/Preview/Preview";
+import { Layout } from "~/css-keyframes/Layout/Layout";
 
 const translateXKeyframes = curvesToKeyframes([
   [
@@ -49,16 +51,17 @@ const initialState: PrimaryState = {
 };
 
 export const CSSKeyframes: React.FC = () => {
-  const { canvasRef, Provider } = useTimelineState({
+  const { Provider } = useTimelineState({
     initialState,
     length: 120,
   });
 
   return (
-    <div>
-      <Provider>
-        <Timeline canvasRef={canvasRef} />
-      </Provider>
-    </div>
+    <Provider>
+      <Layout>
+        <Preview />
+        <Timeline />
+      </Layout>
+    </Provider>
   );
 };
