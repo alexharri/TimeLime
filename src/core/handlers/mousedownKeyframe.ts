@@ -38,7 +38,7 @@ export function onMousedownKeyframe(actionOptions: ActionOptions, options: Optio
     keys: ["Shift"],
     globalToNormal,
     beforeMove: (params) => {
-      const { selection, ephemeral } = params;
+      const { primary, selection, ephemeral } = params;
 
       const timelineSelection = selection.state[timelineId];
 
@@ -48,7 +48,9 @@ export function onMousedownKeyframe(actionOptions: ActionOptions, options: Optio
       if (additiveSelection) {
         selection.dispatch((actions) => actions.toggleKeyframe(timelineId, keyframe.id));
       } else if (!timelineSelection?.keyframes[keyframe.id]) {
-        selection.dispatch((actions) => actions.clear(timelineId));
+        for (const timelineId of Object.keys(primary.state.timelines)) {
+          selection.dispatch((actions) => actions.clear(timelineId));
+        }
         selection.dispatch((actions) => actions.toggleKeyframe(timelineId, keyframe.id));
       }
     },
@@ -118,14 +120,15 @@ export function onMousedownKeyframe(actionOptions: ActionOptions, options: Optio
 
       const { timelines } = primary.state;
 
-      const timeline = timelines[timelineId];
-      const timelineSelection = selection.state[timelineId];
+      for (const timeline of Object.values(timelines)) {
+        const timelineSelection = selection.state[timeline.id];
 
-      const nextTimeline = applyTimelineKeyframeShift({
-        keyframeShift,
-        timeline,
-        timelineSelection,
-      });
+        primary.dispatch((actions) =>
+          actions.setTimeline(
+            applyTimelineKeyframeShift({ keyframeShift, timeline, timelineSelection }),
+          ),
+        );
+      }
 
       const { pan = Vec2.ORIGIN } = ephemeral.state;
 
@@ -133,7 +136,6 @@ export function onMousedownKeyframe(actionOptions: ActionOptions, options: Optio
         actions.setFields({ viewBounds: shiftViewBoundsByX(view.state, pan.x) }),
       );
 
-      primary.dispatch((actions) => actions.setTimeline(nextTimeline));
       params.submit({ name: "Move keyframe", allowSelectionShift: true });
     },
   });
