@@ -1,6 +1,6 @@
 import React, { useMemo, useRef } from "react";
-import { RenderState } from "~/core/state/stateTypes";
-import { getUseTimelineResult } from "~/react/getUseTimelineResult";
+import { ActionOptions, RenderState } from "~/core/state/stateTypes";
+import { getTimelineValue } from "~/react/getTimelineValue";
 import { ITimelineStateContext, TimelineStateContext } from "~/react/TimelineStateContext";
 import {
   UseTimelineIdsListener,
@@ -15,10 +15,11 @@ interface Props {
    */
   renderStateRef: React.MutableRefObject<RenderState>;
   setLength: (length: number) => void;
+  getActionOptions: (callback: (actionOptions: ActionOptions) => void) => void;
 }
 
 export const TimelineStateProvider: React.FC<Props> = (props) => {
-  const { renderStateRef, setLength } = props;
+  const { renderStateRef, setLength, getActionOptions } = props;
 
   const idRef = useRef(0);
   const timelineListeners = useMemo<UseTimelineStateListener[]>(() => [], []);
@@ -31,7 +32,7 @@ export const TimelineStateProvider: React.FC<Props> = (props) => {
     timelineLengthListeners,
     getCurrentState: () => renderStateRef.current,
     executeTimelineCallback: ({ callback, timelineId }) =>
-      callback(getUseTimelineResult(timelineId, renderStateRef.current)),
+      callback(getTimelineValue(timelineId, renderStateRef.current)),
   });
 
   const contextValue = useMemo(() => {
@@ -56,7 +57,7 @@ export const TimelineStateProvider: React.FC<Props> = (props) => {
         return { unsubscribe: createUnsubscribe(timelineIdsListeners, id) };
       },
 
-      getTimelineValue: (timelineId) => getUseTimelineResult(timelineId, renderStateRef.current),
+      getTimelineValue: (timelineId) => getTimelineValue(timelineId, renderStateRef.current),
       subscribeToTimeline: (timelineId, callback) => {
         const id = ++idRef.current;
         timelineListeners.push({ id, timelineId, callback });
@@ -69,6 +70,8 @@ export const TimelineStateProvider: React.FC<Props> = (props) => {
         timelineLengthListeners.push({ id, callback });
         return { unsubscribe: createUnsubscribe(timelineLengthListeners, id) };
       },
+
+      getActionOptions,
     };
     return value;
   }, []);

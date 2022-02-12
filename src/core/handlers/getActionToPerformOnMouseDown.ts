@@ -1,5 +1,6 @@
 import { isKeyDown } from "~/core/listener/keyboard";
 import { getGraphEditorYBounds } from "~/core/render/yBounds";
+import { TimelineSelectionState } from "~/core/state/timelineSelection/timelineSelectionReducer";
 import { createNormalToViewportFn } from "~/core/utils/coords/normalToViewport";
 import { getGraphEditorTargetObject } from "~/core/utils/getGraphEditorTargetObject";
 import { expandRect, isVecInRect } from "~/core/utils/math/math";
@@ -12,6 +13,7 @@ import { TimelineMap } from "~/types/timelineTypes";
 interface ActionToPerformOptions {
   globalMousePosition: Vec2;
   timelines: TimelineMap;
+  timelineSelectionState: TimelineSelectionState;
   viewport: Rect;
   length: number;
   viewBounds: ViewBounds;
@@ -23,6 +25,7 @@ export const getActionToPerformOnMouseDown = (options: ActionToPerformOptions): 
   const {
     globalMousePosition,
     timelines,
+    timelineSelectionState,
     viewBounds,
     length,
     viewport,
@@ -75,6 +78,7 @@ export const getActionToPerformOnMouseDown = (options: ActionToPerformOptions): 
   const yBounds = getGraphEditorYBounds({
     length,
     timelines,
+    timelineSelectionState,
     viewBounds,
   });
 
@@ -83,6 +87,7 @@ export const getActionToPerformOnMouseDown = (options: ActionToPerformOptions): 
     viewBounds,
     length,
     timelines,
+    timelineSelectionState,
     graphEditorViewport,
   });
 

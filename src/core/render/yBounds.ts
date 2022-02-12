@@ -3,6 +3,7 @@ import {
   CANVAS_UPPER_LOWER_BUFFER_FACTOR,
 } from "~/core/constants";
 import { ActionOptions } from "~/core/state/stateTypes";
+import { TimelineSelectionState } from "~/core/state/timelineSelection/timelineSelectionReducer";
 import { keyframesToCurves } from "~/core/transform/keyframesToCurves";
 import { splitTimelineCurve } from "~/core/utils/math/splitTimelineCurve";
 import { ViewBounds, YBounds } from "~/types/commonTypes";
@@ -12,13 +13,13 @@ interface Options {
   viewBounds: ViewBounds;
   length: number;
   timelines: TimelineMap;
+  timelineSelectionState: TimelineSelectionState;
 }
 
 export const getGraphEditorYBounds = (options: Options): YBounds => {
-  const { viewBounds, length, timelines } = options;
+  const { viewBounds, length, timelines, timelineSelectionState } = options;
 
-  const timelineList = Object.values(timelines);
-
+  const timelineList = Object.keys(timelineSelectionState).map((id) => timelines[id]);
   const timelineCurves = timelineList.map((timeline) => keyframesToCurves(timeline.keyframes));
 
   const timelineYBounds = timelineList.map((timeline, i): [number, number] => {
@@ -157,7 +158,8 @@ export const getGraphEditorYBounds = (options: Options): YBounds => {
 
 export const getGraphEditorYBoundsFromActionOptions = (actionOptions: ActionOptions) => {
   const { timelines } = actionOptions.initialState.primary;
+  const timelineSelectionState = actionOptions.initialState.selection;
   const { viewBounds, length } = actionOptions.initialState.view;
 
-  return getGraphEditorYBounds({ length, timelines, viewBounds });
+  return getGraphEditorYBounds({ length, timelines, timelineSelectionState, viewBounds });
 };

@@ -34,9 +34,10 @@ export function createPanHandler(createOptions: CreateOptions) {
     const initialViewState = actionOptions.initialState.view;
     const { viewBounds, viewport, length } = initialViewState;
     const { timelines } = actionOptions.initialState.primary;
+    const timelineSelectionState = actionOptions.initialState.selection;
 
     const getYBounds = (viewBounds: ViewBounds): YBounds =>
-      getGraphEditorYBounds({ length, timelines, viewBounds });
+      getGraphEditorYBounds({ length, timelines, timelineSelectionState, viewBounds });
 
     const initialYBounds = getYBounds(viewBounds);
 

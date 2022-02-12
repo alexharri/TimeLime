@@ -19,12 +19,27 @@ export function timelineSelectionReducer(
   action: ActionsReturnType<typeof timelineSelectionActions>,
 ): TimelineSelectionState {
   switch (action.type) {
-    case "tl-sel/clear": {
+    case "tl-sel/remove-all":
+      return {};
+
+    case "tl-sel/empty-if-exists": {
       const { timelineId } = action;
-      return {
-        ...state,
-        [timelineId]: { keyframes: {} },
-      };
+
+      if (!state[timelineId]) {
+        return state;
+      }
+
+      return { ...state, [timelineId]: { keyframes: {} } };
+    }
+
+    case "tl-sel/init": {
+      const { timelineId } = action;
+      return { ...state, [timelineId]: { keyframes: {} } };
+    }
+
+    case "tl-sel/remove": {
+      const { timelineId } = action;
+      return removeKeysFromMap(state, timelineId);
     }
 
     case "tl-sel/set-state": {

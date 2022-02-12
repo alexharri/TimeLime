@@ -20,22 +20,24 @@ import { parseWheelEvent } from "~/core/utils/wheelEvent";
 interface Options {
   el: HTMLElement;
   getState: () => TrackedState;
-  requestAction: (callback: (actionOptions: ActionOptions) => void) => void;
+  getActionOptions: (callback: (actionOptions: ActionOptions) => void) => void;
 }
 
 export function attachHandlers(options: Options): { detach: () => void } {
-  const { el, getState, requestAction } = options;
+  const { el, getState, getActionOptions } = options;
 
   const onMouseDown = (e: MouseEvent) => {
-    const { primary, view } = getState();
+    const { primary, selection, view } = getState();
 
     const { timelines } = primary;
+    const timelineSelectionState = selection;
     const { length, viewport, viewBounds, viewBoundsHeight, scrubberHeight } = view;
 
     const actionToPerform = getActionToPerformOnMouseDown({
       globalMousePosition: Vec2.fromEvent(e),
       length,
       timelines,
+      timelineSelectionState,
       viewBounds,
       viewBoundsHeight,
       scrubberHeight,
@@ -44,50 +46,50 @@ export function attachHandlers(options: Options): { detach: () => void } {
 
     switch (actionToPerform.type) {
       case "mousedown_empty":
-        requestAction((actionOptions) =>
+        getActionOptions((actionOptions) =>
           onMousedownEmpty(actionOptions, { e, ...actionToPerform }),
         );
         break;
       case "mousedown_keyframe":
-        requestAction((actionOptions) =>
+        getActionOptions((actionOptions) =>
           onMousedownKeyframe(actionOptions, { e, ...actionToPerform }),
         );
         break;
 
       case "alt_mousedown_keyframe":
-        requestAction((actionOptions) =>
+        getActionOptions((actionOptions) =>
           onAltMousedownKeyframe(actionOptions, { e, ...actionToPerform }),
         );
         break;
 
       case "mousedown_control_point":
-        requestAction((actionOptions) =>
+        getActionOptions((actionOptions) =>
           onMousedownControlPoint(actionOptions, { e, ...actionToPerform }),
         );
         break;
 
       case "pan":
-        requestAction((actionOptions) => onPan(actionOptions, { e }));
+        getActionOptions((actionOptions) => onPan(actionOptions, { e }));
         break;
 
       case "zoom_out":
       case "zoom_in":
-        requestAction((actionOptions) => onZoom(actionOptions, { ...actionToPerform, e }));
+        getActionOptions((actionOptions) => onZoom(actionOptions, { ...actionToPerform, e }));
         break;
 
       case "scrub":
-        requestAction((actionOptions) => onScrub(actionOptions, { e }));
+        getActionOptions((actionOptions) => onScrub(actionOptions, { e }));
         break;
 
       case "pan_view_bounds": {
-        requestAction((actionOptions) => onPanViewBounds(actionOptions, { e }));
+        getActionOptions((actionOptions) => onPanViewBounds(actionOptions, { e }));
         break;
       }
       case "mousedown_view_bounds_handle": {
         if (actionToPerform.which === "left") {
-          requestAction((actionOptions) => onMoveViewBoundsEdgeLeft(actionOptions, { e }));
+          getActionOptions((actionOptions) => onMoveViewBoundsEdgeLeft(actionOptions, { e }));
         } else {
-          requestAction((actionOptions) => onMoveViewBoundsEdgeRight(actionOptions, { e }));
+          getActionOptions((actionOptions) => onMoveViewBoundsEdgeRight(actionOptions, { e }));
         }
         break;
       }
@@ -100,11 +102,11 @@ export function attachHandlers(options: Options): { detach: () => void } {
 
     switch (parsed.type) {
       case "pinch_zoom":
-        requestAction((actionOptions) => onWheelZoom(actionOptions, { e }));
+        getActionOptions((actionOptions) => onWheelZoom(actionOptions, { e }));
         break;
 
       case "pan":
-        requestAction((actionOptions) => onWheelPan(actionOptions, { e }));
+        getActionOptions((actionOptions) => onWheelPan(actionOptions, { e }));
         break;
     }
   };

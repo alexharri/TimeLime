@@ -1,27 +1,27 @@
+import { mapMap } from "map-fns";
 import React, { useCallback, useEffect, useMemo, useRef } from "react";
 import { attachHandlers } from "~/core/handlers/attachHandlers";
 import { isKeyCodeOf } from "~/core/listener/keyboard";
 import { renderGraphEditorWithRenderState } from "~/core/render/renderGraphEditor";
-import { StateManager } from "~/core/state/StateManager/StateManager";
+import { RequestActionParams, StateManager } from "~/core/state/StateManager/StateManager";
 import {
   ActionOptions,
   PrimaryState,
   RenderState,
   SelectionState,
-  TrackedState,
   ViewState,
 } from "~/core/state/stateTypes";
 import { TimelineState } from "~/core/state/timeline/timelineReducer";
-import { TimelineSelectionState } from "~/core/state/timelineSelection/timelineSelectionReducer";
+import {
+  TimelineSelection,
+  TimelineSelectionState,
+} from "~/core/state/timelineSelection/timelineSelectionReducer";
 import { useIsomorphicLayoutEffect } from "~/core/utils/hook/useIsomorphicLayoutEffect";
 import { useRefRect } from "~/core/utils/hook/useRefRect";
 import { useRenderCursor } from "~/core/utils/hook/useRenderCursor";
 import { TimelineStateProvider } from "~/react/TimelineStateProvider";
 
 interface UseTimelineStateResult {
-  getState: () => TrackedState;
-  requestAction: (callback: (actionOptions: ActionOptions) => void) => void;
-  stateManager: StateManager<TimelineState, TimelineSelectionState>;
   canvasRef: React.Ref<HTMLCanvasElement>;
   Provider: React.ComponentType;
 }
@@ -36,7 +36,9 @@ export const useTimelineState = (options: Options) => {
   const stateManager = useMemo(() => {
     return new StateManager<PrimaryState, SelectionState>({
       initialState: options.initialState,
-      initialSelectionState: options.initialSelectionState || {},
+      initialSelectionState:
+        options.initialSelectionState ||
+        mapMap(options.initialState.timelines, (): TimelineSelection => ({ keyframes: {} })),
     });
   }, []);
 
@@ -139,20 +141,10 @@ export const useTimelineState = (options: Options) => {
     renderCursor(renderStateRef.current);
   }, [canvasRect]);
 
-  const requestAction = useCallback((callback: (actionOptions: ActionOptions) => void) => {
-    stateManager.requestAction((params) => {
+  const actionOptionFactory = useCallback(
+    (params: RequestActionParams<TimelineState, TimelineSelectionState>) => {
       const actionState = stateManager.getActionState();
-
       const initialViewState = viewRef.current;
-
-      function ifNotDone<F extends (...args: any[]) => void>(callback: F) {
-        return ((...args) => {
-          if (params.done) {
-            return;
-          }
-          return callback(...args);
-        }) as F;
-      }
 
       const actionOptions: ActionOptions = {
         initialState: {
@@ -179,13 +171,21 @@ export const useTimelineState = (options: Options) => {
           params.cancelAction();
         },
 
-        onCancel: ifNotDone(() => {
+        onCancel: () => {
           setViewState(initialViewState);
           params.cancelAction();
-        }),
+        },
 
         render,
       };
+      return actionOptions;
+    },
+    [],
+  );
+
+  const getActionOptions = useCallback((callback: (actionOptions: ActionOptions) => void) => {
+    stateManager.requestAction((params) => {
+      const actionOptions = actionOptionFactory(params);
       callback(actionOptions);
     });
   }, []);
@@ -202,7 +202,7 @@ export const useTimelineState = (options: Options) => {
       return;
     }
 
-    const { detach } = attachHandlers({ el, requestAction, getState });
+    const { detach } = attachHandlers({ el, getActionOptions, getState });
     detachRef.current = detach;
   }, []);
 
@@ -221,7 +221,11 @@ export const useTimelineState = (options: Options) => {
   const Provider = useMemo(() => {
     const Provider: React.FC = (props) => {
       return (
-        <TimelineStateProvider renderStateRef={renderStateRef} setLength={setLength}>
+        <TimelineStateProvider
+          renderStateRef={renderStateRef}
+          setLength={setLength}
+          getActionOptions={getActionOptions}
+        >
           {props.children}
         </TimelineStateProvider>
       );
@@ -232,9 +236,6 @@ export const useTimelineState = (options: Options) => {
   const value = useMemo((): UseTimelineStateResult => {
     return {
       Provider,
-      getState,
-      requestAction,
-      stateManager,
       canvasRef: onCanvasOrNull,
     };
   }, []);

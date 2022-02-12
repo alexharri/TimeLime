@@ -16,7 +16,7 @@ function didTimelineChange(prevState: RenderState, currState: RenderState, timel
 
   const currSelection = currState.selection[timelineId];
   const prevSelection = prevState.selection[timelineId];
-  if (!!currSelection !== !!prevState) {
+  if (!!currSelection !== !!prevSelection) {
     // The timeline's selection changed.
     return true;
   }

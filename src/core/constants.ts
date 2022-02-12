@@ -9,7 +9,7 @@ export const CANVAS_UPPER_LOWER_BUFFER_FACTOR = 0.1;
 export const DEG_TO_RAD_FAC = 0.0174533;
 export const RAD_TO_DEG_FAC = 57.2958;
 
-export const KEYFRAME_DISTANCE_TRESHOLD = 6;
+export const KEYFRAME_DISTANCE_TRESHOLD = 9;
 export const CONTROL_POINT_DISTANCE_TRESHOLD = 6;
 
 export const MOUSE_MOVE_TRESHOLD = 5;

@@ -44,7 +44,7 @@ export function onMousedownEmpty(actionOptions: ActionOptions, options: Options)
 
       const clearSelection = () => {
         for (const timeline of timelineList) {
-          selection.dispatch((actions) => actions.clear(timeline.id));
+          selection.dispatch((actions) => actions.emptyIfExists(timeline.id));
         }
       };
 

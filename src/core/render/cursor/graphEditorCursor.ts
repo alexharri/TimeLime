@@ -1,6 +1,7 @@
 import { getActionToPerformOnMouseDown } from "~/core/handlers/getActionToPerformOnMouseDown";
 import { isKeyDown } from "~/core/listener/keyboard";
 import { RenderState } from "~/core/state/stateTypes";
+import { TimelineSelectionState } from "~/core/state/timelineSelection/timelineSelectionReducer";
 import { base64Cursors } from "~/core/utils/cursor/base64Cursors";
 import { Vec2 } from "~/core/utils/math/Vec2";
 import { Rect, ViewBounds } from "~/types/commonTypes";
@@ -13,6 +14,7 @@ interface Options {
   scrubberHeight: number;
   globalMousePosition: Vec2;
   timelines: TimelineMap;
+  timelineSelectionState: TimelineSelectionState;
   viewport: Rect;
 }
 
@@ -49,7 +51,7 @@ const getCursor = (options: Options): string => {
 };
 
 export const getGraphEditorCursor = (globalMousePosition: Vec2, renderState: RenderState) => {
-  const { primary, view, ephemeral } = renderState;
+  const { primary, selection, view, ephemeral } = renderState;
 
   if (ephemeral.cursor) {
     // The action is setting the cursor which we should be using.
@@ -57,10 +59,12 @@ export const getGraphEditorCursor = (globalMousePosition: Vec2, renderState: Ren
   }
 
   let { timelines } = primary;
+  const timelineSelectionState = selection;
   const { viewBounds, viewBoundsHeight, scrubberHeight, length, viewport } = view;
 
   const cursor = getCursor({
     timelines,
+    timelineSelectionState,
     length,
     viewBounds,
     viewBoundsHeight,

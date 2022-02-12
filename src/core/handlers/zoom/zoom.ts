@@ -19,7 +19,7 @@ export function onZoom(actionOptions: ActionOptions, options: Options) {
   const { e, type } = options;
 
   requestAction({ userActionOptions: actionOptions }, (params) => {
-    const { primary, view, ephemeral } = params;
+    const { primary, selection, view, ephemeral } = params;
     const { viewport, viewBounds, allowExceedViewBounds, length } = view.state;
 
     const mousePos = Vec2.fromEvent(e).subX(viewport.left).subX(CANVAS_END_START_BUFFER);
@@ -44,11 +44,13 @@ export function onZoom(actionOptions: ActionOptions, options: Options) {
     const yBounds = getGraphEditorYBounds({
       length,
       timelines: primary.state.timelines,
+      timelineSelectionState: selection.state,
       viewBounds,
     });
     const nextYBounds = getGraphEditorYBounds({
       length,
       timelines: primary.state.timelines,
+      timelineSelectionState: selection.state,
       viewBounds: nextViewBounds,
     });
 

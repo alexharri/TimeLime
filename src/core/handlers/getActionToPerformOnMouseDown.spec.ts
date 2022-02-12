@@ -1,6 +1,7 @@
 import { CANVAS_END_START_BUFFER, CANVAS_UPPER_LOWER_BUFFER_FACTOR } from "~/core/constants";
 import { getActionToPerformOnMouseDown } from "~/core/handlers/getActionToPerformOnMouseDown";
 import { _MockKey } from "~/core/listener/keyboard";
+import { TimelineSelectionState } from "~/core/state/timelineSelection/timelineSelectionReducer";
 import { curvesToKeyframes } from "~/core/transform/curvesToKeyframes";
 import { Vec2 } from "~/core/utils/math/Vec2";
 import { Rect, ViewBounds } from "~/types/commonTypes";
@@ -9,6 +10,8 @@ import { Timeline } from "~/types/timelineTypes";
 const viewBounds: ViewBounds = [0, 1];
 const viewBoundsHeight = 0;
 const scrubberHeight = 0;
+
+const timelineSelectionState: TimelineSelectionState = { test: { keyframes: {} } };
 
 describe("getActionToPerformOnMouseDown", () => {
   it("returns the expected action to perform", () => {
@@ -45,6 +48,7 @@ describe("getActionToPerformOnMouseDown", () => {
       globalMousePosition: Vec2.new(getX(0), getY(1)),
       length,
       timelines,
+      timelineSelectionState,
       viewport,
       viewBounds,
       viewBoundsHeight,
@@ -60,6 +64,7 @@ describe("getActionToPerformOnMouseDown", () => {
       globalMousePosition: Vec2.new(getX(0.85), getY(0.1)),
       length,
       timelines,
+      timelineSelectionState,
       viewport,
       viewBounds,
       viewBoundsHeight,
@@ -75,6 +80,7 @@ describe("getActionToPerformOnMouseDown", () => {
       globalMousePosition: Vec2.new(getX(0.2), getY(1)),
       length,
       timelines,
+      timelineSelectionState,
       viewport,
       viewBounds,
       viewBoundsHeight,
@@ -91,6 +97,7 @@ describe("getActionToPerformOnMouseDown", () => {
       globalMousePosition: Vec2.new(getX(0.6), getY(0)),
       length,
       timelines,
+      timelineSelectionState,
       viewport,
       viewBounds,
       viewBoundsHeight,
@@ -109,6 +116,7 @@ describe("getActionToPerformOnMouseDown", () => {
       globalMousePosition: Vec2.new(getX(0), getY(1)),
       length,
       timelines,
+      timelineSelectionState,
       viewport,
       viewBounds,
       viewBoundsHeight,
@@ -127,6 +135,7 @@ describe("getActionToPerformOnMouseDown", () => {
       globalMousePosition: Vec2.new(getX(0.5), getY(0.5)),
       length,
       timelines,
+      timelineSelectionState,
       viewport,
       viewBounds,
       viewBoundsHeight,

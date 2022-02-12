@@ -4,8 +4,22 @@ import {
 } from "~/core/state/timelineSelection/timelineSelectionReducer";
 
 export const timelineSelectionActions = {
-  clear: (timelineId: string) => ({
-    type: <const>"tl-sel/clear",
+  removeAll: () => ({
+    type: <const>"tl-sel/remove-all",
+  }),
+
+  removeFromSelection: (timelineId: string) => ({
+    type: <const>"tl-sel/remove",
+    timelineId,
+  }),
+
+  init: (timelineId: string) => ({
+    type: <const>"tl-sel/init",
+    timelineId,
+  }),
+
+  emptyIfExists: (timelineId: string) => ({
+    type: <const>"tl-sel/empty-if-exists",
     timelineId,
   }),
 
