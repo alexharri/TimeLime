@@ -48,7 +48,7 @@ interface Options {
   getCurrentState: () => RenderState;
   timelineIdsListeners: UseTimelineIdsListener[];
   timelineListeners: UseTimelineStateListener[];
-  executeCallback: (listener: UseTimelineStateListener) => void;
+  executeTimelineCallback: (listener: UseTimelineStateListener) => void;
 }
 
 export function useMonitorRenderState(options: Options) {
@@ -59,7 +59,11 @@ export function useMonitorRenderState(options: Options) {
 
     // We do not need to get the listeners on each tick since `useTimelineState` pushes
     // directly to the listeners array instead of creating a new one.
-    const { timelineListeners, timelineIdsListeners, executeCallback } = options;
+    const {
+      timelineListeners,
+      timelineIdsListeners,
+      executeTimelineCallback: executeCallback,
+    } = options;
 
     const tick = () => {
       if (unmounted) {

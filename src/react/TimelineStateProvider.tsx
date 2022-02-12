@@ -23,7 +23,7 @@ export const TimelineStateProvider: React.FC<Props> = (props) => {
     timelineListeners,
     timelineIdsListeners,
     getCurrentState: () => renderStateRef.current,
-    executeCallback: ({ callback, timelineId }) =>
+    executeTimelineCallback: ({ callback, timelineId }) =>
       callback(getUseTimelineResult(timelineId, renderStateRef.current)),
   });
 
