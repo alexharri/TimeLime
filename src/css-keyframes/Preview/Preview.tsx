@@ -8,11 +8,12 @@ export const Preview: React.FC = () => {
 
   const { translateX, translateY } = useTimelineValues(timelineIds);
 
-  console.log({ translateX, translateY });
-
   return (
     <div className={s("container")}>
-      <div className={s("box")} />
+      <div
+        className={s("box")}
+        style={{ transform: `translate(${translateX * 3}px, ${translateY * 3}px)` }}
+      />
     </div>
   );
 };
