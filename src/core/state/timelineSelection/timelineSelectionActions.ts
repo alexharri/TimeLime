@@ -13,7 +13,12 @@ export const timelineSelectionActions = {
     timelineId,
   }),
 
-  empty: (timelineId: string) => ({
+  init: (timelineId: string) => ({
+    type: <const>"tl-sel/init",
+    timelineId,
+  }),
+
+  emptyIfExists: (timelineId: string) => ({
     type: <const>"tl-sel/empty",
     timelineId,
   }),

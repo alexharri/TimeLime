@@ -22,12 +22,19 @@ export function timelineSelectionReducer(
     case "tl-sel/remove-all":
       return {};
 
-    case "tl-sel/empty": {
+    case "tl-sel/empty-if-exists": {
       const { timelineId } = action;
-      return {
-        ...state,
-        [timelineId]: { keyframes: {} },
-      };
+
+      if (!state[timelineId]) {
+        return state;
+      }
+
+      return { ...state, [timelineId]: { keyframes: {} } };
+    }
+
+    case "tl-sel/init": {
+      const { timelineId } = action;
+      return { ...state, [timelineId]: { keyframes: {} } };
     }
 
     case "tl-sel/remove": {

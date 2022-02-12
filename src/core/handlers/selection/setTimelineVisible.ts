@@ -16,7 +16,7 @@ export const setTimelineVisible = (actionOptions: ActionOptions, options: Option
       selection.dispatch((actions) => actions.removeFromSelection(timelineId));
       params.submit({ name: "Remove timeline selection" });
     } else {
-      selection.dispatch((actions) => actions.empty(timelineId));
+      selection.dispatch((actions) => actions.init(timelineId));
       params.submit({ name: "Initialize timeline selection" });
     }
   });
