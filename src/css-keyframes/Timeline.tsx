@@ -1,6 +1,6 @@
 import React from "react";
 import { Canvas } from "~/css-keyframes/Canvas";
-import { Properties } from "~/css-keyframes/PropertyList";
+import { PropertyList } from "~/css-keyframes/PropertyList";
 import s from "~/css-keyframes/Timeline.styles";
 
 interface Props {
@@ -12,7 +12,7 @@ export const Timeline: React.FC<Props> = (props) => {
 
   return (
     <div className={s("container")}>
-      <Properties />
+      <PropertyList />
       <Canvas ref={canvasRef} />
     </div>
   );

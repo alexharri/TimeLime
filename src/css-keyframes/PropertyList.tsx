@@ -3,7 +3,7 @@ import { Property } from "~/css-keyframes/Property";
 import s from "~/css-keyframes/PropertyList.styles";
 import { useTimelineIds } from "~/react/useTimelineIds";
 
-export const Properties: React.FC = () => {
+export const PropertyList: React.FC = () => {
   const timelineIds = useTimelineIds();
 
   return (
