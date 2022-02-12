@@ -5,7 +5,7 @@ import { applyTimelineKeyframeShift } from "~/core/timeline/applyTimelineKeyfram
 import { getTimelineValueAtIndex } from "~/core/timeline/timelineValueAtIndex";
 import { TimelineValue } from "~/react/TimelineStateContext";
 
-export function getUseTimelineResult(timelineId: string, renderState: RenderState): TimelineValue {
+export function getTimelineValue(timelineId: string, renderState: RenderState): TimelineValue {
   const { primary, selection, view, ephemeral } = renderState;
 
   const { frameIndex } = view;

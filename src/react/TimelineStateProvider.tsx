@@ -1,6 +1,6 @@
 import React, { useMemo, useRef } from "react";
 import { ActionOptions, RenderState } from "~/core/state/stateTypes";
-import { getUseTimelineResult } from "~/react/getUseTimelineResult";
+import { getTimelineValue } from "~/react/getTimelineValue";
 import { ITimelineStateContext, TimelineStateContext } from "~/react/TimelineStateContext";
 import {
   UseTimelineIdsListener,
@@ -32,7 +32,7 @@ export const TimelineStateProvider: React.FC<Props> = (props) => {
     timelineLengthListeners,
     getCurrentState: () => renderStateRef.current,
     executeTimelineCallback: ({ callback, timelineId }) =>
-      callback(getUseTimelineResult(timelineId, renderStateRef.current)),
+      callback(getTimelineValue(timelineId, renderStateRef.current)),
   });
 
   const contextValue = useMemo(() => {
@@ -57,7 +57,7 @@ export const TimelineStateProvider: React.FC<Props> = (props) => {
         return { unsubscribe: createUnsubscribe(timelineIdsListeners, id) };
       },
 
-      getTimelineValue: (timelineId) => getUseTimelineResult(timelineId, renderStateRef.current),
+      getTimelineValue: (timelineId) => getTimelineValue(timelineId, renderStateRef.current),
       subscribeToTimeline: (timelineId, callback) => {
         const id = ++idRef.current;
         timelineListeners.push({ id, timelineId, callback });
