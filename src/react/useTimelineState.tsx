@@ -1,10 +1,11 @@
-import React, { useCallback, useMemo, useRef, useState } from "react";
+import React, { useCallback, useEffect, useMemo, useRef } from "react";
 import { attachHandlers } from "~/core/handlers/attachHandlers";
+import { isKeyCodeOf } from "~/core/listener/keyboard";
 import { renderGraphEditorWithRenderState } from "~/core/render/renderGraphEditor";
 import { StateManager } from "~/core/state/StateManager/StateManager";
-import { useStateManager } from "~/core/state/StateManager/useStateManager";
 import {
   ActionOptions,
+  PrimaryState,
   RenderState,
   SelectionState,
   TrackedState,
@@ -16,15 +17,10 @@ import { useIsomorphicLayoutEffect } from "~/core/utils/hook/useIsomorphicLayout
 import { useRefRect } from "~/core/utils/hook/useRefRect";
 import { useRenderCursor } from "~/core/utils/hook/useRenderCursor";
 import { TimelineStateProvider } from "~/react/TimelineStateProvider";
-import { TimelineMap } from "~/types/timelineTypes";
 
 interface UseTimelineStateResult {
   getState: () => TrackedState;
   requestAction: (callback: (actionOptions: ActionOptions) => void) => void;
-  view: ViewState;
-  setView: (view: Partial<ViewState>) => void;
-  timelines: TimelineMap;
-  selection: SelectionState;
   stateManager: StateManager<TimelineState, TimelineSelectionState>;
   canvasRef: React.Ref<HTMLCanvasElement>;
   Provider: React.ComponentType;
@@ -37,12 +33,14 @@ interface Options {
 }
 
 export const useTimelineState = (options: Options) => {
-  const { state, stateManager } = useStateManager({
-    initialState: options.initialState,
-    initialSelectionState: options.initialSelectionState || {},
-  });
+  const stateManager = useMemo(() => {
+    return new StateManager<PrimaryState, SelectionState>({
+      initialState: options.initialState,
+      initialSelectionState: options.initialSelectionState || {},
+    });
+  }, []);
 
-  const [view, setView] = useState<ViewState>({
+  const viewRef = useRef<ViewState>({
     allowExceedViewBounds: true,
     length: options.length,
     viewBounds: [0, 1],
@@ -52,8 +50,25 @@ export const useTimelineState = (options: Options) => {
     viewport: null!,
   });
 
-  const viewRef = useRef(view);
-  viewRef.current = view;
+  const getRenderState = (): RenderState => {
+    const actionState = stateManager.getActionState();
+    return {
+      primary: actionState.state,
+      selection: actionState.selection,
+      view: viewRef.current,
+      ephemeral: {},
+    };
+  };
+
+  const renderStateRef = useRef(getRenderState());
+  renderStateRef.current = getRenderState();
+
+  const setViewState = useCallback((partialViewState: Partial<ViewState>) => {
+    viewRef.current = { ...viewRef.current, ...partialViewState };
+    renderStateRef.current = getRenderState();
+    render(renderStateRef.current);
+    renderCursor(renderStateRef.current);
+  }, []);
 
   const canvasRef = useRef<HTMLCanvasElement | null>(null);
   const canvasRect = useRefRect(canvasRef);
@@ -72,8 +87,44 @@ export const useTimelineState = (options: Options) => {
     renderCursor(renderState);
   };
 
+  // Listen to undo/redo
+  useEffect(() => {
+    const update = () => {
+      renderStateRef.current = getRenderState();
+      render(renderStateRef.current);
+      renderCursor(renderStateRef.current);
+    };
+
+    const listener = (e: KeyboardEvent) => {
+      if (isKeyCodeOf("Z", e.keyCode) && e.metaKey && e.shiftKey) {
+        stateManager.redo();
+        update();
+        return;
+      }
+      if (isKeyCodeOf("Z", e.keyCode) && e.metaKey) {
+        stateManager.undo();
+        update();
+        return;
+      }
+    };
+
+    window.addEventListener("keydown", listener);
+    return () => {
+      window.removeEventListener("keydown", listener);
+    };
+  }, []);
+
   useIsomorphicLayoutEffect(() => {
-    if (!view.viewport) {
+    if (!canvasRect) {
+      return;
+    }
+    setViewState({ viewport: canvasRect });
+    canvasRef.current!.width = canvasRect.width;
+    canvasRef.current!.height = canvasRect.height;
+  }, [canvasRect]);
+
+  useIsomorphicLayoutEffect(() => {
+    if (!viewRef.current.viewport) {
       return;
     }
 
@@ -86,29 +137,7 @@ export const useTimelineState = (options: Options) => {
     //
     render(renderStateRef.current);
     renderCursor(renderStateRef.current);
-  }, [state, view]);
-
-  useIsomorphicLayoutEffect(() => {
-    if (!canvasRect) {
-      return;
-    }
-    setView((view) => ({ ...view, viewport: canvasRect }));
-    canvasRef.current!.width = canvasRect.width;
-    canvasRef.current!.height = canvasRect.height;
   }, [canvasRect]);
-
-  const getRenderState = (): RenderState => {
-    const actionState = stateManager.getActionState();
-    return {
-      primary: actionState.state,
-      selection: actionState.selection,
-      view: viewRef.current,
-      ephemeral: {},
-    };
-  };
-
-  const renderStateRef = useRef(getRenderState());
-  renderStateRef.current = getRenderState();
 
   const requestAction = useCallback((callback: (actionOptions: ActionOptions) => void) => {
     stateManager.requestAction((params) => {
@@ -142,16 +171,16 @@ export const useTimelineState = (options: Options) => {
           const { name, allowSelectionShift, state } = options;
           params.setState(state.primary);
           params.setSelection(state.selection);
-          setView(state.view);
+          setViewState(state.view);
           params.submitAction({ name, allowSelectionShift });
         },
         onSubmitView: ({ viewState }) => {
-          setView(viewState);
+          setViewState(viewState);
           params.cancelAction();
         },
 
         onCancel: ifNotDone(() => {
-          setView(initialViewState);
+          setViewState(initialViewState);
           params.cancelAction();
         }),
 
@@ -177,14 +206,22 @@ export const useTimelineState = (options: Options) => {
     detachRef.current = detach;
   }, []);
 
-  const setPartialView = useCallback((partialView: Partial<ViewState>) => {
-    setView((view) => ({ ...view, ...partialView }));
+  const setLength = useCallback((length: number) => {
+    // We request an action even if we're not modifying tracked state to ensure
+    // that we're not triggering parallel actions.
+    stateManager.requestAction((params) => {
+      const { view } = renderStateRef.current;
+      const t = view.length / length;
+      const [low, high] = view.viewBounds.map((x) => x * t);
+      setViewState({ length, viewBounds: [low, high] });
+      params.cancelAction();
+    });
   }, []);
 
   const Provider = useMemo(() => {
     const Provider: React.FC = (props) => {
       return (
-        <TimelineStateProvider renderStateRef={renderStateRef}>
+        <TimelineStateProvider renderStateRef={renderStateRef} setLength={setLength}>
           {props.children}
         </TimelineStateProvider>
       );
@@ -197,14 +234,10 @@ export const useTimelineState = (options: Options) => {
       Provider,
       getState,
       requestAction,
-      view,
-      setView: setPartialView,
-      timelines: state.state.timelines,
-      selection: state.selection,
       stateManager,
       canvasRef: onCanvasOrNull,
     };
-  }, [state, view]);
+  }, []);
 
   return value;
 };

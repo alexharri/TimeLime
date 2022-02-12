@@ -1,4 +1,4 @@
-import { UseTimelineCallback } from "~/react/TimelineStateContext";
+import { UseTimelineCallback, UseTimelineLengthCallback } from "~/react/TimelineStateContext";
 
 export interface UseTimelineStateListener {
   id: number;
@@ -9,4 +9,9 @@ export interface UseTimelineStateListener {
 export interface UseTimelineIdsListener {
   id: number;
   callback: (timelineIds: string[]) => void;
+}
+
+export interface UseTimelineLengthListener {
+  id: number;
+  callback: UseTimelineLengthCallback;
 }

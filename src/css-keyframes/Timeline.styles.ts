@@ -8,5 +8,11 @@ export default createStylesheet(({ css }) => ({
     flex-grow: 1;
     flex-basis: 0;
     display: flex;
+    align-items: stretch;
+  `,
+
+  right: css`
+    flex-basis: 0;
+    flex-grow: 1;
   `,
 }));
