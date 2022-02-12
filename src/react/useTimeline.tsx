@@ -8,12 +8,12 @@ interface Options {
 export function useTimeline(options: Options): UseTimelineResult {
   const { timelineId } = options;
 
-  const ctx = useContext(TimelineStateContext);
+  const timelineStateContext = useContext(TimelineStateContext);
 
-  const [state, setState] = useState(ctx!.getTimelineValue(timelineId));
+  const [state, setState] = useState(timelineStateContext!.getTimelineValue(timelineId));
 
   useEffect(() => {
-    const { unsubscribe } = ctx!.subscribeToTimeline(timelineId, setState);
+    const { unsubscribe } = timelineStateContext!.subscribeToTimeline(timelineId, setState);
     return unsubscribe;
   }, [timelineId]);
 
