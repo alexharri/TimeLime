@@ -10,14 +10,14 @@ interface Props {
 export const Property: React.FC<Props> = (props) => {
   const { timelineId } = props;
 
-  const { timeline, selection, value } = useTimeline({ timelineId });
+  const { timeline, selection, value, setIsVisible } = useTimeline({ timelineId });
 
   const active = !!selection;
   const propertyInfo = propertyInfoMap[timeline.id];
 
   return (
     <div className={s("container", { active })}>
-      <div className={s("label")}>
+      <div className={s("label")} onClick={() => setIsVisible(!active)}>
         {propertyInfo.label}: {value.toFixed(2)}
       </div>
     </div>

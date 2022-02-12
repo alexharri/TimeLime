@@ -1,8 +1,8 @@
 import React from "react";
-import { ViewState } from "~/core/state/stateTypes";
+import { ActionOptions, ViewState } from "~/core/state/stateTypes";
 import { Timeline, TimelineSelection } from "~/types/timelineTypes";
 
-export interface UseTimelineResult {
+export interface TimelineValue {
   timeline: Timeline;
   selection: TimelineSelection | undefined;
   value: number;
@@ -10,7 +10,7 @@ export interface UseTimelineResult {
 
 export type UseTimelineLengthResult = [length: number, setLength: (length: number) => void];
 
-export type UseTimelineCallback = (state: UseTimelineResult) => void;
+export type UseTimelineCallback = (state: TimelineValue) => void;
 
 export type UseTimelineLengthCallback = (length: number) => void;
 
@@ -18,7 +18,7 @@ export interface ITimelineStateContext {
   getViewState: () => ViewState;
   setLength: (length: number) => void;
 
-  getTimelineValue: (timelineId: string) => UseTimelineResult;
+  getTimelineValue: (timelineId: string) => TimelineValue;
   subscribeToTimeline: (
     timelineId: string,
     callback: UseTimelineCallback,
@@ -33,6 +33,8 @@ export interface ITimelineStateContext {
   subscribeToLength: (callback: UseTimelineLengthCallback) => {
     unsubscribe: () => void;
   };
+
+  getActionOptions: (callback: (actionOptions: ActionOptions) => void) => void;
 }
 
 export const TimelineStateContext = React.createContext<ITimelineStateContext | null>(null);

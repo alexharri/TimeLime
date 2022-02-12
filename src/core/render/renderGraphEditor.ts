@@ -163,6 +163,12 @@ export function renderGraphEditor(options: RenderOptions) {
   }
 
   timelineList.forEach((timeline, i) => {
+    const timelineSelection = timelineSelectionState[timeline.id];
+
+    if (!timelineSelection) {
+      return;
+    }
+
     const { keyframes } = timeline;
     const curves = timelineCurves[i];
 
@@ -257,8 +263,7 @@ export function renderGraphEditor(options: RenderOptions) {
       // Flooring and adding (0.5, 0.5) makes the keyframe hit the middle of the pixel, which
       // makes it render in a crisp manner when the diamond width is an odd number.
       const vec = toViewport(Vec2.new(k.index, k.value)).floor().addXY(0.5, 0.5);
-      const timelineSelection = timelineSelectionState[timeline.id];
-      const selected = timelineSelection && timelineSelection.keyframes[k.id];
+      const selected = timelineSelection.keyframes[k.id];
 
       if (selected) {
         renderDiamond(ctx, vec, { fillColor: theme.keyframeShadow, width: 18, height: 18 });

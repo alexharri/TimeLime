@@ -1,5 +1,5 @@
 import React, { useMemo, useRef } from "react";
-import { RenderState } from "~/core/state/stateTypes";
+import { ActionOptions, RenderState } from "~/core/state/stateTypes";
 import { getUseTimelineResult } from "~/react/getUseTimelineResult";
 import { ITimelineStateContext, TimelineStateContext } from "~/react/TimelineStateContext";
 import {
@@ -15,10 +15,11 @@ interface Props {
    */
   renderStateRef: React.MutableRefObject<RenderState>;
   setLength: (length: number) => void;
+  getActionOptions: (callback: (actionOptions: ActionOptions) => void) => void;
 }
 
 export const TimelineStateProvider: React.FC<Props> = (props) => {
-  const { renderStateRef, setLength } = props;
+  const { renderStateRef, setLength, getActionOptions } = props;
 
   const idRef = useRef(0);
   const timelineListeners = useMemo<UseTimelineStateListener[]>(() => [], []);
@@ -69,6 +70,8 @@ export const TimelineStateProvider: React.FC<Props> = (props) => {
         timelineLengthListeners.push({ id, callback });
         return { unsubscribe: createUnsubscribe(timelineLengthListeners, id) };
       },
+
+      getActionOptions,
     };
     return value;
   }, []);

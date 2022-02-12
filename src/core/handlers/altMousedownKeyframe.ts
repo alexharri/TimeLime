@@ -46,7 +46,7 @@ export function onAltMousedownKeyframe(actionOptions: ActionOptions, options: Op
 
       // Make only the clicked keyframe selected across all timelines.
       for (const timeline of timelineList) {
-        selection.dispatch((actions) => actions.clear(timeline.id));
+        selection.dispatch((actions) => actions.empty(timeline.id));
       }
       selection.dispatch((actions) => actions.addKeyframes(options.timelineId, [k.id]));
 

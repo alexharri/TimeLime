@@ -3,12 +3,9 @@ import { applyControlPointShift } from "~/core/timeline/applyControlPointShift";
 import { applyNewControlPointShift } from "~/core/timeline/applyNewControlPointShift";
 import { applyTimelineKeyframeShift } from "~/core/timeline/applyTimelineKeyframeShift";
 import { getTimelineValueAtIndex } from "~/core/timeline/timelineValueAtIndex";
-import { UseTimelineResult } from "~/react/TimelineStateContext";
+import { TimelineValue } from "~/react/TimelineStateContext";
 
-export function getUseTimelineResult(
-  timelineId: string,
-  renderState: RenderState,
-): UseTimelineResult {
+export function getUseTimelineResult(timelineId: string, renderState: RenderState): TimelineValue {
   const { primary, selection, view, ephemeral } = renderState;
 
   const { frameIndex } = view;

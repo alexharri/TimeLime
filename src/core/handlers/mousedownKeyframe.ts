@@ -49,7 +49,7 @@ export function onMousedownKeyframe(actionOptions: ActionOptions, options: Optio
         selection.dispatch((actions) => actions.toggleKeyframe(timelineId, keyframe.id));
       } else if (!timelineSelection?.keyframes[keyframe.id]) {
         for (const timelineId of Object.keys(primary.state.timelines)) {
-          selection.dispatch((actions) => actions.clear(timelineId));
+          selection.dispatch((actions) => actions.empty(timelineId));
         }
         selection.dispatch((actions) => actions.toggleKeyframe(timelineId, keyframe.id));
       }
