@@ -4,7 +4,7 @@ import { useTimelineIds } from "~/react/useTimelineIds";
 import { useTimelineValues } from "~/react/useTimelineValues";
 
 export const Preview: React.FC = () => {
-  const timelineIds = useTimelineIds() as ["translateX", "translateY"];
+  const timelineIds = useTimelineIds() as Array<"translateX" | "translateY">;
 
   const { translateX, translateY } = useTimelineValues(timelineIds);
 
