@@ -1,4 +1,4 @@
-import React, { useCallback, useMemo, useRef, useState } from "react";
+import React, { useCallback, useMemo, useRef } from "react";
 import { attachHandlers } from "~/core/handlers/attachHandlers";
 import { renderGraphEditorWithRenderState } from "~/core/render/renderGraphEditor";
 import { StateManager } from "~/core/state/StateManager/StateManager";
@@ -31,7 +31,7 @@ export const useTimelineState = (options: Options) => {
     initialSelectionState: options.initialSelectionState || {},
   });
 
-  const [view, setView] = useState<ViewState>({
+  const viewRef = useRef<ViewState>({
     allowExceedViewBounds: true,
     length: options.length,
     viewBounds: [0, 1],
@@ -41,8 +41,23 @@ export const useTimelineState = (options: Options) => {
     viewport: null!,
   });
 
-  const viewRef = useRef(view);
-  viewRef.current = view;
+  const getRenderState = (): RenderState => {
+    const actionState = stateManager.getActionState();
+    return {
+      primary: actionState.state,
+      selection: actionState.selection,
+      view: viewRef.current,
+      ephemeral: {},
+    };
+  };
+
+  const renderStateRef = useRef(getRenderState());
+  renderStateRef.current = getRenderState();
+
+  const setViewState = useCallback((partialViewState: Partial<ViewState>) => {
+    viewRef.current = { ...viewRef.current, ...partialViewState };
+    renderStateRef.current = getRenderState();
+  }, []);
 
   const canvasRef = useRef<HTMLCanvasElement | null>(null);
   const canvasRect = useRefRect(canvasRef);
@@ -62,7 +77,16 @@ export const useTimelineState = (options: Options) => {
   };
 
   useIsomorphicLayoutEffect(() => {
-    if (!view.viewport) {
+    if (!canvasRect) {
+      return;
+    }
+    setViewState({ viewport: canvasRect });
+    canvasRef.current!.width = canvasRect.width;
+    canvasRef.current!.height = canvasRect.height;
+  }, [canvasRect]);
+
+  useIsomorphicLayoutEffect(() => {
+    if (!viewRef.current.viewport) {
       return;
     }
 
@@ -75,29 +99,7 @@ export const useTimelineState = (options: Options) => {
     //
     render(renderStateRef.current);
     renderCursor(renderStateRef.current);
-  }, [state, view]);
-
-  useIsomorphicLayoutEffect(() => {
-    if (!canvasRect) {
-      return;
-    }
-    setView((view) => ({ ...view, viewport: canvasRect }));
-    canvasRef.current!.width = canvasRect.width;
-    canvasRef.current!.height = canvasRect.height;
-  }, [canvasRect]);
-
-  const getRenderState = (): RenderState => {
-    const actionState = stateManager.getActionState();
-    return {
-      primary: actionState.state,
-      selection: actionState.selection,
-      view: viewRef.current,
-      ephemeral: {},
-    };
-  };
-
-  const renderStateRef = useRef(getRenderState());
-  renderStateRef.current = getRenderState();
+  }, [state, canvasRect]);
 
   const requestAction = useCallback((callback: (actionOptions: ActionOptions) => void) => {
     stateManager.requestAction((params) => {
@@ -131,16 +133,16 @@ export const useTimelineState = (options: Options) => {
           const { name, allowSelectionShift, state } = options;
           params.setState(state.primary);
           params.setSelection(state.selection);
-          setView(state.view);
+          setViewState(state.view);
           params.submitAction({ name, allowSelectionShift });
         },
         onSubmitView: ({ viewState }) => {
-          setView(viewState);
+          setViewState(viewState);
           params.cancelAction();
         },
 
         onCancel: ifNotDone(() => {
-          setView(initialViewState);
+          setViewState(initialViewState);
           params.cancelAction();
         }),
 
@@ -171,7 +173,7 @@ export const useTimelineState = (options: Options) => {
       const { view } = renderStateRef.current;
       const t = view.length / length;
       const [low, high] = view.viewBounds.map((x) => x * t);
-      setView((view) => ({ ...view, length, viewBounds: [low, high] }));
+      setViewState({ length, viewBounds: [low, high] });
       params.cancelAction();
     });
   }, []);
@@ -195,7 +197,7 @@ export const useTimelineState = (options: Options) => {
       stateManager,
       canvasRef: onCanvasOrNull,
     };
-  }, [state, view]);
+  }, [state]);
 
   return value;
 };
