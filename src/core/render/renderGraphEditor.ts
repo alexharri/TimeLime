@@ -168,6 +168,7 @@ export function renderGraphEditor(options: RenderOptions) {
     const timelineSelection = timelineSelectionState[timeline.id];
 
     if (!timelineSelection) {
+      // Skip rendering timeline.
       return;
     }
 
