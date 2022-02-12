@@ -40,29 +40,6 @@ export const useTimelineState = (options: Options) => {
     });
   }, []);
 
-  // Listen to undo/redo
-  useEffect(() => {
-    const listener = (e: KeyboardEvent) => {
-      if (!history) {
-        return;
-      }
-
-      if (isKeyCodeOf("Z", e.keyCode) && e.metaKey && e.shiftKey) {
-        stateManager.redo();
-        return;
-      }
-      if (isKeyCodeOf("Z", e.keyCode) && e.metaKey) {
-        stateManager.undo();
-        return;
-      }
-    };
-
-    window.addEventListener("keydown", listener);
-    return () => {
-      window.removeEventListener("keydown", listener);
-    };
-  }, [history]);
-
   const viewRef = useRef<ViewState>({
     allowExceedViewBounds: true,
     length: options.length,
@@ -107,6 +84,33 @@ export const useTimelineState = (options: Options) => {
     renderGraphEditorWithRenderState(ctx, renderState);
     renderCursor(renderState);
   };
+
+  // Listen to undo/redo
+  useEffect(() => {
+    const update = () => {
+      renderStateRef.current = getRenderState();
+      render(renderStateRef.current);
+      renderCursor(renderStateRef.current);
+    };
+
+    const listener = (e: KeyboardEvent) => {
+      if (isKeyCodeOf("Z", e.keyCode) && e.metaKey && e.shiftKey) {
+        stateManager.redo();
+        update();
+        return;
+      }
+      if (isKeyCodeOf("Z", e.keyCode) && e.metaKey) {
+        stateManager.undo();
+        update();
+        return;
+      }
+    };
+
+    window.addEventListener("keydown", listener);
+    return () => {
+      window.removeEventListener("keydown", listener);
+    };
+  }, []);
 
   useIsomorphicLayoutEffect(() => {
     if (!canvasRect) {
