@@ -18,13 +18,7 @@ export const useRefRect = <T extends HTMLElement>(ref: React.RefObject<T>): Rect
 
   useIsomorphicLayoutEffect(() => {
     const onResize = () => {
-      const el = ref.current;
-      console.log(el);
-      if (!el) {
-        setRect(null);
-        return;
-      }
-      setRect(getRefRect(ref));
+      setRect(ref.current ? getRefRect(ref) : null);
     };
 
     let unmounted = false;
