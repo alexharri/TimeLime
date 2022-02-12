@@ -34,6 +34,7 @@ export function renderGraphEditor(options: RenderOptions) {
   const {
     ctx,
     timelines,
+    timelineSelectionState,
     viewBounds = [0, 1],
     viewBoundsHeight = 0,
     scrubberHeight,
@@ -41,7 +42,6 @@ export function renderGraphEditor(options: RenderOptions) {
     length,
     yBounds,
     pan = Vec2.ORIGIN,
-    timelineSelectionState = {},
   } = options;
   const { width, height } = viewport;
 
@@ -81,6 +81,7 @@ export function renderGraphEditor(options: RenderOptions) {
     graphEditorViewport,
     length,
     timelines,
+    timelineSelectionState,
     viewBounds,
     yBounds,
     pan,
@@ -132,7 +133,8 @@ export function renderGraphEditor(options: RenderOptions) {
     );
   }
 
-  const [yUpper, yLower] = yBounds || getGraphEditorYBounds({ viewBounds, length, timelines });
+  const [yUpper, yLower] =
+    yBounds || getGraphEditorYBounds({ viewBounds, length, timelines, timelineSelectionState });
 
   const ticks = generateGraphEditorYTicksFromBounds([yUpper + pan.y, yLower + pan.y]);
 

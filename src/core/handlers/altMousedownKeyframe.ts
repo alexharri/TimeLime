@@ -42,12 +42,8 @@ export function onAltMousedownKeyframe(actionOptions: ActionOptions, options: Op
     beforeMove: (params) => {
       const { primary, selection, ephemeral } = params;
 
-      const timelineList = Object.values(primary.state.timelines);
-
       // Make only the clicked keyframe selected across all timelines.
-      for (const timeline of timelineList) {
-        selection.dispatch((actions) => actions.empty(timeline.id));
-      }
+      selection.dispatch((actions) => actions.removeAll());
       selection.dispatch((actions) => actions.addKeyframes(options.timelineId, [k.id]));
 
       ephemeral.dispatch((actions) => actions.setFields({ yBounds }));

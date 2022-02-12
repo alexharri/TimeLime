@@ -38,7 +38,7 @@ export function onMousedownKeyframe(actionOptions: ActionOptions, options: Optio
     keys: ["Shift"],
     globalToNormal,
     beforeMove: (params) => {
-      const { primary, selection, ephemeral } = params;
+      const { selection, ephemeral } = params;
 
       const timelineSelection = selection.state[timelineId];
 
@@ -48,9 +48,7 @@ export function onMousedownKeyframe(actionOptions: ActionOptions, options: Optio
       if (additiveSelection) {
         selection.dispatch((actions) => actions.toggleKeyframe(timelineId, keyframe.id));
       } else if (!timelineSelection?.keyframes[keyframe.id]) {
-        for (const timelineId of Object.keys(primary.state.timelines)) {
-          selection.dispatch((actions) => actions.empty(timelineId));
-        }
+        selection.dispatch((actions) => actions.removeAll());
         selection.dispatch((actions) => actions.toggleKeyframe(timelineId, keyframe.id));
       }
     },

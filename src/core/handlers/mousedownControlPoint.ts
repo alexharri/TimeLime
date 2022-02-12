@@ -60,9 +60,7 @@ export const onMousedownControlPoint = (actionOptions: ActionOptions, options: O
       // timeline selection is cleared.
       const selected = selection.state[timelineId]?.keyframes[k.id];
       if (!selected) {
-        timelineList.forEach((timeline) => {
-          selection.dispatch((actions) => actions.empty(timeline.id));
-        });
+        selection.dispatch((actions) => actions.removeAll());
         selection.dispatch((actions) => actions.toggleKeyframe(timelineId, k.id));
       }
 

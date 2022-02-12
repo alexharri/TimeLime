@@ -1,6 +1,7 @@
 import { CANVAS_END_START_BUFFER } from "~/core/constants";
 import { getGraphEditorYBounds } from "~/core/render/yBounds";
 import { ActionOptions } from "~/core/state/stateTypes";
+import { TimelineSelectionState } from "~/core/state/timelineSelection/timelineSelectionReducer";
 import { lerp } from "~/core/utils/math/math";
 import { Vec2 } from "~/core/utils/math/Vec2";
 import { getGraphEditorViewport } from "~/core/utils/viewportUtils";
@@ -13,17 +14,20 @@ interface Options {
   length: number;
   viewBounds: ViewBounds;
   timelines: TimelineMap;
+  timelineSelectionState: TimelineSelectionState;
   yBounds?: YBounds;
 }
 
 export const createGlobalToNormalFn = (options: Options) => {
-  const { timelines, viewBounds, viewport, graphEditorViewport, length } = options;
+  const { timelines, timelineSelectionState, viewBounds, viewport, graphEditorViewport, length } =
+    options;
 
   const yBounds =
     options.yBounds ||
     getGraphEditorYBounds({
       length,
       timelines,
+      timelineSelectionState,
       viewBounds,
     });
 
@@ -48,6 +52,7 @@ export const createGlobalToNormalFnFromActionOptions = (options: ActionOptions) 
   const { initialState } = options;
 
   const { timelines } = initialState.primary;
+  const timelineSelectionState = initialState.selection;
   const { viewport, viewBounds, viewBoundsHeight, scrubberHeight, length } = initialState.view;
 
   const graphEditorViewport = getGraphEditorViewport({
@@ -56,5 +61,12 @@ export const createGlobalToNormalFnFromActionOptions = (options: ActionOptions) 
     scrubberHeight,
   });
 
-  return createGlobalToNormalFn({ viewport, graphEditorViewport, viewBounds, timelines, length });
+  return createGlobalToNormalFn({
+    viewport,
+    graphEditorViewport,
+    viewBounds,
+    timelines,
+    timelineSelectionState,
+    length,
+  });
 };

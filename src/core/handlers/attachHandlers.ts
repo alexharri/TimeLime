@@ -27,15 +27,17 @@ export function attachHandlers(options: Options): { detach: () => void } {
   const { el, getState, getActionOptions } = options;
 
   const onMouseDown = (e: MouseEvent) => {
-    const { primary, view } = getState();
+    const { primary, selection, view } = getState();
 
     const { timelines } = primary;
+    const timelineSelectionState = selection;
     const { length, viewport, viewBounds, viewBoundsHeight, scrubberHeight } = view;
 
     const actionToPerform = getActionToPerformOnMouseDown({
       globalMousePosition: Vec2.fromEvent(e),
       length,
       timelines,
+      timelineSelectionState,
       viewBounds,
       viewBoundsHeight,
       scrubberHeight,

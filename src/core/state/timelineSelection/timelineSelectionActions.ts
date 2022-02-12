@@ -4,6 +4,10 @@ import {
 } from "~/core/state/timelineSelection/timelineSelectionReducer";
 
 export const timelineSelectionActions = {
+  removeAll: () => ({
+    type: <const>"tl-sel/remove-all",
+  }),
+
   removeFromSelection: (timelineId: string) => ({
     type: <const>"tl-sel/remove",
     timelineId,

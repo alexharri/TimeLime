@@ -19,6 +19,9 @@ export function timelineSelectionReducer(
   action: ActionsReturnType<typeof timelineSelectionActions>,
 ): TimelineSelectionState {
   switch (action.type) {
+    case "tl-sel/remove-all":
+      return {};
+
     case "tl-sel/empty": {
       const { timelineId } = action;
       return {

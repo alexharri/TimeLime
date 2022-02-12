@@ -1,6 +1,7 @@
 import { CANVAS_END_START_BUFFER } from "~/core/constants";
 import { getGraphEditorYBounds } from "~/core/render/yBounds";
 import { ActionOptions } from "~/core/state/stateTypes";
+import { TimelineSelectionState } from "~/core/state/timelineSelection/timelineSelectionReducer";
 import { lerp, lerpInCanvasRange } from "~/core/utils/math/math";
 import { Vec2 } from "~/core/utils/math/Vec2";
 import { getGraphEditorViewport } from "~/core/utils/viewportUtils";
@@ -36,12 +37,14 @@ export const createNormalToViewportYFn = (options: {
   viewBounds: ViewBounds;
   length: number;
   timelines: TimelineMap;
+  timelineSelectionState: TimelineSelectionState;
   graphEditorViewport: Rect;
   yBounds?: YBounds;
   pan?: Vec2;
 }): ((value: number) => number) => {
   const {
     timelines,
+    timelineSelectionState,
     graphEditorViewport,
     viewBounds,
     length,
@@ -49,7 +52,8 @@ export const createNormalToViewportYFn = (options: {
     pan = Vec2.ORIGIN,
   } = options;
 
-  const [yUpper, yLower] = yBounds || getGraphEditorYBounds({ viewBounds, length, timelines });
+  const [yUpper, yLower] =
+    yBounds || getGraphEditorYBounds({ viewBounds, length, timelines, timelineSelectionState });
   const yUpLowDiff = yUpper - yLower;
 
   return (value: number) => {
@@ -62,6 +66,7 @@ export const createNormalToViewportFn = (options: {
   viewBounds: ViewBounds;
   length: number;
   timelines: TimelineMap;
+  timelineSelectionState: TimelineSelectionState;
   graphEditorViewport: Rect;
   yBounds?: YBounds;
   pan?: Vec2;
@@ -76,6 +81,7 @@ export const createNormalToViewportFnFromActionOptions = (options: ActionOptions
   const { initialState } = options;
 
   const { timelines } = initialState.primary;
+  const timelineSelectionState = initialState.selection;
   const { viewBounds, length, viewBoundsHeight, scrubberHeight, viewport } = initialState.view;
 
   const graphEditorViewport = getGraphEditorViewport({
@@ -84,5 +90,11 @@ export const createNormalToViewportFnFromActionOptions = (options: ActionOptions
     viewport,
   });
 
-  return createNormalToViewportFn({ graphEditorViewport, viewBounds, timelines, length });
+  return createNormalToViewportFn({
+    graphEditorViewport,
+    viewBounds,
+    timelines,
+    timelineSelectionState,
+    length,
+  });
 };
