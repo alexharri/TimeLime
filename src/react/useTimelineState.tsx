@@ -181,10 +181,20 @@ export const useTimelineState = (options: Options) => {
     setView((view) => ({ ...view, ...partialView }));
   }, []);
 
+  const setLength = useCallback((length: number) => {
+    stateManager.requestAction((params) => {
+      const { view } = renderStateRef.current;
+      const t = view.length / length;
+      const [low, high] = view.viewBounds.map((x) => x * t);
+      setView((view) => ({ ...view, length, viewBounds: [low, high] }));
+      params.cancelAction();
+    });
+  }, []);
+
   const Provider = useMemo(() => {
     const Provider: React.FC = (props) => {
       return (
-        <TimelineStateProvider renderStateRef={renderStateRef}>
+        <TimelineStateProvider renderStateRef={renderStateRef} setLength={setLength}>
           {props.children}
         </TimelineStateProvider>
       );

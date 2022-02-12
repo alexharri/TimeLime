@@ -1,7 +1,11 @@
 import { areMapsShallowEqual } from "map-fns";
 import { useEffect, useRef } from "react";
 import { RenderState } from "~/core/state/stateTypes";
-import { UseTimelineIdsListener, UseTimelineStateListener } from "~/react/types";
+import {
+  UseTimelineIdsListener,
+  UseTimelineLengthListener,
+  UseTimelineStateListener,
+} from "~/react/types";
 import { areArraysShallowEqual } from "~/react/utils/arrayUtils";
 
 function didTimelineChange(prevState: RenderState, currState: RenderState, timelineId: string) {
@@ -47,6 +51,7 @@ function didTimelineChange(prevState: RenderState, currState: RenderState, timel
 interface Options {
   getCurrentState: () => RenderState;
   timelineIdsListeners: UseTimelineIdsListener[];
+  timelineLengthListeners: UseTimelineLengthListener[];
   timelineListeners: UseTimelineStateListener[];
   executeTimelineCallback: (listener: UseTimelineStateListener) => void;
 }
@@ -62,6 +67,7 @@ export function useMonitorRenderState(options: Options) {
     const {
       timelineListeners,
       timelineIdsListeners,
+      timelineLengthListeners,
       executeTimelineCallback: executeCallback,
     } = options;
 
@@ -85,6 +91,12 @@ export function useMonitorRenderState(options: Options) {
       if (!areArraysShallowEqual(prevTimelineIds, currTimelineIds)) {
         for (const listener of timelineIdsListeners) {
           listener.callback(currTimelineIds);
+        }
+      }
+
+      if (prevState.view.length !== currState.view.length) {
+        for (const listener of timelineLengthListeners) {
+          listener.callback(currState.view.length);
         }
       }
 
