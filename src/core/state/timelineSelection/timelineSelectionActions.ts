@@ -19,7 +19,7 @@ export const timelineSelectionActions = {
   }),
 
   emptyIfExists: (timelineId: string) => ({
-    type: <const>"tl-sel/empty",
+    type: <const>"tl-sel/empty-if-exists",
     timelineId,
   }),
 
