@@ -1,30 +1,15 @@
 import React from "react";
-import { TimelineSelectionState } from "~/core/state/timelineSelection/timelineSelectionReducer";
-import { propertyIdList } from "~/css-keyframes/cssKeyframeConstants";
 import { Property } from "~/css-keyframes/Property";
-import { TimelineMap } from "~/types/timelineTypes";
 import s from "~/css-keyframes/PropertyList.styles";
+import { useTimelineIds } from "~/react/useTimelineIds";
 
-interface Props {
-  timelines: TimelineMap;
-  timelineSelectionMap: TimelineSelectionState;
-}
-
-export const Properties: React.FC<Props> = (props) => {
-  const { timelines, timelineSelectionMap } = props;
-
-  const propertyTimelines = propertyIdList
-    .map((propertyId) => timelines[propertyId])
-    .filter(Boolean);
+export const PropertyList: React.FC = () => {
+  const timelineIds = useTimelineIds();
 
   return (
     <div className={s("container")}>
-      {propertyTimelines.map((timeline) => (
-        <Property
-          key={timeline.id}
-          timeline={timeline}
-          selection={timelineSelectionMap[timeline.id]}
-        />
+      {timelineIds.map((id) => (
+        <Property key={id} timelineId={id} />
       ))}
     </div>
   );

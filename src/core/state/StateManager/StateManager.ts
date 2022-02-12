@@ -4,19 +4,15 @@ import {
   createReducerWithHistory,
   HistoryState,
 } from "~/core/state/StateManager/history/historyReducer";
-import { Action } from "~/types/commonTypes";
 
-type ActionState<T, S> = {
+export type ActionState<T, S> = {
   state: T;
   selection: S;
 };
 
-export interface StateManagerOptions<T, S, AT extends Action, AS extends Action> {
+export interface StateManagerOptions<T, S> {
   initialState: T;
   initialSelectionState: S;
-
-  reducer: (state: T, action: AT) => T;
-  selectionReducer: (state: S, action: AS) => S;
 
   onStateChangeCallback?: (state: ActionState<T, S>) => void;
 }
@@ -26,19 +22,20 @@ interface SubmitOptions {
   allowSelectionShift?: boolean;
 }
 
-export interface RequestActionParams {
-  dispatch: (action: Action) => void;
+export interface RequestActionParams<T, S> {
+  setState: (state: T) => void;
+  setSelection: (state: S) => void;
   cancelAction: () => void;
   submitAction: (options: SubmitOptions) => void;
   done: boolean;
   execOnComplete: (callback: () => void) => void;
 }
 
-export interface RequestActionCallback {
-  (params: RequestActionParams): void;
+export interface RequestActionCallback<T, S> {
+  (params: RequestActionParams<T, S>): void;
 }
 
-export class StateManager<T, S, AT extends Action, AS extends Action> {
+export class StateManager<T, S> {
   private state: HistoryState<T>;
   private selectionState: HistoryState<S>;
 
@@ -47,27 +44,38 @@ export class StateManager<T, S, AT extends Action, AS extends Action> {
   private reducer: (state: HistoryState<T>, action: HistoryAction) => HistoryState<T>;
   private selectionReducer: (state: HistoryState<S>, action: HistoryAction) => HistoryState<S>;
 
+  private listenerId = 0;
+  private listeners: Array<{ id: number; callback: (state: ActionState<T, S>) => void }> = [];
+
   private _n = 0;
 
-  constructor(options: StateManagerOptions<T, S, AT, AS>) {
+  constructor(options: StateManagerOptions<T, S>) {
     this.state = createInitialHistoryState(options.initialState, "normal");
     this.selectionState = createInitialHistoryState(options.initialSelectionState, "selection");
 
-    this.reducer = createReducerWithHistory(options.reducer);
-    this.selectionReducer = createReducerWithHistory(options.selectionReducer);
+    this.reducer = createReducerWithHistory();
+    this.selectionReducer = createReducerWithHistory();
 
     this.onStateChangeCallback = options.onStateChangeCallback;
   }
 
   private onStateChange() {
-    this.onStateChangeCallback?.(this.getActionState());
+    const actionState = this.getActionState();
+    this.onStateChangeCallback?.(actionState);
+    try {
+      for (const { callback } of this.listeners) {
+        callback(actionState);
+      }
+    } catch (e) {
+      console.log(e);
+    }
   }
 
   private getActionId(): string | undefined {
     return this.state.action?.id;
   }
 
-  private performRequestedAction(callback: RequestActionCallback) {
+  private performRequestedAction(callback: RequestActionCallback<T, S>) {
     const actionId = (++this._n).toString();
 
     const done = () => actionId !== this.getActionId();
@@ -82,8 +90,16 @@ export class StateManager<T, S, AT extends Action, AS extends Action> {
       onCompleteCallback?.();
     };
 
-    const dispatch: RequestActionParams["dispatch"] = (action) => {
-      this.dispatchHistoryAction(historyActions.dispatchToAction(actionId, action, true));
+    const setState = (state: T) => {
+      this.state = this.reducer(this.state, historyActions.setActionState(actionId, state, true));
+      this.onStateChange();
+    };
+    const setSelection = (state: S) => {
+      this.selectionState = this.selectionReducer(
+        this.selectionState,
+        historyActions.setActionState(actionId, state, true),
+      );
+      this.onStateChange();
     };
 
     const cancelAction = () => {
@@ -105,12 +121,13 @@ export class StateManager<T, S, AT extends Action, AS extends Action> {
       window.addEventListener("keydown", escListener);
     }
 
-    const params: RequestActionParams = {
+    const params: RequestActionParams<T, S> = {
       get done() {
         return done();
       },
 
-      dispatch,
+      setState,
+      setSelection,
 
       submitAction: (options) => {
         const { name, allowSelectionShift = false } = options;
@@ -153,7 +170,7 @@ export class StateManager<T, S, AT extends Action, AS extends Action> {
     callback(params);
   }
 
-  public requestAction(callback: RequestActionCallback): void {
+  public requestAction(callback: RequestActionCallback<T, S>): void {
     if (!this.getActionId()) {
       this.performRequestedAction(callback);
       return;
@@ -227,5 +244,20 @@ export class StateManager<T, S, AT extends Action, AS extends Action> {
 
     const nextIndex = state.index - 1;
     this.dispatchHistoryAction(historyActions.setHistoryIndex(nextIndex));
+  }
+
+  public subscribe(callback: (state: ActionState<T, S>) => void) {
+    const id = ++this.listenerId;
+    this.listeners.push({ callback, id });
+
+    return {
+      unsubscribe: () => {
+        const index = this.listeners.findIndex((listener) => listener.id === id);
+        if (index === -1) {
+          return;
+        }
+        this.listeners.splice(index, 1);
+      },
+    };
   }
 }

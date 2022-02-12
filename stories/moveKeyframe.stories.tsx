@@ -5,7 +5,7 @@ import React from "react";
 import { TimelineState } from "~/core/state/timeline/timelineReducer";
 import { curvesToKeyframes } from "~/core/transform/curvesToKeyframes";
 
-import { useTimelines } from "~/core/utils/hook/useTimelines";
+import { useTimelineState } from "~/react/useTimelineState";
 
 const initialTimelineState: TimelineState = {
   timelines: {
@@ -34,7 +34,7 @@ export default {
 } as ComponentMeta<React.ComponentType>;
 
 export const Test = () => {
-  const { canvasRef } = useTimelines({
+  const { canvasRef } = useTimelineState({
     initialState: initialTimelineState,
     length: 200,
   });

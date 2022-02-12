@@ -4,10 +4,7 @@ import { Vec2 } from "~/core/utils/math/Vec2";
 import { Curve } from "~/types/commonTypes";
 import { TimelineKeyframe } from "~/types/timelineTypes";
 
-const getCurveBetweenKeyframes = (
-  k0: TimelineKeyframe,
-  k1: TimelineKeyframe
-): Curve => {
+export const getCurveBetweenKeyframes = (k0: TimelineKeyframe, k1: TimelineKeyframe): Curve => {
   const p0 = Vec2.new(k0.index, k0.value);
   const p1 = controlPointAsVector("cp0", k0, k1);
   const p2 = controlPointAsVector("cp1", k0, k1);

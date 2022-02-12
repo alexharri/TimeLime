@@ -2,7 +2,7 @@ import { HistoryAction } from "~/core/state/StateManager/history/historyActions"
 
 export const createInitialHistoryState = <S>(
   initialState: S,
-  type: "normal" | "selection"
+  type: "normal" | "selection",
 ): HistoryState<S> => ({
   type,
   list: [
@@ -41,25 +41,19 @@ export interface HistoryState<S> {
   };
 }
 
-export function createReducerWithHistory<S>(
-  reducer: (state: S, action: any) => S
-) {
+export function createReducerWithHistory<S>() {
   return (state: HistoryState<S>, action: HistoryAction): HistoryState<S> => {
     switch (action.type) {
       case "history/restore-preferred-redo": {
         if (state.action) {
-          console.warn(
-            "Attempted to move history list index with an action in process."
-          );
+          console.warn("Attempted to move history list index with an action in process.");
           return state;
         }
 
         const { preferredRedo } = state;
 
         if (!preferredRedo) {
-          console.warn(
-            "Attempted to restore a preferred redo history that does not exist."
-          );
+          console.warn("Attempted to restore a preferred redo history that does not exist.");
           return state;
         }
 
@@ -74,9 +68,7 @@ export function createReducerWithHistory<S>(
 
       case "history/set-index": {
         if (state.action) {
-          console.warn(
-            "Attempted to move history list index with an action in process."
-          );
+          console.warn("Attempted to move history list index with an action in process.");
           return state;
         }
 
@@ -90,9 +82,7 @@ export function createReducerWithHistory<S>(
 
       case "history/start": {
         if (state.action) {
-          console.warn(
-            "Attempted to start an action with another action in process."
-          );
+          console.warn("Attempted to start an action with another action in process.");
           return state;
         }
 
@@ -113,18 +103,15 @@ export function createReducerWithHistory<S>(
         };
       }
 
-      case "history/dispatch": {
-        const { actionId, actionToDispatch, modifiesHistory } = action;
+      case "history/set-action-state": {
+        const { actionId, modifiesHistory } = action;
 
         if (!modifiesHistory) {
           return state;
         }
 
         if (!state.action) {
-          console.log(actionToDispatch);
-          console.warn(
-            "Attempted to dispatch to an action that does not exist."
-          );
+          console.warn("Attempted to set the state of an action that does not exist.");
           return state;
         }
 
@@ -133,7 +120,7 @@ export function createReducerWithHistory<S>(
           return state;
         }
 
-        const newState = reducer(state.action.state, actionToDispatch);
+        const newState = action.state;
 
         if (newState === state.action.state) {
           // State was not modified

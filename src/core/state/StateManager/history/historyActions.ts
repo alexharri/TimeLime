@@ -3,8 +3,7 @@ type HistoryActionReturnTypes = {
   [K in keyof HistoryActions]: ReturnType<HistoryActions[K]>;
 };
 
-export type HistoryAction =
-  HistoryActionReturnTypes[keyof HistoryActionReturnTypes];
+export type HistoryAction = HistoryActionReturnTypes[keyof HistoryActionReturnTypes];
 
 export const historyActions = {
   restorePreferredRedo: () => ({
@@ -21,14 +20,10 @@ export const historyActions = {
     actionId,
   }),
 
-  dispatchToAction: (
-    actionId: string,
-    actionToDispatch: any,
-    modifiesHistory: boolean
-  ) => ({
-    type: <const>"history/dispatch",
+  setActionState: (actionId: string, state: any, modifiesHistory: boolean) => ({
+    type: <const>"history/set-action-state",
     actionId,
-    actionToDispatch,
+    state,
     modifiesHistory,
   }),
 
@@ -38,7 +33,7 @@ export const historyActions = {
     modifiesHistory: boolean,
     modifiedState: boolean,
     modifiedSelectionState: boolean,
-    allowIndexShift: boolean
+    allowIndexShift: boolean,
   ) => ({
     type: <const>"history/submit",
     actionId,

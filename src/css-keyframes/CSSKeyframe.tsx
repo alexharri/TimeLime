@@ -1,7 +1,7 @@
-import React, { useCallback } from "react";
+import React from "react";
 import { PrimaryState } from "~/core/state/stateTypes";
 import { curvesToKeyframes } from "~/core/transform/curvesToKeyframes";
-import { useTimelines } from "~/core/utils/hook/useTimelines";
+import { useTimelineState } from "~/react/useTimelineState";
 import { PropertyIds } from "~/css-keyframes/cssKeyframeConstants";
 import { Timeline } from "~/css-keyframes/Timeline";
 
@@ -25,19 +25,19 @@ const initialState: PrimaryState = {
 };
 
 export const CSSKeyframes: React.FC = () => {
-  const { canvasRef, timelines, selection, view, setView } = useTimelines({
+  const { canvasRef, Provider } = useTimelineState({
     initialState,
     length: 120,
   });
 
-  const setLength = useCallback(
-    (length: number) => {
-      const t = view.length / length;
-      const [low, high] = view.viewBounds.map((x) => x * t);
-      setView({ length, viewBounds: [low, high] });
-    },
-    [view.length, view.viewBounds],
-  );
+  // const setLength = useCallback(
+  //   (length: number) => {
+  //     const t = view.length / length;
+  //     const [low, high] = view.viewBounds.map((x) => x * t);
+  //     setView({ length, viewBounds: [low, high] });
+  //   },
+  //   [view.length, view.viewBounds],
+  // );
 
   return (
     <div>
@@ -51,13 +51,9 @@ export const CSSKeyframes: React.FC = () => {
         }}
         decimalPlaces={0}
       /> */}
-      <Timeline
-        timelines={timelines}
-        timelineSelectionMap={selection}
-        canvasRef={canvasRef}
-        length={view.length}
-        setLength={setLength}
-      />
+      <Provider>
+        <Timeline canvasRef={canvasRef} />
+      </Provider>
     </div>
   );
 };

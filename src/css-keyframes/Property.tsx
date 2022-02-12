@@ -1,24 +1,25 @@
 import React from "react";
-import { TimelineSelection } from "~/core/state/timelineSelection/timelineSelectionReducer";
 import { propertyInfoMap } from "~/css-keyframes/cssKeyframeConstants";
 import s from "~/css-keyframes/Property.styles";
-import { Timeline } from "~/types/timelineTypes";
+import { useTimeline } from "~/react/useTimeline";
 
 interface Props {
-  timeline: Timeline;
-  selection?: TimelineSelection;
+  timelineId: string;
 }
 
 export const Property: React.FC<Props> = (props) => {
-  const { timeline, selection } = props;
+  const { timelineId } = props;
+
+  const { timeline, selection, value } = useTimeline({ timelineId });
 
   const active = !!selection;
-
   const propertyInfo = propertyInfoMap[timeline.id];
 
   return (
     <div className={s("container", { active })}>
-      <div className={s("label")}>{propertyInfo.label}</div>
+      <div className={s("label")}>
+        {propertyInfo.label}: {value.toFixed(2)}
+      </div>
     </div>
   );
 };
