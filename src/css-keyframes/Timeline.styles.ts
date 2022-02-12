@@ -10,4 +10,9 @@ export default createStylesheet(({ css }) => ({
     display: flex;
     align-items: stretch;
   `,
+
+  right: css`
+    flex-basis: 0;
+    flex-grow: 1;
+  `,
 }));

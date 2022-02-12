@@ -14,7 +14,7 @@ export const Timeline: React.FC<Props> = (props) => {
   return (
     <div className={s("container")}>
       <PropertyList />
-      <div>
+      <div className={s("right")}>
         <TimelineProperties />
         <Canvas ref={canvasRef} />
       </div>
