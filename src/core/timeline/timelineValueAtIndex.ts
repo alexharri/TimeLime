@@ -58,7 +58,7 @@ export function getTimelineValueAtIndex(options: GetTimelineValueAtIndexOptions)
       // The keyframes have the same value, we can't use Bezier to
       // get the Y value.
       //
-      // Find intersection with vertical line at index.
+      // Check if the bezier is entirely flat.
       let yMax = -Infinity;
       let yMin = Infinity;
 
@@ -76,6 +76,7 @@ export function getTimelineValueAtIndex(options: GetTimelineValueAtIndexOptions)
         return yMax;
       }
 
+      // Find intersection with vertical line at index.
       const t = findBezierXIntersectionT(curve, index);
       return bezierVecAtT(curve, t).y;
     }
