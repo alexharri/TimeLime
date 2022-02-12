@@ -36,7 +36,7 @@ export default {
   `,
 
   container: css`
-    height: 16px;
+    height: 24px;
     display: inline-block;
     vertical-align: top;
 

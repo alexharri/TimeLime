@@ -3,28 +3,17 @@ import { attachHandlers } from "~/core/handlers/attachHandlers";
 import { renderGraphEditorWithRenderState } from "~/core/render/renderGraphEditor";
 import { StateManager } from "~/core/state/StateManager/StateManager";
 import { useStateManager } from "~/core/state/StateManager/useStateManager";
-import {
-  ActionOptions,
-  RenderState,
-  SelectionState,
-  TrackedState,
-  ViewState,
-} from "~/core/state/stateTypes";
+import { ActionOptions, RenderState, TrackedState, ViewState } from "~/core/state/stateTypes";
 import { TimelineState } from "~/core/state/timeline/timelineReducer";
 import { TimelineSelectionState } from "~/core/state/timelineSelection/timelineSelectionReducer";
 import { useIsomorphicLayoutEffect } from "~/core/utils/hook/useIsomorphicLayoutEffect";
 import { useRefRect } from "~/core/utils/hook/useRefRect";
 import { useRenderCursor } from "~/core/utils/hook/useRenderCursor";
 import { TimelineStateProvider } from "~/react/TimelineStateProvider";
-import { TimelineMap } from "~/types/timelineTypes";
 
 interface UseTimelineStateResult {
   getState: () => TrackedState;
   requestAction: (callback: (actionOptions: ActionOptions) => void) => void;
-  view: ViewState;
-  setView: (view: Partial<ViewState>) => void;
-  timelines: TimelineMap;
-  selection: SelectionState;
   stateManager: StateManager<TimelineState, TimelineSelectionState>;
   canvasRef: React.Ref<HTMLCanvasElement>;
   Provider: React.ComponentType;
@@ -177,10 +166,6 @@ export const useTimelineState = (options: Options) => {
     detachRef.current = detach;
   }, []);
 
-  const setPartialView = useCallback((partialView: Partial<ViewState>) => {
-    setView((view) => ({ ...view, ...partialView }));
-  }, []);
-
   const setLength = useCallback((length: number) => {
     stateManager.requestAction((params) => {
       const { view } = renderStateRef.current;
@@ -207,10 +192,6 @@ export const useTimelineState = (options: Options) => {
       Provider,
       getState,
       requestAction,
-      view,
-      setView: setPartialView,
-      timelines: state.state.timelines,
-      selection: state.selection,
       stateManager,
       canvasRef: onCanvasOrNull,
     };

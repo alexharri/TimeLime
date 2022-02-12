@@ -30,27 +30,8 @@ export const CSSKeyframes: React.FC = () => {
     length: 120,
   });
 
-  // const setLength = useCallback(
-  //   (length: number) => {
-  //     const t = view.length / length;
-  //     const [low, high] = view.viewBounds.map((x) => x * t);
-  //     setView({ length, viewBounds: [low, high] });
-  //   },
-  //   [view.length, view.viewBounds],
-  // );
-
   return (
     <div>
-      {/* <Canvas ref={canvasRef} />
-      <NumberInput
-        value={view.length}
-        setValue={(length) => {
-          const t = view.length / length;
-          const [low, high] = view.viewBounds.map((x) => x * t);
-          setView({ length, viewBounds: [low, high] });
-        }}
-        decimalPlaces={0}
-      /> */}
       <Provider>
         <Timeline canvasRef={canvasRef} />
       </Provider>
