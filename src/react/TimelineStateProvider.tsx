@@ -3,6 +3,7 @@ import { ActionOptions, RenderState } from "~/core/state/stateTypes";
 import { getTimelineValue } from "~/react/getTimelineValue";
 import { ITimelineStateContext, TimelineStateContext } from "~/react/TimelineStateContext";
 import {
+  GraphEditorProps,
   UseTimelineIdsListener,
   UseTimelineLengthListener,
   UseTimelineStateListener,
@@ -16,11 +17,11 @@ interface Props {
   renderStateRef: React.MutableRefObject<RenderState>;
   setLength: (length: number) => void;
   getActionOptions: (callback: (actionOptions: ActionOptions) => void) => void;
-  Canvas: React.ComponentType;
+  GraphEditor: React.ComponentType<GraphEditorProps>;
 }
 
 export const TimelineStateProvider: React.FC<Props> = (props) => {
-  const { renderStateRef, setLength, getActionOptions, Canvas } = props;
+  const { renderStateRef, setLength, getActionOptions, GraphEditor } = props;
 
   const idRef = useRef(0);
   const timelineListeners = useMemo<UseTimelineStateListener[]>(() => [], []);
@@ -72,7 +73,7 @@ export const TimelineStateProvider: React.FC<Props> = (props) => {
         return { unsubscribe: createUnsubscribe(timelineLengthListeners, id) };
       },
 
-      Canvas,
+      GraphEditor,
       getActionOptions,
     };
     return value;

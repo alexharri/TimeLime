@@ -1,5 +1,6 @@
 import React from "react";
 import { ActionOptions, ViewState } from "~/core/state/stateTypes";
+import { GraphEditorProps } from "~/react/types";
 import { Timeline, TimelineSelection } from "~/types/timelineTypes";
 
 export interface TimelineValue {
@@ -18,7 +19,7 @@ export interface ITimelineStateContext {
   getViewState: () => ViewState;
   setLength: (length: number) => void;
 
-  Canvas: React.ComponentType<{}>;
+  GraphEditor: React.ComponentType<GraphEditorProps>;
 
   getTimelineValue: (timelineId: string) => TimelineValue;
   subscribeToTimeline: (

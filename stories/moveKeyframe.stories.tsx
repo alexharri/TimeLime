@@ -34,10 +34,10 @@ export default {
 } as ComponentMeta<React.ComponentType>;
 
 export const Test = () => {
-  const { canvasRef } = useTimelineState({
+  const { GraphEditor: Canvas } = useTimelineState({
     initialState: initialTimelineState,
     length: 200,
   });
 
-  return <canvas ref={canvasRef} width={800} height={400} />;
+  return <Canvas />;
 };

@@ -20,9 +20,11 @@ import { useIsomorphicLayoutEffect } from "~/core/utils/hook/useIsomorphicLayout
 import { useRefRect } from "~/core/utils/hook/useRefRect";
 import { useRenderCursor } from "~/core/utils/hook/useRenderCursor";
 import { TimelineStateProvider } from "~/react/TimelineStateProvider";
+import { GraphEditorProps } from "~/react/types";
 
 interface UseTimelineStateResult {
   Provider: React.ComponentType;
+  GraphEditor: React.ComponentType<GraphEditorProps>;
 }
 
 interface Options {
@@ -218,10 +220,14 @@ export const useTimelineState = (options: Options) => {
     });
   }, []);
 
-  const Canvas = useMemo(() => {
-    return () => (
+  const GraphEditor = useMemo(() => {
+    return (props: GraphEditorProps) => (
       <div
-        style={{ position: "absolute", top: 0, left: 0, right: 0, bottom: 0 }}
+        style={
+          props.behavior === "absolute"
+            ? { position: "absolute", top: 0, left: 0, right: 0, bottom: 0 }
+            : { height: props.height ?? 400 }
+        }
         ref={canvasContainerRef}
       >
         <canvas ref={onCanvasOrNull} />
@@ -236,7 +242,7 @@ export const useTimelineState = (options: Options) => {
           renderStateRef={renderStateRef}
           setLength={setLength}
           getActionOptions={getActionOptions}
-          Canvas={Canvas}
+          GraphEditor={GraphEditor}
         >
           {props.children}
         </TimelineStateProvider>
@@ -248,6 +254,7 @@ export const useTimelineState = (options: Options) => {
   const value = useMemo((): UseTimelineStateResult => {
     return {
       Provider,
+      GraphEditor,
     };
   }, []);
 

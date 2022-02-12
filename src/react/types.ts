@@ -15,3 +15,8 @@ export interface UseTimelineLengthListener {
   id: number;
   callback: UseTimelineLengthCallback;
 }
+
+export interface GraphEditorProps {
+  behavior?: "block" | "absolute";
+  height?: number;
+}
