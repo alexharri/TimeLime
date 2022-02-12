@@ -66,6 +66,8 @@ export const useTimelineState = (options: Options) => {
   const setViewState = useCallback((partialViewState: Partial<ViewState>) => {
     viewRef.current = { ...viewRef.current, ...partialViewState };
     renderStateRef.current = getRenderState();
+    render(renderStateRef.current);
+    renderCursor(renderStateRef.current);
   }, []);
 
   const canvasRef = useRef<HTMLCanvasElement | null>(null);
