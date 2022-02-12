@@ -1,7 +1,8 @@
 import { areMapsShallowEqual } from "map-fns";
 import { useEffect, useRef } from "react";
 import { RenderState } from "~/core/state/stateTypes";
-import { UseTimelineStateListener } from "~/react/types";
+import { UseTimelineIdsListener, UseTimelineStateListener } from "~/react/types";
+import { areArraysShallowEqual } from "~/react/utils/arrayUtils";
 
 function didTimelineChange(prevState: RenderState, currState: RenderState, timelineId: string) {
   if (currState.primary.timelines[timelineId] !== prevState.primary.timelines[timelineId]) {
@@ -45,7 +46,8 @@ function didTimelineChange(prevState: RenderState, currState: RenderState, timel
 
 interface Options {
   getCurrentState: () => RenderState;
-  listeners: UseTimelineStateListener[];
+  timelineIdsListeners: UseTimelineIdsListener[];
+  timelineListeners: UseTimelineStateListener[];
   executeCallback: (listener: UseTimelineStateListener) => void;
 }
 
@@ -57,7 +59,7 @@ export function useMonitorRenderState(options: Options) {
 
     // We do not need to get the listeners on each tick since `useTimelineState` pushes
     // directly to the listeners array instead of creating a new one.
-    const { listeners, executeCallback } = options;
+    const { timelineListeners, timelineIdsListeners, executeCallback } = options;
 
     const tick = () => {
       if (unmounted) {
@@ -73,15 +75,24 @@ export function useMonitorRenderState(options: Options) {
         return; // Render state did not update in the previous frame.
       }
 
+      const prevTimelineIds = Object.keys(prevState.primary.timelines);
+      const currTimelineIds = Object.keys(currState.primary.timelines);
+
+      if (!areArraysShallowEqual(prevTimelineIds, currTimelineIds)) {
+        for (const listener of timelineIdsListeners) {
+          listener.callback(currTimelineIds);
+        }
+      }
+
       // If the frame index changed between frames, all timelines will be affected.
       if (currState.view.frameIndex !== prevState.view.frameIndex) {
-        for (const listener of listeners) {
+        for (const listener of timelineListeners) {
           executeCallback(listener);
         }
         return;
       }
 
-      for (const listener of listeners) {
+      for (const listener of timelineListeners) {
         if (!didTimelineChange(prevState, currState, listener.timelineId)) {
           continue;
         }

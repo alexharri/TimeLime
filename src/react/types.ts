@@ -5,3 +5,8 @@ export interface UseTimelineStateListener {
   timelineId: string;
   callback: UseTimelineCallback;
 }
+
+export interface UseTimelineIdsListener {
+  id: number;
+  callback: (timelineIds: string[]) => void;
+}

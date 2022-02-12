@@ -15,6 +15,11 @@ export interface ITimelineStateContext {
     timelineId: string,
     callback: UseTimelineCallback,
   ) => { unsubscribe: () => void };
+
+  getTimelineIds: () => string[];
+  subscribeToTimelineIds: (callback: (timelineIds: string[]) => void) => {
+    unsubscribe: () => void;
+  };
 }
 
 export const TimelineStateContext = React.createContext<ITimelineStateContext | null>(null);
