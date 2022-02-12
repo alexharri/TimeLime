@@ -9,7 +9,6 @@ import {
   PrimaryState,
   RenderState,
   SelectionState,
-  TrackedState,
   ViewState,
 } from "~/core/state/stateTypes";
 import { TimelineState } from "~/core/state/timeline/timelineReducer";
@@ -23,9 +22,6 @@ import { useRenderCursor } from "~/core/utils/hook/useRenderCursor";
 import { TimelineStateProvider } from "~/react/TimelineStateProvider";
 
 interface UseTimelineStateResult {
-  getState: () => TrackedState;
-  requestAction: (callback: (actionOptions: ActionOptions) => void) => void;
-  stateManager: StateManager<TimelineState, TimelineSelectionState>;
   canvasRef: React.Ref<HTMLCanvasElement>;
   Provider: React.ComponentType;
 }
@@ -240,9 +236,6 @@ export const useTimelineState = (options: Options) => {
   const value = useMemo((): UseTimelineStateResult => {
     return {
       Provider,
-      getState,
-      requestAction: getActionOptions,
-      stateManager,
       canvasRef: onCanvasOrNull,
     };
   }, []);
