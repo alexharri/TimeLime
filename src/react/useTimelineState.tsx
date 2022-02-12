@@ -1,9 +1,16 @@
-import React, { useCallback, useMemo, useRef } from "react";
+import React, { useCallback, useEffect, useMemo, useRef } from "react";
 import { attachHandlers } from "~/core/handlers/attachHandlers";
+import { isKeyCodeOf } from "~/core/listener/keyboard";
 import { renderGraphEditorWithRenderState } from "~/core/render/renderGraphEditor";
 import { StateManager } from "~/core/state/StateManager/StateManager";
-import { useStateManager } from "~/core/state/StateManager/useStateManager";
-import { ActionOptions, RenderState, TrackedState, ViewState } from "~/core/state/stateTypes";
+import {
+  ActionOptions,
+  PrimaryState,
+  RenderState,
+  SelectionState,
+  TrackedState,
+  ViewState,
+} from "~/core/state/stateTypes";
 import { TimelineState } from "~/core/state/timeline/timelineReducer";
 import { TimelineSelectionState } from "~/core/state/timelineSelection/timelineSelectionReducer";
 import { useIsomorphicLayoutEffect } from "~/core/utils/hook/useIsomorphicLayoutEffect";
@@ -26,10 +33,35 @@ interface Options {
 }
 
 export const useTimelineState = (options: Options) => {
-  const { state, stateManager } = useStateManager({
-    initialState: options.initialState,
-    initialSelectionState: options.initialSelectionState || {},
-  });
+  const stateManager = useMemo(() => {
+    return new StateManager<PrimaryState, SelectionState>({
+      initialState: options.initialState,
+      initialSelectionState: options.initialSelectionState || {},
+    });
+  }, []);
+
+  // Listen to undo/redo
+  useEffect(() => {
+    const listener = (e: KeyboardEvent) => {
+      if (!history) {
+        return;
+      }
+
+      if (isKeyCodeOf("Z", e.keyCode) && e.metaKey && e.shiftKey) {
+        stateManager.redo();
+        return;
+      }
+      if (isKeyCodeOf("Z", e.keyCode) && e.metaKey) {
+        stateManager.undo();
+        return;
+      }
+    };
+
+    window.addEventListener("keydown", listener);
+    return () => {
+      window.removeEventListener("keydown", listener);
+    };
+  }, [history]);
 
   const viewRef = useRef<ViewState>({
     allowExceedViewBounds: true,
@@ -99,7 +131,7 @@ export const useTimelineState = (options: Options) => {
     //
     render(renderStateRef.current);
     renderCursor(renderStateRef.current);
-  }, [state, canvasRect]);
+  }, [canvasRect]);
 
   const requestAction = useCallback((callback: (actionOptions: ActionOptions) => void) => {
     stateManager.requestAction((params) => {
@@ -169,6 +201,8 @@ export const useTimelineState = (options: Options) => {
   }, []);
 
   const setLength = useCallback((length: number) => {
+    // We request an action even if we're not modifying tracked state to ensure
+    // that we're not triggering parallel actions.
     stateManager.requestAction((params) => {
       const { view } = renderStateRef.current;
       const t = view.length / length;
@@ -197,7 +231,7 @@ export const useTimelineState = (options: Options) => {
       stateManager,
       canvasRef: onCanvasOrNull,
     };
-  }, [state]);
+  }, []);
 
   return value;
 };

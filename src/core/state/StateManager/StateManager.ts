@@ -170,6 +170,10 @@ export class StateManager<T, S> {
     callback(params);
   }
 
+  public getCanRequestAction(): boolean {
+    return !this.getActionId();
+  }
+
   public requestAction(callback: RequestActionCallback<T, S>): void {
     if (!this.getActionId()) {
       this.performRequestedAction(callback);
