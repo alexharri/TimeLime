@@ -20,4 +20,20 @@ export default createStylesheet(({ css }) => ({
     font-family: ${cssVariables.fontFamily};
     color: ${colors.white500};
   `,
+
+  arrowButton: css`
+    border: none;
+    background: transparent;
+    padding: 0;
+    width: 16px;
+    height: 16px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: ${colors.gray700};
+
+    &--active {
+      color: ${colors.light700};
+    }
+  `,
 }));

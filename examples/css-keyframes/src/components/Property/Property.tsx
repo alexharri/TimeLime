@@ -1,6 +1,8 @@
 import React from "react";
 import { moveFrameIndexToNextKeyframe } from "timelime/core";
 import { useSetTimelineValueAtFrameIndex, useTimeline, useTimelineState } from "timelime/react";
+import { NextKeyframeIcon } from "~examples/css-keyframes/components/icon/NextKeyframeIcon";
+import { PreviousKeyframeIcon } from "~examples/css-keyframes/components/icon/PreviousKeyframeIcon";
 import { NumberInput } from "~examples/css-keyframes/components/NumberInput/NumberInput";
 import s from "~examples/css-keyframes/components/Property/Property.styles";
 import { propertyInfoMap } from "~examples/css-keyframes/cssKeyframeConstants";
@@ -36,14 +38,18 @@ export const Property: React.FC<Props> = (props) => {
     <div className={s("container", { active })}>
       <div className={s("label")}>
         <span onClick={() => setIsVisible(!active)}>{propertyInfo.label}:</span>{" "}
-        <NumberInput
-          value={value}
-          onValueChange={onValueChange}
-          onValueChangeEnd={onValueChangeEnd}
-        />
-        <button onClick={onMoveToPreviousKeyframe}>Prev</button>
-        <button onClick={onMoveToNextKeyframe}>Next</button>
       </div>
+      <NumberInput
+        value={value}
+        onValueChange={onValueChange}
+        onValueChangeEnd={onValueChangeEnd}
+      />
+      <button className={s("arrowButton")} onClick={onMoveToPreviousKeyframe}>
+        <PreviousKeyframeIcon />
+      </button>
+      <button className={s("arrowButton")} onClick={onMoveToNextKeyframe}>
+        <NextKeyframeIcon />
+      </button>
     </div>
   );
 };
