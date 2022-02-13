@@ -6,7 +6,6 @@ export { getGraphEditorCursor } from "~core/render/cursor/graphEditorCursor";
 export { renderGraphEditorWithRenderState } from "~core/render/renderGraphEditor";
 export { requestAction } from "~core/state/requestAction";
 export type { RequestActionParams } from "~core/state/requestAction";
-export { StateManager } from "~core/state/StateManager/StateManager";
 export { applyControlPointShift } from "~core/timeline/applyControlPointShift";
 export { applyNewControlPointShift } from "~core/timeline/applyNewControlPointShift";
 export { applyTimelineKeyframeShift } from "~core/timeline/applyTimelineKeyframeShift";

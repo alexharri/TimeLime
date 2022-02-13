@@ -1,7 +1,12 @@
-import { ActionToPerform, Rect, TimelineMap, ViewBounds } from "timelime/types";
+import {
+  ActionToPerform,
+  Rect,
+  TimelineMap,
+  TimelineSelectionState,
+  ViewBounds,
+} from "timelime/types";
 import { isKeyDown } from "~core/listener/keyboard";
 import { getGraphEditorYBounds } from "~core/render/yBounds";
-import { TimelineSelectionState } from "~core/state/timelineSelection/timelineSelectionReducer";
 import { createNormalToViewportFn } from "~core/utils/coords/normalToViewport";
 import { getGraphEditorTargetObject } from "~core/utils/getGraphEditorTargetObject";
 import { expandRect, isVecInRect } from "~core/utils/math/math";

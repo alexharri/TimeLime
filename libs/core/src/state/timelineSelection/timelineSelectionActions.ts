@@ -1,7 +1,4 @@
-import {
-  TimelineSelection,
-  TimelineSelectionState,
-} from "~core/state/timelineSelection/timelineSelectionReducer";
+import { TimelineSelection, TimelineSelectionState } from "timelime/types";
 
 export const timelineSelectionActions = {
   removeAll: () => ({

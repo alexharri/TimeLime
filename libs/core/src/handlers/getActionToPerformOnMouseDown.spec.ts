@@ -1,8 +1,7 @@
-import { Rect, Timeline, ViewBounds } from "timelime/types";
+import { Rect, Timeline, TimelineSelectionState, ViewBounds } from "timelime/types";
 import { CANVAS_END_START_BUFFER, CANVAS_UPPER_LOWER_BUFFER_FACTOR } from "~core/constants";
 import { getActionToPerformOnMouseDown } from "~core/handlers/getActionToPerformOnMouseDown";
 import { _MockKey } from "~core/listener/keyboard";
-import { TimelineSelectionState } from "~core/state/timelineSelection/timelineSelectionReducer";
 import { curvesToKeyframes } from "~core/transform/curvesToKeyframes";
 import { Vec2 } from "~core/utils/math/Vec2";
 

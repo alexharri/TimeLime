@@ -1,11 +1,6 @@
 import { mapMap } from "map-fns";
 import React, { useCallback, useEffect, useMemo, useRef } from "react";
-import {
-  attachHandlers,
-  isKeyCodeOf,
-  renderGraphEditorWithRenderState,
-  StateManager,
-} from "timelime/core";
+import { attachHandlers, isKeyCodeOf, renderGraphEditorWithRenderState } from "timelime/core";
 import {
   ActionOptions,
   PrimaryState,
@@ -16,7 +11,7 @@ import {
   TimelineState,
   ViewState,
 } from "timelime/types";
-import { RequestActionParams } from "timelime/undo-redo";
+import { RequestActionParams, StateManager } from "timelime/undo-redo";
 import { useIsomorphicLayoutEffect } from "~react/hook/useIsomorphicLayoutEffect";
 import { useRefRect } from "~react/hook/useRefRect";
 import { useRenderCursor } from "~react/hook/useRenderCursor";

@@ -1,7 +1,6 @@
-import { Rect, RenderState, TimelineMap, ViewBounds } from "timelime/types";
+import { Rect, RenderState, TimelineMap, TimelineSelectionState, ViewBounds } from "timelime/types";
 import { getActionToPerformOnMouseDown } from "~core/handlers/getActionToPerformOnMouseDown";
 import { isKeyDown } from "~core/listener/keyboard";
-import { TimelineSelectionState } from "~core/state/timelineSelection/timelineSelectionReducer";
 import { base64Cursors } from "~core/utils/cursor/base64Cursors";
 import { Vec2 } from "~core/utils/math/Vec2";
 

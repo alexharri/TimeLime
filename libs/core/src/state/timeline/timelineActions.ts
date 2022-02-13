@@ -1,5 +1,10 @@
-import { Rect, Timeline, TimelineKeyframe, TimelineKeyframeControlPoint } from "timelime/types";
-import { TimelineState } from "~core/state/timeline/timelineReducer";
+import {
+  Rect,
+  Timeline,
+  TimelineKeyframe,
+  TimelineKeyframeControlPoint,
+  TimelineState,
+} from "timelime/types";
 
 export const timelineActions = {
   setState: (state: TimelineState) => ({

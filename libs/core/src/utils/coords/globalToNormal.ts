@@ -1,7 +1,13 @@
-import { ActionOptions, Rect, TimelineMap, ViewBounds, YBounds } from "timelime/types";
+import {
+  ActionOptions,
+  Rect,
+  TimelineMap,
+  TimelineSelectionState,
+  ViewBounds,
+  YBounds,
+} from "timelime/types";
 import { CANVAS_END_START_BUFFER } from "~core/constants";
 import { getGraphEditorYBounds } from "~core/render/yBounds";
-import { TimelineSelectionState } from "~core/state/timelineSelection/timelineSelectionReducer";
 import { lerp } from "~core/utils/math/math";
 import { Vec2 } from "~core/utils/math/Vec2";
 import { getGraphEditorViewport } from "~core/utils/viewportUtils";

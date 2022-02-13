@@ -1,9 +1,14 @@
-import { ActionOptions, TimelineMap, ViewBounds, YBounds } from "timelime/types";
+import {
+  ActionOptions,
+  TimelineMap,
+  TimelineSelectionState,
+  ViewBounds,
+  YBounds,
+} from "timelime/types";
 import {
   CANVAS_NO_DIFF_UPPER_LOWER_BUFFER,
   CANVAS_UPPER_LOWER_BUFFER_FACTOR,
 } from "~core/constants";
-import { TimelineSelectionState } from "~core/state/timelineSelection/timelineSelectionReducer";
 import { keyframesToCurves } from "~core/transform/keyframesToCurves";
 import { splitTimelineCurve } from "~core/utils/math/splitTimelineCurve";
 
