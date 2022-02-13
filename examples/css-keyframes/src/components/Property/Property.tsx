@@ -1,6 +1,7 @@
 import React from "react";
 import { moveFrameIndexToNextKeyframe } from "timelime/core";
 import { useSetTimelineValueAtFrameIndex, useTimeline, useTimelineState } from "timelime/react";
+import { KeyframeIcon } from "~examples/css-keyframes/components/icon/KeyframeIcon";
 import { NextKeyframeIcon } from "~examples/css-keyframes/components/icon/NextKeyframeIcon";
 import { PreviousKeyframeIcon } from "~examples/css-keyframes/components/icon/PreviousKeyframeIcon";
 import { NumberInput } from "~examples/css-keyframes/components/NumberInput/NumberInput";
@@ -14,9 +15,8 @@ interface Props {
 export const Property: React.FC<Props> = (props) => {
   const { timelineId } = props;
 
-  const { timeline, selection, value, setIsVisible, prevKeyframe, nextKeyframe } = useTimeline({
-    timelineId,
-  });
+  const { timeline, selection, value, setIsVisible, currKeyframe, prevKeyframe, nextKeyframe } =
+    useTimeline({ timelineId });
   const { onValueChange, onValueChangeEnd } = useSetTimelineValueAtFrameIndex({ timelineId });
 
   const active = !!selection;
@@ -36,6 +36,10 @@ export const Property: React.FC<Props> = (props) => {
     });
   };
 
+  const currentKeyframeSelected = currKeyframe
+    ? selection?.keyframes[currKeyframe.id] || false
+    : false;
+
   return (
     <div className={s("container", { active })}>
       <div className={s("label")}>
@@ -52,6 +56,16 @@ export const Property: React.FC<Props> = (props) => {
       >
         <PreviousKeyframeIcon />
       </button>
+
+      <button
+        className={s("keyframeButton", {
+          active: !!currKeyframe,
+          selected: currentKeyframeSelected,
+        })}
+      >
+        <KeyframeIcon />
+      </button>
+
       <button
         className={s("arrowButton", { active: !!nextKeyframe })}
         onClick={onMoveToNextKeyframe}
