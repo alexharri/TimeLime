@@ -1,6 +1,6 @@
 import { areMapsShallowEqual } from "map-fns";
 import { useEffect, useRef } from "react";
-import { RenderState } from "~/types/stateTypes";
+import { RenderState } from "timelime/types";
 import {
   UseTimelineIdsListener,
   UseTimelineLengthListener,

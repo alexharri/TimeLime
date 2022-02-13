@@ -1,8 +1,10 @@
-import { applyControlPointShift } from "~/core/timeline/applyControlPointShift";
-import { applyNewControlPointShift } from "~/core/timeline/applyNewControlPointShift";
-import { applyTimelineKeyframeShift } from "~/core/timeline/applyTimelineKeyframeShift";
-import { getTimelineValueAtIndex } from "~/core/timeline/timelineValueAtIndex";
-import { RenderState } from "~/types/stateTypes";
+import {
+  applyControlPointShift,
+  applyNewControlPointShift,
+  applyTimelineKeyframeShift,
+  getTimelineValueAtIndex,
+} from "timelime/core";
+import { RenderState } from "timelime/types";
 import { TimelineValue } from "~react/TimelineStateContext";
 
 export function getTimelineValue(timelineId: string, renderState: RenderState): TimelineValue {

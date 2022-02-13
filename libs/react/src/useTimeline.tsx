@@ -1,5 +1,5 @@
 import { useCallback, useContext, useEffect, useMemo, useState } from "react";
-import { setTimelineVisible } from "~/core/handlers/selection/setTimelineVisible";
+import { setTimelineVisible } from "timelime/core";
 import { TimelineStateContext, TimelineValue } from "~react/TimelineStateContext";
 
 interface Options {

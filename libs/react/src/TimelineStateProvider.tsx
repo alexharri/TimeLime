@@ -1,5 +1,5 @@
 import React, { useMemo, useRef } from "react";
-import { ActionOptions, RenderState } from "~/types/stateTypes";
+import { ActionOptions, RenderState } from "timelime/types";
 import { getTimelineValue } from "~react/getTimelineValue";
 import { ITimelineStateContext, TimelineStateContext } from "~react/TimelineStateContext";
 import {

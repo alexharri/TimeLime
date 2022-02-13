@@ -1,6 +1,5 @@
 import React from "react";
-import { ActionOptions, ViewState } from "~/types/stateTypes";
-import { Timeline, TimelineSelection } from "~/types/timelineTypes";
+import { ActionOptions, Timeline, TimelineSelection, ViewState } from "timelime/types";
 import { GraphEditorProps } from "~react/types";
 
 export interface TimelineValue {

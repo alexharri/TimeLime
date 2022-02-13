@@ -7,7 +7,7 @@
     "test": "jest",
     "test:watch": "jest --watchAll",
     "test:ci": "jest --ci --coverage",
-    "tscheck": "tsc --noEmit --skipLibCheck --jsx preserve --project tsconfig.base.json",
+    "tscheck": "tsc --noEmit --skipLibCheck --jsx preserve --project tsconfig.tscheck.json",
     "tscheck:core": "cd libs/core && npm run tscheck",
     "tscheck:example": "cd examples/css-keyframes && npm run tscheck",
     "generate-cursors": "ts-node -T -O '{\"module\":\"commonjs\"}' scripts/generateBase64Cursors"

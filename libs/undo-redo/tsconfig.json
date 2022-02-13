@@ -1,0 +1,12 @@
+{
+  "extends": "../../tsconfig.settings.json",
+  "compilerOptions": {
+    "outDir": "./out-tsc",
+    "rootDir": "./src",
+    "paths": {
+      "~undo-redo/*": ["./libs/undo-redo/src/*"]
+    }
+  },
+  "include": ["src/**/*.ts", "src/**/*.tsx"],
+  "references": []
+}

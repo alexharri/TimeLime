@@ -1,8 +1,11 @@
 import { useContext, useRef } from "react";
-import { requestAction, RequestActionParams } from "~/core/state/requestAction";
-import { createTimelineKeyframe } from "~/core/timeline/createTimelineKeyframe";
-import { splitKeyframesAtIndex } from "~/core/timeline/splitKeyframesAtIndex";
-import { TimelineKeyframe } from "~/types/timelineTypes";
+import {
+  createTimelineKeyframe,
+  requestAction,
+  RequestActionParams,
+  splitKeyframesAtIndex,
+} from "timelime/core";
+import { TimelineKeyframe } from "timelime/types";
 import { TimelineStateContext } from "~react/TimelineStateContext";
 
 interface Options {

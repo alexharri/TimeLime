@@ -6,9 +6,11 @@
       "timelime/core": ["./libs/core/src/index.ts"],
       "timelime/types": ["./libs/types/src/index.ts"],
       "timelime/react": ["./libs/react/src/index.ts"],
+      "timelime/undo-redo": ["./libs/undo-redo/src/index.ts"],
       "~core/*": ["./libs/core/src/*"],
       "~react/*": ["./libs/react/src/*"],
-      "~types/*": ["./libs/types/src/*"]
+      "~types/*": ["./libs/types/src/*"],
+      "~undo-redo/*": ["./libs/undo-redo/src/*"]
     }
   }
 }

@@ -5,10 +5,16 @@
     "rootDir": "./src",
     "jsx": "preserve",
     "paths": {
-      "timelime/*": ["./libs/*/src/index.ts"],
+      "timelime/core": ["./libs/core/src/index.ts"],
+      "timelime/undo-redo": ["./libs/undo-redo/src/index.ts"],
+      "timelime/types": ["./libs/types/src/index.ts"],
       "~react/*": ["./libs/react/src/*"]
     }
   },
   "include": ["src/**/*.ts", "src/**/*.tsx"],
-  "references": [{ "path": "../../libs/core" }]
+  "references": [
+    { "path": "../../libs/core" },
+    { "path": "../../libs/types" },
+    { "path": "../../libs/undo-redo" }
+  ]
 }

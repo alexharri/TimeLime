@@ -7,6 +7,7 @@
     { "path": "./examples/css-keyframes" },
     { "path": "./libs/core" },
     { "path": "./libs/react" },
-    { "path": "./libs/types" }
+    { "path": "./libs/types" },
+    { "path": "./libs/undo-redo" }
   ]
 }
