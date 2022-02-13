@@ -1,4 +1,4 @@
-import { useContext, useRef } from "react";
+import { useRef } from "react";
 import {
   createTimelineKeyframe,
   requestAction,
@@ -6,7 +6,7 @@ import {
   splitKeyframesAtIndex,
 } from "timelime/core";
 import { TimelineKeyframe } from "timelime/types";
-import { TimelineStateContext } from "~react/TimelineStateContext";
+import { useTimelineState } from "~react/useTimelineState";
 
 interface Options {
   timelineId: string;
@@ -16,7 +16,7 @@ export function useSetTimelineValueAtFrameIndex(options: Options) {
   const paramsRef = useRef<RequestActionParams | null>(null);
 
   const onValueChangeRef = useRef<((value: number) => void) | null>(null);
-  const ctx = useContext(TimelineStateContext);
+  const { getActionOptions } = useTimelineState();
 
   const onValueChange = (value: number): void => {
     if (onValueChangeRef.current) {
@@ -24,7 +24,7 @@ export function useSetTimelineValueAtFrameIndex(options: Options) {
       return;
     }
 
-    ctx?.getActionOptions((actionOptions) =>
+    getActionOptions((actionOptions) =>
       requestAction({ userActionOptions: actionOptions }, (params) => {
         paramsRef.current = params;
 

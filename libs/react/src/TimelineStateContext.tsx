@@ -6,6 +6,7 @@ export interface TimelineValue {
   timeline: Timeline;
   selection: TimelineSelection | undefined;
   value: number;
+  frameIndex: number;
 }
 
 export type UseTimelineLengthResult = [length: number, setLength: (length: number) => void];

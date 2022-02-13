@@ -1,12 +1,12 @@
-import { useContext, useEffect, useState } from "react";
-import { TimelineStateContext } from "~react/TimelineStateContext";
+import { useEffect, useState } from "react";
+import { useTimelineState } from "~react/useTimelineState";
 
 export function useTimelineValues<K extends string>(timelineIds: K[]): Record<K, number> {
-  const timelineStateContext = useContext(TimelineStateContext);
+  const { getTimelineValue, subscribeToTimeline } = useTimelineState();
 
   const [values, setValues] = useState(() =>
     timelineIds.reduce((obj, timelineId) => {
-      obj[timelineId] = timelineStateContext!.getTimelineValue(timelineId).value;
+      obj[timelineId] = getTimelineValue(timelineId).value;
       return obj;
     }, {} as Record<K, number>),
   );
@@ -15,7 +15,7 @@ export function useTimelineValues<K extends string>(timelineIds: K[]): Record<K,
     const unsubscribeList: Array<() => void> = [];
 
     for (const timelineId of timelineIds) {
-      const { unsubscribe } = timelineStateContext!.subscribeToTimeline(timelineId, (value) => {
+      const { unsubscribe } = subscribeToTimeline(timelineId, (value) => {
         setValues((values) => ({ ...values, [timelineId]: value.value }));
       });
       unsubscribeList.push(unsubscribe);

@@ -1,4 +1,5 @@
 export { attachHandlers } from "~core/handlers/attachHandlers";
+export { moveFrameIndexToNextKeyframe } from "~core/handlers/frameIndex/moveFrameIndexToNextKeyframe";
 export { setTimelineVisible } from "~core/handlers/selection/setTimelineVisible";
 export { addListener, removeListener } from "~core/listener/addListener";
 export { getKeyFromKeyCode, isKeyCodeOf } from "~core/listener/keyboard";
@@ -10,6 +11,7 @@ export { applyControlPointShift } from "~core/timeline/applyControlPointShift";
 export { applyNewControlPointShift } from "~core/timeline/applyNewControlPointShift";
 export { applyTimelineKeyframeShift } from "~core/timeline/applyTimelineKeyframeShift";
 export { createTimelineKeyframe } from "~core/timeline/createTimelineKeyframe";
+export { getNextKeyframe, getPrevKeyframe } from "~core/timeline/getNextKeyframe";
 export { splitKeyframesAtIndex } from "~core/timeline/splitKeyframesAtIndex";
 export { getTimelineValueAtIndex } from "~core/timeline/timelineValueAtIndex";
 export { curvesToKeyframes } from "~core/transform/curvesToKeyframes";

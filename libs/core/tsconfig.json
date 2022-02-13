@@ -4,10 +4,10 @@
     "outDir": "./out-tsc",
     "rootDir": "./src",
     "paths": {
-      "timelime/*": ["./libs/*/src/index.ts"],
+      "timelime/types": ["./libs/types/src/index.ts"],
       "~core/*": ["./libs/core/src/*"]
     }
   },
-  "include": ["src/**/*.ts", "src/**/*.tsx", "../types/src/stateTypes.ts"],
+  "include": ["src/**/*.ts", "src/**/*.tsx"],
   "references": [{ "path": "../../libs/types" }]
 }

@@ -1,15 +1,16 @@
-import { useContext, useEffect, useState } from "react";
-import { TimelineStateContext, UseTimelineLengthResult } from "~react/TimelineStateContext";
+import { useEffect, useState } from "react";
+import { UseTimelineLengthResult } from "~react/TimelineStateContext";
+import { useTimelineState } from "~react/useTimelineState";
 
 export function useTimelineLength(): UseTimelineLengthResult {
-  const ctx = useContext(TimelineStateContext);
+  const { getLength, setLength, subscribeToLength } = useTimelineState();
 
-  const [length, _setLength] = useState(ctx!.getLength());
+  const [length, _setLength] = useState(getLength());
 
   useEffect(() => {
-    const { unsubscribe } = ctx!.subscribeToLength(_setLength);
+    const { unsubscribe } = subscribeToLength(_setLength);
     return unsubscribe;
   }, []);
 
-  return [length, ctx!.setLength];
+  return [length, setLength];
 }
