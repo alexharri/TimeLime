@@ -1,6 +1,7 @@
-import { useCallback, useContext, useEffect, useMemo, useState } from "react";
+import { useCallback, useEffect, useMemo, useState } from "react";
 import { setTimelineVisible } from "timelime/core";
-import { TimelineStateContext, TimelineValue } from "~react/TimelineStateContext";
+import { TimelineValue } from "~react/TimelineStateContext";
+import { useTimelineState } from "~react/useTimelineState";
 
 interface Options {
   timelineId: string;
@@ -13,19 +14,17 @@ interface UseTimelineResult extends TimelineValue {
 export function useTimeline(options: Options): UseTimelineResult {
   const { timelineId } = options;
 
-  const timelineStateContext = useContext(TimelineStateContext);
+  const { getActionOptions, getTimelineValue, subscribeToTimeline } = useTimelineState();
 
-  const [state, setState] = useState(timelineStateContext!.getTimelineValue(timelineId));
+  const [state, setState] = useState(getTimelineValue(timelineId));
 
   useEffect(() => {
-    const { unsubscribe } = timelineStateContext!.subscribeToTimeline(timelineId, setState);
+    const { unsubscribe } = subscribeToTimeline(timelineId, setState);
     return unsubscribe;
   }, [timelineId]);
 
   const setIsVisible = useCallback((visible: boolean) => {
-    timelineStateContext!.getActionOptions((actionOptions) => {
-      setTimelineVisible(actionOptions, { timelineId, visible });
-    });
+    getActionOptions((actionOptions) => setTimelineVisible(actionOptions, { timelineId, visible }));
   }, []);
 
   return useMemo(() => {

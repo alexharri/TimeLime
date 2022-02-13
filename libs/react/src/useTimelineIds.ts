@@ -1,13 +1,13 @@
-import { useContext, useEffect, useState } from "react";
-import { TimelineStateContext } from "~react/TimelineStateContext";
+import { useEffect, useState } from "react";
+import { useTimelineState } from "~react/useTimelineState";
 
 export function useTimelineIds(): string[] {
-  const ctx = useContext(TimelineStateContext);
+  const { getTimelineIds, subscribeToTimelineIds } = useTimelineState();
 
-  const [timelineIds, setTimelineIds] = useState(ctx!.getTimelineIds());
+  const [timelineIds, setTimelineIds] = useState(getTimelineIds());
 
   useEffect(() => {
-    const { unsubscribe } = ctx!.subscribeToTimelineIds(setTimelineIds);
+    const { unsubscribe } = subscribeToTimelineIds(setTimelineIds);
     return unsubscribe;
   }, []);
 
