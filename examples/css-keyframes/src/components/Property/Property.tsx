@@ -26,6 +26,8 @@ export const Property: React.FC<Props> = (props) => {
           onValueChange={onValueChange}
           onValueChangeEnd={onValueChangeEnd}
         />
+        <button>Prev</button>
+        <button>Next</button>
       </div>
     </div>
   );
