@@ -1,5 +1,6 @@
-import React from "react";
-import { useSetTimelineValueAtFrameIndex, useTimeline } from "timelime/react";
+import React, { useContext } from "react";
+import { moveFrameIndexToNextKeyframe } from "timelime/core";
+import { TimelineStateContext, useSetTimelineValueAtFrameIndex, useTimeline } from "timelime/react";
 import { NumberInput } from "~examples/css-keyframes/components/NumberInput/NumberInput";
 import s from "~examples/css-keyframes/components/Property/Property.styles";
 import { propertyInfoMap } from "~examples/css-keyframes/cssKeyframeConstants";
@@ -17,6 +18,20 @@ export const Property: React.FC<Props> = (props) => {
   const active = !!selection;
   const propertyInfo = propertyInfoMap[timeline.id];
 
+  const ctx = useContext(TimelineStateContext);
+
+  const onMoveToPreviousKeyframe = () => {
+    ctx?.getActionOptions((actionOptions) => {
+      moveFrameIndexToNextKeyframe(actionOptions, { timelineId, direction: "backward" });
+    });
+  };
+
+  const onMoveToNextKeyframe = () => {
+    ctx?.getActionOptions((actionOptions) => {
+      moveFrameIndexToNextKeyframe(actionOptions, { timelineId, direction: "forward" });
+    });
+  };
+
   return (
     <div className={s("container", { active })}>
       <div className={s("label")}>
@@ -26,8 +41,8 @@ export const Property: React.FC<Props> = (props) => {
           onValueChange={onValueChange}
           onValueChangeEnd={onValueChangeEnd}
         />
-        <button>Prev</button>
-        <button>Next</button>
+        <button onClick={onMoveToPreviousKeyframe}>Prev</button>
+        <button onClick={onMoveToNextKeyframe}>Next</button>
       </div>
     </div>
   );
