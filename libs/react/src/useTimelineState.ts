@@ -6,8 +6,8 @@ export function useTimelineState(): ITimelineStateContext {
 
   if (!result) {
     console.warn(
-      `The TimelineStateContext has not been initialized in this context.\n\n` +
-        `Did you forget to provide the state via 'useTimelineStateProvider'?\n\n` +
+      `The TimelineStateContext has not been initialized.\n\n` +
+        `Did you forget to provide it via 'useTimelineStateProvider'?\n\n` +
         `\tconst { Provider } = useTimelineStateProvider({ /* ... */ });\n\n` +
         `\t<Provider>\n\t\t{children}\n\t</Provider>`,
     );
