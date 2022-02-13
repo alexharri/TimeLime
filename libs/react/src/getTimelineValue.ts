@@ -33,5 +33,5 @@ export function getTimelineValue(timelineId: string, renderState: RenderState): 
 
   const value = getTimelineValueAtIndex({ frameIndex, timeline });
 
-  return { timeline, selection: timelineSelection, value };
+  return { timeline, selection: timelineSelection, value, frameIndex };
 }
