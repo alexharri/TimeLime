@@ -3,7 +3,7 @@
   "scripts": {
     "storybook": "start-storybook -p 6006",
     "build-storybook": "build-storybook",
-    "dev": "cd src/css-keyframes && next dev",
+    "dev": "cd examples/css-keyframes && next dev",
     "test": "jest",
     "test:watch": "jest --watchAll",
     "test:ci": "jest --ci --coverage",
