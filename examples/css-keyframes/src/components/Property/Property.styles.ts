@@ -23,6 +23,47 @@ export default createStylesheet(({ css }) => ({
     flex-grow: 1;
   `,
 
+  keyframeButton: css`
+    color: ${colors.gray700};
+    border: none;
+    background: transparent;
+    padding: 0;
+    width: 18px;
+    height: 18px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 4px;
+    cursor: pointer;
+
+    &:hover {
+      background: rgba(255, 255, 255, 0.1);
+      color: ${colors.light300};
+    }
+
+    &--active {
+      color: ${colors.light700};
+
+      &:hover {
+        background: rgba(255, 255, 255, 0.1);
+        color: ${colors.light700};
+      }
+
+      &:active {
+        background: rgba(255, 255, 255, 0.15);
+      }
+    }
+
+    &--selected {
+      color: ${colors.blue500};
+
+      &:hover {
+        background: rgba(255, 255, 255, 0.1);
+        color: ${colors.blue500};
+      }
+    }
+  `,
+
   arrowButton: css`
     border: none;
     background: transparent;
@@ -34,9 +75,11 @@ export default createStylesheet(({ css }) => ({
     justify-content: center;
     color: ${colors.gray700};
     border-radius: 4px;
+    cursor: default;
 
     &--active {
       color: ${colors.light700};
+      cursor: pointer;
 
       &:hover {
         background: rgba(255, 255, 255, 0.1);

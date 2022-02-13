@@ -10,6 +10,7 @@ interface Options {
 
 interface UseTimelineResult extends TimelineValue {
   setIsVisible: (isVisible: boolean) => void;
+  currKeyframe: TimelineKeyframe | null;
   nextKeyframe: TimelineKeyframe | null;
   prevKeyframe: TimelineKeyframe | null;
 }
@@ -30,15 +31,16 @@ export function useTimeline(options: Options): UseTimelineResult {
     getActionOptions((actionOptions) => setTimelineVisible(actionOptions, { timelineId, visible }));
   }, []);
 
-  const { nextKeyframe, prevKeyframe } = useMemo(() => {
+  const { currKeyframe, nextKeyframe, prevKeyframe } = useMemo(() => {
     const { timeline, frameIndex } = state;
     return {
+      currKeyframe: timeline.keyframes.find((k) => k.index === frameIndex) || null,
       nextKeyframe: getNextKeyframe(timeline, frameIndex),
       prevKeyframe: getPrevKeyframe(timeline, frameIndex),
     };
   }, [state.timeline, state.frameIndex]);
 
   return useMemo(() => {
-    return { ...state, setIsVisible, nextKeyframe, prevKeyframe };
+    return { ...state, setIsVisible, currKeyframe, nextKeyframe, prevKeyframe };
   }, [state, nextKeyframe, prevKeyframe]);
 }

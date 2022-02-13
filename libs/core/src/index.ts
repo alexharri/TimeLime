@@ -1,5 +1,7 @@
 export { attachHandlers } from "~core/handlers/attachHandlers";
 export { moveFrameIndexToNextKeyframe } from "~core/handlers/frameIndex/moveFrameIndexToNextKeyframe";
+export { createKeyframeAtFrameIndex } from "~core/handlers/keyframe/createKeyframeAtFrameIndex";
+export { selectKeyframeAtFrameIndex } from "~core/handlers/keyframe/selectKeyframeAtFrameIndex";
 export { setTimelineVisible } from "~core/handlers/selection/setTimelineVisible";
 export { addListener, removeListener } from "~core/listener/addListener";
 export { getKeyFromKeyCode, isKeyCodeOf } from "~core/listener/keyboard";
