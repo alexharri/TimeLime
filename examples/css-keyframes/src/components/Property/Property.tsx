@@ -1,5 +1,9 @@
 import React from "react";
-import { moveFrameIndexToNextKeyframe, selectKeyframeAtFrameIndex } from "timelime/core";
+import {
+  createKeyframeAtFrameIndex,
+  moveFrameIndexToNextKeyframe,
+  selectKeyframeAtFrameIndex,
+} from "timelime/core";
 import { useSetTimelineValueAtFrameIndex, useTimeline, useTimelineState } from "timelime/react";
 import { KeyframeIcon } from "~examples/css-keyframes/components/icon/KeyframeIcon";
 import { NextKeyframeIcon } from "~examples/css-keyframes/components/icon/NextKeyframeIcon";
@@ -41,12 +45,13 @@ export const Property: React.FC<Props> = (props) => {
     : false;
 
   const onClickKeyframeButton = () => {
-    if (currKeyframe) {
-      getActionOptions((actionOptions) =>
-        selectKeyframeAtFrameIndex(actionOptions, { timelineId }),
-      );
-      return;
-    }
+    getActionOptions((actionOptions) => {
+      if (currKeyframe) {
+        selectKeyframeAtFrameIndex(actionOptions, { timelineId });
+        return;
+      }
+      createKeyframeAtFrameIndex(actionOptions, { timelineId });
+    });
   };
 
   return (
