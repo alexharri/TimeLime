@@ -12,12 +12,12 @@ interface Options {
 export function useTimelineDragValue(options: Options) {
   const paramsRef = useRef<RequestActionParams | null>(null);
 
-  const onValueChangeFn = useRef<((value: number) => void) | null>(null);
+  const onValueChangeRef = useRef<((value: number) => void) | null>(null);
   const ctx = useContext(TimelineStateContext);
 
   const onValueChange = (value: number): void => {
-    if (onValueChangeFn.current) {
-      onValueChangeFn.current(value);
+    if (onValueChangeRef.current) {
+      onValueChangeRef.current(value);
       return;
     }
 
@@ -30,7 +30,7 @@ export function useTimelineDragValue(options: Options) {
         const { primary, view } = params;
         const { frameIndex } = view.state;
 
-        onValueChangeFn.current = (value) => {
+        onValueChangeRef.current = (value) => {
           const { timelines } = primary.state;
           const timeline = timelines[timelineId];
 
@@ -90,7 +90,7 @@ export function useTimelineDragValue(options: Options) {
           }
         };
 
-        onValueChangeFn.current(value);
+        onValueChangeRef.current(value);
       }),
     );
   };
@@ -98,7 +98,7 @@ export function useTimelineDragValue(options: Options) {
   const onValueChangeEnd = () => {
     paramsRef.current?.submit({ name: "Update value" });
     paramsRef.current = null;
-    onValueChangeFn.current = null;
+    onValueChangeRef.current = null;
   };
 
   return { onValueChange, onValueChangeEnd };
