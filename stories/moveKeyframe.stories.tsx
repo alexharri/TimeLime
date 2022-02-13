@@ -32,10 +32,10 @@ export default {
 } as ComponentMeta<React.ComponentType>;
 
 export const Test = () => {
-  const { GraphEditor: Canvas } = useTimelineStateProvider({
+  const { GraphEditor } = useTimelineStateProvider({
     initialState: initialTimelineState,
     length: 200,
   });
 
-  return <Canvas />;
+  return <GraphEditor />;
 };
