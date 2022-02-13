@@ -7,11 +7,11 @@ export const createTimelineKeyframe = (
   index: number,
 ): TimelineKeyframe => {
   return {
-    controlPointLeft: null,
-    controlPointRight: null,
     id: createKeyframeId(timeline),
     index,
     value,
+    controlPointLeft: null,
+    controlPointRight: null,
     reflectControlPoints: false,
   };
 };
