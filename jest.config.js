@@ -6,11 +6,15 @@ module.exports = {
   testRegex: "(/test/.*|(\\.|/)(test|spec))\\.tsx?$",
   moduleFileExtensions: ["ts", "tsx", "js", "jsx", "json", "node"],
   moduleNameMapper: {
-    "~(.*)$": "<rootDir>/src/$1",
+    "~core(.*)$": "<rootDir>/libs/core/src/$1",
+    "~react(.*)$": "<rootDir>/libs/react/src/$1",
+    "~types(.*)$": "<rootDir>/libs/types/src/$1",
+    "~undo-redo(.*)$": "<rootDir>/libs/undo-redo/src/$1",
   },
   globals: {
     "ts-jest": {
       isolatedModules: true,
+      tsconfig: "tsconfig.base.json",
     },
   },
 };
