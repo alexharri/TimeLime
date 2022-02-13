@@ -14,7 +14,10 @@
  * LICENSE file: https://github.com/facebookarchive/fixed-data-table/blob/master/LICENSE
  */
 
-const isSafari = /^((?!chrome|android).)*safari/i.test(navigator.userAgent);
+const isSafari =
+  typeof navigator === "undefined"
+    ? false
+    : /^((?!chrome|android).)*safari/i.test(navigator.userAgent);
 
 const PIXEL_STEP = 10;
 const LINE_HEIGHT = 40;

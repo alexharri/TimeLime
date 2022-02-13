@@ -2,10 +2,10 @@ import React from "react";
 import { PrimaryState } from "~/core/state/stateTypes";
 import { curvesToKeyframes } from "~/core/transform/curvesToKeyframes";
 import { useTimelineState } from "~/react/useTimelineState";
-import { PropertyIds } from "~/css-keyframes/cssKeyframeConstants";
-import { Timeline } from "~/css-keyframes/Timeline";
-import { Preview } from "~/css-keyframes/Preview/Preview";
-import { Layout } from "~/css-keyframes/Layout/Layout";
+import { PropertyIds } from "~/css-keyframes/src/cssKeyframeConstants";
+import { Timeline } from "~/css-keyframes/src/Timeline";
+import { Preview } from "~/css-keyframes/src/Preview/Preview";
+import { Layout } from "~/css-keyframes/src/Layout/Layout";
 
 const translateXKeyframes = curvesToKeyframes([
   [

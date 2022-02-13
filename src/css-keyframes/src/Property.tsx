@@ -1,7 +1,7 @@
 import React from "react";
-import { propertyInfoMap } from "~/css-keyframes/cssKeyframeConstants";
-import { NumberInput } from "~/css-keyframes/NumberInput/NumberInput";
-import s from "~/css-keyframes/Property.styles";
+import { propertyInfoMap } from "~/css-keyframes/src/cssKeyframeConstants";
+import { NumberInput } from "~/css-keyframes/src/NumberInput/NumberInput";
+import s from "~/css-keyframes/src/Property.styles";
 import { useSetTimelineValueAtFrameIndex } from "~/react/hook/useSetTimelineValueAtFrameIndex";
 import { useTimeline } from "~/react/useTimeline";
 

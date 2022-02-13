@@ -1,5 +1,5 @@
 import { colors } from "~/core/colors";
-import { createStylesheet } from "~/css-keyframes/utils/stylesheet";
+import { createStylesheet } from "~/css-keyframes/src/utils/stylesheet";
 
 export default createStylesheet(({ css }) => ({
   container: css`

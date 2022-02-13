@@ -1,6 +1,6 @@
 import React from "react";
-import { Property } from "~/css-keyframes/Property";
-import s from "~/css-keyframes/PropertyList.styles";
+import { Property } from "~/css-keyframes/src/Property";
+import s from "~/css-keyframes/src/PropertyList.styles";
 import { useTimelineIds } from "~/react/useTimelineIds";
 
 export const PropertyList: React.FC = () => {

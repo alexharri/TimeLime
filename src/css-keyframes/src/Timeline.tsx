@@ -1,8 +1,8 @@
 import React from "react";
-import { Canvas } from "~/css-keyframes/Canvas";
-import { PropertyList } from "~/css-keyframes/PropertyList";
-import s from "~/css-keyframes/Timeline.styles";
-import { TimelineProperties } from "~/css-keyframes/TimelineProperties";
+import { Canvas } from "~/css-keyframes/src/Canvas";
+import { PropertyList } from "~/css-keyframes/src/PropertyList";
+import s from "~/css-keyframes/src/Timeline.styles";
+import { TimelineProperties } from "~/css-keyframes/src/TimelineProperties";
 
 export const Timeline: React.FC = () => {
   return (

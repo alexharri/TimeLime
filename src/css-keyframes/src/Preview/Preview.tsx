@@ -1,5 +1,5 @@
 import React from "react";
-import s from "~/css-keyframes/Preview/Preview.styles";
+import s from "~/css-keyframes/src/Preview/Preview.styles";
 import { useTimelineIds } from "~/react/useTimelineIds";
 import { useTimelineValues } from "~/react/useTimelineValues";
 

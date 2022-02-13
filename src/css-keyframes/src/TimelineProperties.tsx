@@ -1,6 +1,6 @@
 import React from "react";
-import { NumberInput } from "~/css-keyframes/NumberInput/NumberInput";
-import s from "~/css-keyframes/TimelineProperties.styles";
+import { NumberInput } from "~/css-keyframes/src/NumberInput/NumberInput";
+import s from "~/css-keyframes/src/TimelineProperties.styles";
 import { useTimelineLength } from "~/react/useTimelineLength";
 
 export const TimelineProperties: React.FC = () => {

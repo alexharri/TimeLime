@@ -4,7 +4,7 @@ import { isKeyCodeOf } from "~/core/listener/keyboard";
 import { useMouseDownOutside } from "~/core/utils/hook/useMouseDownOutside";
 import { getDistance } from "~/core/utils/math/math";
 import { Vec2 } from "~/core/utils/math/Vec2";
-import styles from "~/css-keyframes/NumberInput/NumberInput.styles";
+import styles from "~/css-keyframes/src/NumberInput/NumberInput.styles";
 
 interface Props {
   tick?: number;

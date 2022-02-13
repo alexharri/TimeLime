@@ -3,6 +3,7 @@
   "scripts": {
     "storybook": "start-storybook -p 6006",
     "build-storybook": "build-storybook",
+    "dev": "cd src/css-keyframes && next dev",
     "test": "jest",
     "test:watch": "jest --watchAll",
     "test:ci": "jest --ci --coverage",
@@ -20,6 +21,7 @@
     "@types/jest": "^27.4.0",
     "babel-loader": "^8.2.3",
     "jest": "^27.4.7",
+    "next-transpile-modules": "^9.0.0",
     "react": "^17.0.2",
     "react-dom": "^17.0.2",
     "storybook-dark-mode": "^1.0.8",
@@ -41,6 +43,7 @@
   ],
   "dependencies": {
     "bezier-easing": "^2.1.0",
-    "map-fns": "^1.12.1"
+    "map-fns": "^1.12.1",
+    "next": "^12.0.10"
   }
 }

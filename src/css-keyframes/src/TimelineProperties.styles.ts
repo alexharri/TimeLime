@@ -1,6 +1,6 @@
 import { colors } from "~/core/colors";
-import { cssVariables } from "~/css-keyframes/cssVariables";
-import { createStylesheet } from "~/css-keyframes/utils/stylesheet";
+import { cssVariables } from "~/css-keyframes/src/cssVariables";
+import { createStylesheet } from "~/css-keyframes/src/utils/stylesheet";
 
 export default createStylesheet(({ css }) => ({
   container: css`
