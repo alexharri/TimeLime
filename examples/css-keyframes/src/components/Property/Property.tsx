@@ -1,6 +1,6 @@
-import React, { useContext } from "react";
+import React from "react";
 import { moveFrameIndexToNextKeyframe } from "timelime/core";
-import { TimelineStateContext, useSetTimelineValueAtFrameIndex, useTimeline } from "timelime/react";
+import { useSetTimelineValueAtFrameIndex, useTimeline, useTimelineState } from "timelime/react";
 import { NumberInput } from "~examples/css-keyframes/components/NumberInput/NumberInput";
 import s from "~examples/css-keyframes/components/Property/Property.styles";
 import { propertyInfoMap } from "~examples/css-keyframes/cssKeyframeConstants";
@@ -18,16 +18,16 @@ export const Property: React.FC<Props> = (props) => {
   const active = !!selection;
   const propertyInfo = propertyInfoMap[timeline.id];
 
-  const ctx = useContext(TimelineStateContext);
+  const { getActionOptions } = useTimelineState();
 
   const onMoveToPreviousKeyframe = () => {
-    ctx?.getActionOptions((actionOptions) => {
+    getActionOptions((actionOptions) => {
       moveFrameIndexToNextKeyframe(actionOptions, { timelineId, direction: "backward" });
     });
   };
 
   const onMoveToNextKeyframe = () => {
-    ctx?.getActionOptions((actionOptions) => {
+    getActionOptions((actionOptions) => {
       moveFrameIndexToNextKeyframe(actionOptions, { timelineId, direction: "forward" });
     });
   };

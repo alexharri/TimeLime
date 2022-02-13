@@ -1,7 +1,7 @@
 import { ComponentMeta } from "@storybook/react";
 import React from "react";
 import { curvesToKeyframes } from "timelime/core";
-import { useTimelineState } from "timelime/react";
+import { useTimelineStateProvider } from "timelime/react";
 import { TimelineState } from "timelime/types";
 import "./preventGlobals";
 
@@ -32,7 +32,7 @@ export default {
 } as ComponentMeta<React.ComponentType>;
 
 export const Test = () => {
-  const { GraphEditor: Canvas } = useTimelineState({
+  const { GraphEditor: Canvas } = useTimelineStateProvider({
     initialState: initialTimelineState,
     length: 200,
   });

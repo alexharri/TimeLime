@@ -29,7 +29,7 @@ interface Options {
   initialSelectionState?: TimelineSelectionState;
 }
 
-export const useTimelineState = (options: Options) => {
+export const useTimelineStateProvider = (options: Options) => {
   const stateManager = useMemo(() => {
     return new StateManager<PrimaryState, SelectionState>({
       initialState: options.initialState,

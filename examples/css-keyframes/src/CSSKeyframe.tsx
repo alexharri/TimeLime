@@ -1,6 +1,6 @@
 import React from "react";
 import { curvesToKeyframes } from "timelime/core";
-import { useTimelineState } from "timelime/react";
+import { useTimelineStateProvider } from "timelime/react";
 import { PrimaryState } from "timelime/types";
 import { Layout } from "~examples/css-keyframes/components/Layout/Layout";
 import { Preview } from "~examples/css-keyframes/components/Preview/Preview";
@@ -51,7 +51,7 @@ const initialState: PrimaryState = {
 };
 
 export const CSSKeyframes: React.FC = () => {
-  const { Provider } = useTimelineState({
+  const { Provider } = useTimelineStateProvider({
     initialState,
     length: 120,
   });
