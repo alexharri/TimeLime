@@ -19,21 +19,32 @@ export default createStylesheet(({ css }) => ({
   label: css`
     font-family: ${cssVariables.fontFamily};
     color: ${colors.white500};
+    flex-basis: 0;
+    flex-grow: 1;
   `,
 
   arrowButton: css`
     border: none;
     background: transparent;
     padding: 0;
-    width: 16px;
-    height: 16px;
+    width: 18px;
+    height: 18px;
     display: flex;
     align-items: center;
     justify-content: center;
     color: ${colors.gray700};
+    border-radius: 4px;
 
     &--active {
       color: ${colors.light700};
+
+      &:hover {
+        background: rgba(255, 255, 255, 0.1);
+      }
+
+      &:active {
+        background: rgba(255, 255, 255, 0.15);
+      }
     }
   `,
 }));
