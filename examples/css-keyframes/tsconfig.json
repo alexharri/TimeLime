@@ -1,0 +1,22 @@
+{
+  "extends": "../../tsconfig.settings.json",
+  "compilerOptions": {
+    "outDir": "./out-tsc",
+    "rootDir": "./src",
+    "jsx": "preserve",
+    "allowJs": true,
+    "types": ["node", "jest"],
+    "paths": {
+      "timelime/core": ["./libs/core/src/index.ts"],
+      "timelime/react": ["./libs/react/src/index.ts"],
+      "timelime/types": ["./libs/types/src/index.ts"],
+      "~examples/css-keyframes/*": ["./examples/css-keyframes/src/*"]
+    }
+  },
+  "include": ["src/**/*.ts", "src/**/*.tsx", "next-env.d.ts"],
+  "references": [
+    { "path": "../../libs/core" },
+    { "path": "../../libs/react" },
+    { "path": "../../libs/types" }
+  ]
+}

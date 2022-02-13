@@ -1,11 +1,9 @@
-import "./preventGlobals";
-
 import { ComponentMeta } from "@storybook/react";
 import React from "react";
-import { TimelineState } from "~/core/state/timeline/timelineReducer";
-import { curvesToKeyframes } from "~/core/transform/curvesToKeyframes";
-
-import { useTimelineState } from "~/react/useTimelineState";
+import { curvesToKeyframes } from "timelime/core";
+import { useTimelineState } from "timelime/react";
+import { TimelineState } from "timelime/types";
+import "./preventGlobals";
 
 const initialTimelineState: TimelineState = {
   timelines: {

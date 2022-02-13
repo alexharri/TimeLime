@@ -1,0 +1,21 @@
+{
+  "extends": "../tsconfig.settings.json",
+  "compilerOptions": {
+    "outDir": "./out-tsc",
+    "rootDir": "./",
+    "jsx": "preserve",
+    "allowJs": true,
+    "types": ["node", "jest"],
+    "paths": {
+      "timelime/core": ["./libs/core/src/index.ts"],
+      "timelime/types": ["./libs/types/src/index.ts"],
+      "timelime/react": ["./libs/react/src/index.ts"]
+    }
+  },
+  "include": ["./**/*.ts", "./**/*.tsx"],
+  "references": [
+    { "path": "../libs/core" },
+    { "path": "../libs/react" },
+    { "path": "../libs/types" }
+  ]
+}
