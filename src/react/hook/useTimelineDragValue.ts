@@ -101,5 +101,5 @@ export function useTimelineDragValue(options: Options) {
     onValueChangeFn.current = null;
   };
 
-  return [onValueChange, onValueChangeEnd] as const;
+  return { onValueChange, onValueChangeEnd };
 }

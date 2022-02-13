@@ -17,13 +17,17 @@ export const Property: React.FC<Props> = (props) => {
   const active = !!selection;
   const propertyInfo = propertyInfoMap[timeline.id];
 
-  const [setValue, onValueChangeEnd] = useTimelineDragValue({ timelineId });
+  const { onValueChange, onValueChangeEnd } = useTimelineDragValue({ timelineId });
 
   return (
     <div className={s("container", { active })}>
       <div className={s("label")}>
         <span onClick={() => setIsVisible(!active)}>{propertyInfo.label}:</span>{" "}
-        <NumberInput value={value} setValue={setValue} onValueChangeEnd={onValueChangeEnd} />
+        <NumberInput
+          value={value}
+          onValueChange={onValueChange}
+          onValueChangeEnd={onValueChangeEnd}
+        />
       </div>
     </div>
   );

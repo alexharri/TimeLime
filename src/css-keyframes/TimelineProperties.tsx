@@ -9,7 +9,7 @@ export const TimelineProperties: React.FC = () => {
   return (
     <div className={s("container")}>
       <div className={s("label")}>Timeline length</div>
-      <NumberInput value={length} setValue={setLength} decimalPlaces={0} />
+      <NumberInput value={length} onValueChange={setLength} decimalPlaces={0} />
     </div>
   );
 };
