@@ -53,7 +53,7 @@ export function useTimeline(options: Options): UseTimelineResult {
     }
 
     return { nextKeyframe, prevKeyframe };
-  }, [state.timeline]);
+  }, [state.timeline, state.frameIndex]);
 
   return useMemo(() => {
     return { ...state, setIsVisible, nextKeyframe, prevKeyframe };
