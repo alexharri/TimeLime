@@ -9,7 +9,7 @@ interface Options {
   timelineId: string;
 }
 
-export function useTimelineDragValue(options: Options) {
+export function useSetTimelineValueAtFrameIndex(options: Options) {
   const paramsRef = useRef<RequestActionParams | null>(null);
 
   const onValueChangeRef = useRef<((value: number) => void) | null>(null);
