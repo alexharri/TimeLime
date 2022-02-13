@@ -14,7 +14,9 @@ interface Props {
 export const Property: React.FC<Props> = (props) => {
   const { timelineId } = props;
 
-  const { timeline, selection, value, setIsVisible } = useTimeline({ timelineId });
+  const { timeline, selection, value, setIsVisible, prevKeyframe, nextKeyframe } = useTimeline({
+    timelineId,
+  });
   const { onValueChange, onValueChangeEnd } = useSetTimelineValueAtFrameIndex({ timelineId });
 
   const active = !!selection;
@@ -34,6 +36,8 @@ export const Property: React.FC<Props> = (props) => {
     });
   };
 
+  console.log(timelineId, !!prevKeyframe, !!nextKeyframe);
+
   return (
     <div className={s("container", { active })}>
       <div className={s("label")}>
@@ -44,10 +48,16 @@ export const Property: React.FC<Props> = (props) => {
         onValueChange={onValueChange}
         onValueChangeEnd={onValueChangeEnd}
       />
-      <button className={s("arrowButton")} onClick={onMoveToPreviousKeyframe}>
+      <button
+        className={s("arrowButton", { active: !!prevKeyframe })}
+        onClick={onMoveToPreviousKeyframe}
+      >
         <PreviousKeyframeIcon />
       </button>
-      <button className={s("arrowButton")} onClick={onMoveToNextKeyframe}>
+      <button
+        className={s("arrowButton", { active: !!nextKeyframe })}
+        onClick={onMoveToNextKeyframe}
+      >
         <NextKeyframeIcon />
       </button>
     </div>
