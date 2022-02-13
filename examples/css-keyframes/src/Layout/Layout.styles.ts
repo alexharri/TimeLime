@@ -1,4 +1,4 @@
-import { createStylesheet } from "~/utils/stylesheet";
+import { createStylesheet } from "~examples/css-keyframes/utils/stylesheet";
 
 export default createStylesheet(({ css }) => ({
   container: css`

@@ -1,6 +1,6 @@
 import React from "react";
 import { useTimelineIds, useTimelineValues } from "timelime/react";
-import s from "~/Preview/Preview.styles";
+import s from "~examples/css-keyframes/Preview/Preview.styles";
 
 export const Preview: React.FC = () => {
   const timelineIds = useTimelineIds() as Array<"translateX" | "translateY">;

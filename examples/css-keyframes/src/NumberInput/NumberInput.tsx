@@ -1,7 +1,7 @@
 import React, { useRef, useState } from "react";
 import { addListener, getDistance, isKeyCodeOf, removeListener, Vec2 } from "timelime/core";
-import styles from "~/NumberInput/NumberInput.styles";
-import { useMouseDownOutside } from "~/utils/hook/useMouseDownOutside";
+import styles from "~examples/css-keyframes/NumberInput/NumberInput.styles";
+import { useMouseDownOutside } from "~examples/css-keyframes/utils/hook/useMouseDownOutside";
 
 interface Props {
   tick?: number;

@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from "react";
-import { CSSKeyframes } from "~/CSSKeyframe";
+import { CSSKeyframes } from "~examples/css-keyframes/CSSKeyframe";
 
 export default function Page() {
   const [mounted, setMounted] = useState(false);

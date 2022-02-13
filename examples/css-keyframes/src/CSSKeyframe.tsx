@@ -2,10 +2,10 @@ import React from "react";
 import { curvesToKeyframes } from "timelime/core";
 import { useTimelineState } from "timelime/react";
 import { PrimaryState } from "timelime/types";
-import { PropertyIds } from "~/cssKeyframeConstants";
-import { Layout } from "~/Layout/Layout";
-import { Preview } from "~/Preview/Preview";
-import { Timeline } from "~/Timeline";
+import { PropertyIds } from "~examples/css-keyframes/cssKeyframeConstants";
+import { Layout } from "~examples/css-keyframes/Layout/Layout";
+import { Preview } from "~examples/css-keyframes/Preview/Preview";
+import { Timeline } from "~examples/css-keyframes/Timeline";
 
 const translateXKeyframes = curvesToKeyframes([
   [

@@ -7,8 +7,10 @@
     "allowJs": true,
     "types": ["node", "jest"],
     "paths": {
-      "timelime/*": ["./libs/*/src/index.ts"],
-      "~/*": ["./examples/css-keyframes/src/*"]
+      "timelime/core": ["./libs/core/src/index.ts"],
+      "timelime/react": ["./libs/react/src/index.ts"],
+      "timelime/types": ["./libs/types/src/index.ts"],
+      "~examples/css-keyframes/*": ["./examples/css-keyframes/src/*"]
     }
   },
   "include": ["src/**/*.ts", "src/**/*.tsx", "next-env.d.ts"],

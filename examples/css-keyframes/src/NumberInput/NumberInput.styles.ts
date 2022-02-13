@@ -1,5 +1,5 @@
 import { css } from "@emotion/css";
-import { colors } from "~/colors";
+import { colors } from "~examples/css-keyframes/colors";
 
 const fontSize = 16;
 const height = 24;

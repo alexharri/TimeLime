@@ -1,8 +1,8 @@
 import React from "react";
 import { useSetTimelineValueAtFrameIndex, useTimeline } from "timelime/react";
-import { propertyInfoMap } from "~/cssKeyframeConstants";
-import { NumberInput } from "~/NumberInput/NumberInput";
-import s from "~/Property.styles";
+import { propertyInfoMap } from "~examples/css-keyframes/cssKeyframeConstants";
+import { NumberInput } from "~examples/css-keyframes/NumberInput/NumberInput";
+import s from "~examples/css-keyframes/Property.styles";
 
 interface Props {
   timelineId: string;

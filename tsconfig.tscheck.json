@@ -10,7 +10,8 @@
       "~core/*": ["./libs/core/src/*"],
       "~react/*": ["./libs/react/src/*"],
       "~types/*": ["./libs/types/src/*"],
-      "~undo-redo/*": ["./libs/undo-redo/src/*"]
+      "~undo-redo/*": ["./libs/undo-redo/src/*"],
+      "~examples/css-keyframes/*": ["./examples/css-keyframes/src/*"]
     }
   }
 }
