@@ -10,7 +10,8 @@ interface Props {
   tick?: number;
   pxPerTick?: number;
   value: number;
-  setValue: (value: number) => void;
+  onValueChange: (value: number) => void;
+  onValueChangeEnd?: () => void;
   shiftSnap?: number;
   min?: number;
   max?: number;
@@ -29,12 +30,16 @@ export const NumberInput: React.FC<Props> = (props) => {
     const value = Number(parseFloat(inputValue).toFixed(decimalPlaces));
     setInputValue("");
 
-    if (!Number.isFinite(value)) {
+    const isValidValue = Number.isFinite(value);
+    const hasChanged = parseFloat(inputValue) !== props.value;
+
+    if (!isValidValue || !hasChanged) {
       setTyping(false);
       return;
     }
 
-    props.setValue(value);
+    props.onValueChange(value);
+    props.onValueChangeEnd?.();
     setTyping(false);
   };
 
@@ -58,7 +63,7 @@ export const NumberInput: React.FC<Props> = (props) => {
       moveVector = position.sub(initialPosition);
       const nextValue = initialValue + moveVector.x * tick;
 
-      props.setValue(nextValue);
+      props.onValueChange(nextValue);
     });
 
     addListener.once("mouseup", () => {
@@ -70,6 +75,8 @@ export const NumberInput: React.FC<Props> = (props) => {
         requestAnimationFrame(() => {
           inputRef.current?.select();
         });
+      } else {
+        props.onValueChangeEnd?.();
       }
     });
   };
