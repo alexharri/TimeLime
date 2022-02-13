@@ -36,8 +36,6 @@ export const Property: React.FC<Props> = (props) => {
     });
   };
 
-  console.log(timelineId, !!prevKeyframe, !!nextKeyframe);
-
   return (
     <div className={s("container", { active })}>
       <div className={s("label")}>
