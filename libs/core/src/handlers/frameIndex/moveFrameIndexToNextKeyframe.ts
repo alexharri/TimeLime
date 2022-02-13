@@ -1,5 +1,6 @@
 import { ActionOptions } from "timelime/types";
 import { requestAction } from "~core/state/requestAction";
+import { getNextKeyframe, getPrevKeyframe } from "~core/timeline/getNextKeyframe";
 
 interface Options {
   timelineId: string;
@@ -17,32 +18,17 @@ export function moveFrameIndexToNextKeyframe(actionOptions: ActionOptions, optio
     const { timelines } = primary.state;
     const timeline = timelines[timelineId];
 
-    let nextIndex: number | undefined;
+    const nextKeyframe =
+      direction === "forward"
+        ? getNextKeyframe(timeline, frameIndex)
+        : getPrevKeyframe(timeline, frameIndex);
 
-    if (direction === "forward") {
-      for (const k of [...timeline.keyframes].reverse()) {
-        if (k.index > frameIndex) {
-          nextIndex = k.index;
-        } else {
-          break;
-        }
-      }
-    } else {
-      for (const k of timeline.keyframes) {
-        if (k.index < frameIndex) {
-          nextIndex = k.index;
-        } else {
-          break;
-        }
-      }
-    }
-
-    if (typeof nextIndex !== "number") {
+    if (!nextKeyframe) {
       params.cancel();
       return;
     }
 
-    view.dispatch((actions) => actions.setFields({ frameIndex: nextIndex }));
+    view.dispatch((actions) => actions.setFields({ frameIndex: nextKeyframe.index }));
     params.submit({ name: "Move frame index" });
   });
 }
