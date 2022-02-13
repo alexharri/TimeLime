@@ -1,0 +1,5 @@
+{
+  "scripts": {
+    "tscheck": "tsc --noEmit --skipLibCheck --project tsconfig.tscheck.json"
+  }
+}

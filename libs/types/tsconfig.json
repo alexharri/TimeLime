@@ -1,0 +1,13 @@
+{
+  "extends": "../../tsconfig.settings.json",
+  "compilerOptions": {
+    "outDir": "./out-tsc",
+    "rootDir": "./src",
+    "paths": {
+      "timelime/core": ["./libs/core/src/index.ts"],
+      "~types/*": ["./libs/types/src/*"]
+    }
+  },
+  "include": ["src/**/*.ts", "src/**/*.tsx"],
+  "references": [{ "path": "../../libs/core" }]
+}

@@ -7,7 +7,9 @@
     "test": "jest",
     "test:watch": "jest --watchAll",
     "test:ci": "jest --ci --coverage",
-    "tscheck": "tsc --noEmit --skipLibCheck",
+    "tscheck": "tsc --noEmit --skipLibCheck --jsx preserve --project tsconfig.base.json",
+    "tscheck:core": "cd libs/core && npm run tscheck",
+    "tscheck:example": "cd examples/css-keyframes && npm run tscheck",
     "generate-cursors": "ts-node -T -O '{\"module\":\"commonjs\"}' scripts/generateBase64Cursors"
   },
   "devDependencies": {
@@ -22,6 +24,7 @@
     "babel-loader": "^8.2.3",
     "jest": "^27.4.7",
     "next-transpile-modules": "^9.0.0",
+    "prettier-plugin-organize-imports": "^2.3.4",
     "react": "^17.0.2",
     "react-dom": "^17.0.2",
     "storybook-dark-mode": "^1.0.8",
