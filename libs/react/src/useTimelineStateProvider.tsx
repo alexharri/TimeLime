@@ -17,7 +17,7 @@ import { useRefRect } from "~react/hook/useRefRect";
 import { useRenderCursor } from "~react/hook/useRenderCursor";
 import { TimelineStateProvider } from "~react/TimelineStateProvider";
 import { GraphEditorProps } from "~react/types";
-import { usePlaybackOnKeyDown } from "~react/usePlayback";
+import { usePlaybackOnKeyDown } from "~react/usePlaybackOnKeyDown";
 
 interface UseTimelineStateResult {
   Provider: React.ComponentType;
