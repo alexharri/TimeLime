@@ -9,10 +9,26 @@ export default createStylesheet(({ css }) => ({
     padding: 0 8px;
     display: flex;
     align-items: center;
+  `,
 
-    &--active {
-      background: ${colors.gray600};
-      border: 1px solid ${colors.light200};
+  visibility: css`
+    height: 20px;
+    width: 20px;
+    padding: 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin-right: 8px;
+    background: transparent;
+    border: none;
+    color: ${colors.light500};
+    border-radius: 4px;
+    border: 1px solid ${colors.gray600};
+    background: ${colors.dark600};
+
+    &:hover {
+      background: ${colors.gray500};
+      color: ${colors.light600};
     }
   `,
 

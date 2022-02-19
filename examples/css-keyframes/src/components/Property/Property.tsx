@@ -5,6 +5,7 @@ import {
   selectKeyframeAtFrameIndex,
 } from "timelime/core";
 import { useSetTimelineValueAtFrameIndex, useTimeline, useTimelineState } from "timelime/react";
+import { EyeIcon } from "~examples/css-keyframes/components/icon/EyeIcon";
 import { KeyframeIcon } from "~examples/css-keyframes/components/icon/KeyframeIcon";
 import { NextKeyframeIcon } from "~examples/css-keyframes/components/icon/NextKeyframeIcon";
 import { PreviousKeyframeIcon } from "~examples/css-keyframes/components/icon/PreviousKeyframeIcon";
@@ -23,7 +24,7 @@ export const Property: React.FC<Props> = (props) => {
     useTimeline({ timelineId });
   const { onValueChange, onValueChangeEnd } = useSetTimelineValueAtFrameIndex({ timelineId });
 
-  const active = !!selection;
+  const visible = !!selection;
   const propertyInfo = propertyInfoMap[timeline.id];
 
   const { getActionOptions } = useTimelineState();
@@ -55,10 +56,11 @@ export const Property: React.FC<Props> = (props) => {
   };
 
   return (
-    <div className={s("container", { active })}>
-      <div className={s("label")}>
-        <span onClick={() => setIsVisible(!active)}>{propertyInfo.label}:</span>{" "}
-      </div>
+    <div className={s("container", { active: visible })}>
+      <button className={s("visibility")} onClick={() => setIsVisible(!visible)}>
+        <EyeIcon open={visible} />
+      </button>
+      <div className={s("label")}>{propertyInfo.label}:</div>
       <NumberInput
         value={value}
         onValueChange={onValueChange}
