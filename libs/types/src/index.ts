@@ -18,6 +18,7 @@ export type { RenderOptions } from "~types/renderTypes";
 export type {
   ActionOptions,
   EphemeralState,
+  GetActionOptions,
   PrimaryState,
   RenderState,
   SelectionState,

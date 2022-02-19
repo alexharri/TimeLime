@@ -1,4 +1,4 @@
-import { ActionOptions, TrackedState } from "timelime/types";
+import { GetActionOptions, TrackedState } from "timelime/types";
 import { onAltMousedownKeyframe } from "~core/handlers/altMousedownKeyframe";
 import { getActionToPerformOnMouseDown } from "~core/handlers/getActionToPerformOnMouseDown";
 import { onMousedownControlPoint } from "~core/handlers/mousedownControlPoint";
@@ -20,7 +20,7 @@ import { parseWheelEvent } from "~core/utils/wheelEvent";
 interface Options {
   el: HTMLElement;
   getState: () => TrackedState;
-  getActionOptions: (callback: (actionOptions: ActionOptions) => void) => void;
+  getActionOptions: GetActionOptions;
 }
 
 export function attachHandlers(options: Options): { detach: () => void } {

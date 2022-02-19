@@ -1,5 +1,5 @@
 import React from "react";
-import { ActionOptions, Timeline, TimelineSelection, ViewState } from "timelime/types";
+import { GetActionOptions, Timeline, TimelineSelection, ViewState } from "timelime/types";
 import { GraphEditorProps } from "~react/types";
 
 export interface TimelineValue {
@@ -37,7 +37,7 @@ export interface ITimelineStateContext {
     unsubscribe: () => void;
   };
 
-  getActionOptions: (callback: (actionOptions: ActionOptions) => void) => void;
+  getActionOptions: GetActionOptions;
 }
 
 export const TimelineStateContext = React.createContext<ITimelineStateContext | null>(null);

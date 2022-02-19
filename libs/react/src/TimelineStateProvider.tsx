@@ -1,5 +1,5 @@
 import React, { useMemo, useRef } from "react";
-import { ActionOptions, RenderState } from "timelime/types";
+import { GetActionOptions, RenderState } from "timelime/types";
 import { getTimelineValue } from "~react/getTimelineValue";
 import { ITimelineStateContext, TimelineStateContext } from "~react/TimelineStateContext";
 import {
@@ -16,7 +16,7 @@ interface Props {
    */
   renderStateRef: React.MutableRefObject<RenderState>;
   setLength: (length: number) => void;
-  getActionOptions: (callback: (actionOptions: ActionOptions) => void) => void;
+  getActionOptions: GetActionOptions;
   GraphEditor: React.ComponentType<GraphEditorProps>;
 }
 

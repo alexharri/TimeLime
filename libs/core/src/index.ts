@@ -5,6 +5,7 @@ export { selectKeyframeAtFrameIndex } from "~core/handlers/keyframe/selectKeyfra
 export { setTimelineVisible } from "~core/handlers/selection/setTimelineVisible";
 export { addListener, removeListener } from "~core/listener/addListener";
 export { getKeyFromKeyCode, isKeyCodeOf } from "~core/listener/keyboard";
+export type { Key } from "~core/listener/keyboard";
 export { getGraphEditorCursor } from "~core/render/cursor/graphEditorCursor";
 export { renderGraphEditorWithRenderState } from "~core/render/renderGraphEditor";
 export { requestAction } from "~core/state/requestAction";
