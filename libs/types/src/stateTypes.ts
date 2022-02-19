@@ -71,3 +71,5 @@ export interface ActionOptions {
   onSubmit: (options: SubmitActionOptions) => void;
   onSubmitView: (options: SubmitViewActionOptions) => void;
 }
+
+export type GetActionOptionsFn = (callback: (actionOptions: ActionOptions) => void) => void;

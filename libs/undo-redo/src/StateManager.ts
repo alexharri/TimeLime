@@ -57,6 +57,7 @@ export class StateManager<T, S> {
     this.selectionReducer = createReducerWithHistory();
 
     this.onStateChangeCallback = options.onStateChangeCallback;
+    this.isActionInProgress = this.isActionInProgress.bind(this);
   }
 
   private onStateChange() {
@@ -168,6 +169,10 @@ export class StateManager<T, S> {
     };
 
     callback(params);
+  }
+
+  public isActionInProgress() {
+    return !!this.getActionId();
   }
 
   public requestAction(callback: RequestActionCallback<T, S>): void {
