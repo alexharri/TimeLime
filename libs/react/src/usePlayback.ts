@@ -1,6 +1,6 @@
 import { useEffect } from "react";
 import { addListener, isKeyCodeOf, Key, removeListener, requestAction } from "timelime/core";
-import { GetActionOptionsFn } from "timelime/types";
+import { GetActionOptions } from "timelime/types";
 
 const startPlayback = (options: Options) => {
   if (options.isActionInProgress()) {
@@ -39,7 +39,7 @@ const startPlayback = (options: Options) => {
 };
 
 interface Options {
-  getActionOptions: GetActionOptionsFn;
+  getActionOptions: GetActionOptions;
   isActionInProgress: () => boolean;
 }
 
