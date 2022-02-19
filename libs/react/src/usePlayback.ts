@@ -73,5 +73,5 @@ export const usePlaybackOnKeyDown = (key: Key, options: Options) => {
     return () => {
       removeListener(token);
     };
-  }, []);
+  }, [key, options]);
 };
